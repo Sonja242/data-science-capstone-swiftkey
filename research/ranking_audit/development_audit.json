@@ -1,0 +1,275 @@
+{
+  "author": "Sonja Sahebzad",
+  "split": "development",
+  "summary": [
+    {
+      "candidate": "base64",
+      "cases": 600,
+      "top1_count": 137,
+      "top3_count": 211,
+      "covered_count": 411,
+      "present_outside_top3_count": 200,
+      "target_absent_count": 189,
+      "top3": 0.3516666666666667,
+      "coverage": 0.685,
+      "top3_given_covered": 0.51338199513382,
+      "synthetic_choice_correct": 509
+    },
+    {
+      "candidate": "base256",
+      "cases": 600,
+      "top1_count": 137,
+      "top3_count": 211,
+      "covered_count": 463,
+      "present_outside_top3_count": 252,
+      "target_absent_count": 137,
+      "top3": 0.3516666666666667,
+      "coverage": 0.7716666666666666,
+      "top3_given_covered": 0.4557235421166307,
+      "synthetic_choice_correct": 509
+    },
+    {
+      "candidate": "local256",
+      "cases": 600,
+      "top1_count": 149,
+      "top3_count": 222,
+      "covered_count": 467,
+      "present_outside_top3_count": 245,
+      "target_absent_count": 133,
+      "top3": 0.37,
+      "coverage": 0.7783333333333333,
+      "top3_given_covered": 0.4753747323340471,
+      "synthetic_choice_correct": 520
+    },
+    {
+      "candidate": "augmented256",
+      "cases": 600,
+      "top1_count": 147,
+      "top3_count": 217,
+      "covered_count": 472,
+      "present_outside_top3_count": 255,
+      "target_absent_count": 128,
+      "top3": 0.3616666666666667,
+      "coverage": 0.7866666666666666,
+      "top3_given_covered": 0.4597457627118644,
+      "synthetic_choice_correct": 522
+    }
+  ],
+  "paired_transitions": {
+    "base64_to_base256": {
+      "newly_covered": 52,
+      "lost_coverage": 0,
+      "new_top3": 0,
+      "lost_top3": 0,
+      "same_recorded_rank": 600,
+      "transitions": [
+        {
+          "from": "present_outside_top3",
+          "to": "present_outside_top3",
+          "cases": 200
+        },
+        {
+          "from": "target_absent",
+          "to": "present_outside_top3",
+          "cases": 52
+        },
+        {
+          "from": "target_absent",
+          "to": "target_absent",
+          "cases": 137
+        },
+        {
+          "from": "top3_correct",
+          "to": "top3_correct",
+          "cases": 211
+        }
+      ]
+    },
+    "base256_to_local256": {
+      "newly_covered": 14,
+      "lost_coverage": 10,
+      "new_top3": 17,
+      "lost_top3": 6,
+      "same_recorded_rank": 547,
+      "transitions": [
+        {
+          "from": "present_outside_top3",
+          "to": "present_outside_top3",
+          "cases": 225
+        },
+        {
+          "from": "present_outside_top3",
+          "to": "target_absent",
+          "cases": 10
+        },
+        {
+          "from": "present_outside_top3",
+          "to": "top3_correct",
+          "cases": 17
+        },
+        {
+          "from": "target_absent",
+          "to": "present_outside_top3",
+          "cases": 14
+        },
+        {
+          "from": "target_absent",
+          "to": "target_absent",
+          "cases": 123
+        },
+        {
+          "from": "top3_correct",
+          "to": "present_outside_top3",
+          "cases": 6
+        },
+        {
+          "from": "top3_correct",
+          "to": "top3_correct",
+          "cases": 205
+        }
+      ]
+    },
+    "local256_to_augmented256": {
+      "newly_covered": 6,
+      "lost_coverage": 1,
+      "new_top3": 2,
+      "lost_top3": 7,
+      "same_recorded_rank": 566,
+      "transitions": [
+        {
+          "from": "present_outside_top3",
+          "to": "present_outside_top3",
+          "cases": 242
+        },
+        {
+          "from": "present_outside_top3",
+          "to": "target_absent",
+          "cases": 1
+        },
+        {
+          "from": "present_outside_top3",
+          "to": "top3_correct",
+          "cases": 2
+        },
+        {
+          "from": "target_absent",
+          "to": "present_outside_top3",
+          "cases": 6
+        },
+        {
+          "from": "target_absent",
+          "to": "target_absent",
+          "cases": 127
+        },
+        {
+          "from": "top3_correct",
+          "to": "present_outside_top3",
+          "cases": 7
+        },
+        {
+          "from": "top3_correct",
+          "to": "top3_correct",
+          "cases": 215
+        }
+      ]
+    }
+  },
+  "tokenization": {
+    "tokenizer_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+    "token_count": 151665,
+    "eligible_token_ids": 36415,
+    "unique_lowercase_eligible_words": 25639,
+    "eligible_ids_with_case_fold_change": 14360,
+    "eligible_ids_not_equal_to_single_canonical_id": 14360,
+    "words_represented_by_multiple_eligible_ids": 9023,
+    "target_words_outside_training_vocabulary": 1,
+    "unreachable_by_either_candidate_generator": 33,
+    "prefixes_over_128_tokens": 2,
+    "prefix_target_concatenation_checks": 12316,
+    "prefix_target_concatenation_mismatches": 0,
+    "individually_decoded_tokens_starting_replacement_character": 1188,
+    "subgroups": [
+      {
+        "group": "one canonical token",
+        "cases": 549,
+        "top1_count": 148,
+        "top3_count": 220,
+        "covered_count": 461,
+        "present_outside_top3_count": 241,
+        "target_absent_count": 88,
+        "top3": 0.4007285974499089,
+        "coverage": 0.8397085610200364,
+        "top3_given_covered": 0.4772234273318872,
+        "synthetic_choice_correct": 483
+      },
+      {
+        "group": "multiple canonical tokens",
+        "cases": 51,
+        "top1_count": 1,
+        "top3_count": 2,
+        "covered_count": 6,
+        "present_outside_top3_count": 4,
+        "target_absent_count": 45,
+        "top3": 0.0392156862745098,
+        "coverage": 0.11764705882352941,
+        "top3_given_covered": 0.3333333333333333,
+        "synthetic_choice_correct": 37
+      },
+      {
+        "group": "not proposed by any eligible single token",
+        "cases": 36,
+        "top1_count": 1,
+        "top3_count": 1,
+        "covered_count": 3,
+        "present_outside_top3_count": 2,
+        "target_absent_count": 33,
+        "top3": 0.027777777777777776,
+        "coverage": 0.08333333333333333,
+        "top3_given_covered": 0.3333333333333333,
+        "synthetic_choice_correct": 28
+      },
+      {
+        "group": "target in R top20",
+        "cases": 284,
+        "top1_count": 127,
+        "top3_count": 180,
+        "covered_count": 284,
+        "present_outside_top3_count": 104,
+        "target_absent_count": 0,
+        "top3": 0.6338028169014085,
+        "coverage": 1.0,
+        "top3_given_covered": 0.6338028169014085,
+        "synthetic_choice_correct": 269
+      },
+      {
+        "group": "target not in R top20",
+        "cases": 316,
+        "top1_count": 22,
+        "top3_count": 42,
+        "covered_count": 183,
+        "present_outside_top3_count": 141,
+        "target_absent_count": 133,
+        "top3": 0.13291139240506328,
+        "coverage": 0.5791139240506329,
+        "top3_given_covered": 0.22950819672131148,
+        "synthetic_choice_correct": 251
+      }
+    ],
+    "limitations": [
+      "Canonical path scores do not sum all tokenizations or capitalization variants.",
+      "A replacement character from isolated byte-token decoding is not proof of a wrong boundary probability.",
+      "Full shortlists and per-word scores were not retained in the archived artifacts."
+    ]
+  },
+  "input_sha256": {
+    "data\\adaptation\\development.csv": "fede576d6e22aa8553aec5c2b6c05314b78b29426ee95bf72d80fc79bd9571ab",
+    "models\\adaptation_base64_development.json": "2d6cbf0a43187ca66796bf89aa6f1a974a0c21571b492693600a8f1a95ca9e7f",
+    "models\\adaptation_base256_development.json": "3a959c6140799cef0606ce4cd4f7b420fe511e49b825b27da6d3f4f96f149c91",
+    "models\\adaptation_local256_development.json": "b3393f6a2445b9d7466212860078bb2d80453af9ad7a7facd68af482776955fa",
+    "models\\adaptation_augmented256_development.json": "c9f0da29f31eb70dcfea99808213c112c3d6f082ecac3626f499804715cba2bc",
+    "python/neural_predictor.py": "5a4280640c49e427daaef398597492dc229af8ebc7b9ef7241bcdb012cf5b528"
+  },
+  "audit_code_sha256_canonical_utf8": "b668608d662238a3ef9728a1f40dbd5bcb469b711d1be4256313ce8901e5d215",
+  "data_access": "Only named development artifacts, vocabulary, tokenizer and inference source were read. No final test was opened.",
+  "rank_warning": "rank=0 censors every rank outside the top three, including absent targets."
+}
