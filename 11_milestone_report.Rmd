@@ -1,0 +1,181 @@
+---
+title: "SwiftKey Capstone Milestone Report"
+subtitle: "Exploratory Analysis and Prediction Product Plan"
+author: "Author: Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    theme: flatly
+    highlight: tango
+    css: milestone-report.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 9,
+  fig.height = 5,
+  fig.align = "center",
+  out.width = "100%"
+)
+library(ggplot2)
+source(file.path("R", "quiz1_verification.R"))
+source(file.path("R", "corpus_pipeline.R"))
+source(file.path("R", "milestone_analysis.R"))
+
+blue <- "#1f73a8"
+dark_blue <- "#123f68"
+light_blue <- "#80b6d6"
+```
+
+<div class="summary-box">
+<strong>Management summary.</strong> The official English SwiftKey corpus contains three large text sources: blogs, news and Twitter. Together they provide more than four million lines of natural language. The analysis confirms that the files are usable, but also shows that their writing styles differ and that rare word sequences are common. The planned product will therefore use a compact back-off n-gram model, validate predictions on unseen text, filter unsuitable suggestions and return three next-word options quickly in a Shiny app.
+</div>
+
+# Data and scope
+
+The analysis uses the unmodified English files supplied through the Coursera Capstone download. The files are processed in chunks, so the complete corpus does not have to be held in memory. A deterministic sample is retained for exploratory plots and language-pattern summaries.
+
+```{r build-artifacts}
+paths <- official_corpus_paths()
+cache_file <- file.path("data", "derived", "milestone_artifacts.rds")
+
+if (file.exists(cache_file)) {
+  artifacts <- readRDS(cache_file)
+} else {
+  dir.create(dirname(cache_file), recursive = TRUE, showWarnings = FALSE)
+  artifacts <- build_milestone_artifacts(paths)
+  saveRDS(artifacts, cache_file)
+}
+
+corpus_summary <- artifacts$summary
+line_sample <- artifacts$sample
+```
+
+```{r summary-table}
+display_summary <- transform(
+  corpus_summary,
+  size_mib = round(size_mib, 1),
+  lines = format(round(lines), big.mark = ",", scientific = FALSE),
+  words = format(round(words), big.mark = ",", scientific = FALSE),
+  words_per_line = round(words_per_line, 1),
+  sampled_lines = format(sampled_lines, big.mark = ",", scientific = FALSE)
+)
+names(display_summary) <- c(
+  "Source", "File", "Size (MiB)", "Lines", "Word tokens",
+  "Words per line", "Sampled lines"
+)
+knitr::kable(display_summary, caption = "Table 1. Basic summaries of the three official English files", align = c("l", "l", "r", "r", "r", "r", "r"))
+```
+
+The three sources are similar in file size but not in structure. Twitter contains many more, shorter records; blogs contain fewer, longer records. This matters because a model trained without source balancing could learn platform-specific writing habits rather than general English patterns.
+
+# Scale of the corpus
+
+```{r corpus-scale-plot}
+plot_scale <- rbind(
+  data.frame(source = corpus_summary$source, measure = "Lines", millions = corpus_summary$lines / 1e6),
+  data.frame(source = corpus_summary$source, measure = "Word tokens", millions = corpus_summary$words / 1e6)
+)
+
+ggplot(plot_scale, aes(source, millions, fill = measure)) +
+  geom_col(position = "dodge", width = 0.68) +
+  geom_text(aes(label = sprintf("%.1f", millions)), position = position_dodge(width = 0.68), vjust = -0.35, size = 3.8) +
+  scale_fill_manual(values = c("Lines" = light_blue, "Word tokens" = dark_blue)) +
+  labs(title = "Corpus scale by source", subtitle = "Counts shown in millions", x = NULL, y = "Millions", fill = NULL) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "top", panel.grid.major.x = element_blank())
+```
+
+# How line length differs
+
+```{r line-length-plot}
+line_limit <- unname(quantile(line_sample$characters, 0.99, na.rm = TRUE))
+line_plot_data <- line_sample[line_sample$characters <= line_limit, ]
+
+ggplot(line_plot_data, aes(characters, fill = source)) +
+  geom_histogram(bins = 35, alpha = 0.85, color = "white") +
+  facet_wrap(~ source, ncol = 1, scales = "free_y") +
+  scale_fill_manual(values = c(blogs = "#275f8e", news = "#568fb5", twitter = "#8ebbd2")) +
+  labs(
+    title = "Sampled line-length distributions",
+    subtitle = "The upper 1% is omitted so the typical range remains readable",
+    x = "Characters per line",
+    y = "Sampled lines"
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(legend.position = "none", panel.grid.minor = element_blank())
+```
+
+Twitter is concentrated in short lines, while blogs and news include longer passages. The prediction engine should be tested on held-out examples from every source so that one style does not dominate the performance estimate.
+
+# Frequent language patterns
+
+```{r top-terms-table-plot}
+top_terms <- sample_top_terms(line_sample$text, n = 15L)
+
+ggplot(top_terms, aes(frequency, term)) +
+  geom_col(fill = blue, width = 0.72) +
+  labs(
+    title = "Most frequent informative terms in the sample",
+    subtitle = "Common function words were removed for this exploratory view",
+    x = "Occurrences",
+    y = NULL
+  ) +
+  theme_minimal(base_size = 13) +
+  theme(panel.grid.major.y = element_blank())
+```
+
+The distribution is strongly uneven: a small group of terms occurs often, while many terms and phrases occur only once. This is a standard sparse-language problem. It supports pruning very rare sequences and using shorter contexts whenever a longer phrase has not been seen often enough.
+
+```{r ngram-profile}
+ngram_summary <- ngram_profile(line_sample$text, maximum_n = 3L)
+ngram_display <- transform(
+  ngram_summary,
+  observed_tokens = format(observed_tokens, big.mark = ",", scientific = FALSE),
+  unique_sequences = format(unique_sequences, big.mark = ",", scientific = FALSE),
+  singleton_share_percent = sprintf("%.1f%%", singleton_share_percent)
+)
+names(ngram_display) <- c("Model", "Observed sequences", "Unique sequences", "Seen once")
+knitr::kable(ngram_display, caption = "Table 2. Sample vocabulary growth as context length increases", align = c("l", "r", "r", "r"))
+```
+
+Longer sequences carry more context, but they are also much sparser. A prediction system must therefore balance specificity with coverage.
+
+# Prediction algorithm plan
+
+The first production candidate will be a **frequency-based back-off n-gram model**:
+
+1. Normalize case, URLs, punctuation and whitespace while preserving meaningful apostrophes.
+2. Build unigram, bigram, trigram and four-gram counts from the training portion.
+3. Use the longest available context first and back off to shorter contexts when evidence is limited.
+4. Apply discounting and prune extremely rare sequences to control memory and response time.
+5. Exclude profanity and return the three highest-ranked next-word candidates.
+
+The model will be compared with simpler baselines. A held-out validation set will measure top-1 accuracy, top-3 accuracy, mean reciprocal rank, coverage, response time and model size. The final choice will balance predictive quality with the speed required for an interactive product.
+
+# Shiny product plan
+
+The app will accept a short English phrase and immediately display three suggested next words. It will also show a plain-language explanation of the context used, allow the user to append a suggestion to the phrase and provide example prompts. The interface will be mobile-friendly because predictive typing is primarily a mobile use case.
+
+The first release will focus on reliable prediction and fast response. Diagnostic information such as model coverage and fallback level can be available in an optional panel without distracting the main user flow.
+
+# Risks and next steps
+
+The corpus mixes sources, dates and writing styles, and some records contain foreign language, spelling variation or unsuitable terms. Results will therefore be reported as performance on held-out data from this corpus, not as a claim about all English writing. Before release, I will complete the train-validation split, compare candidate back-off rules, validate the profanity filter, measure latency and test the app with phrases from outside the training sample.
+
+This milestone confirms that the data has been downloaded, loaded and summarized successfully and that the project is ready to move from exploration into predictive modelling.
+
+# Reproducibility
+
+The report was knitted from R Markdown. The code is included behind expandable **Code** buttons, and the full analysis uses only the official corpus files stored under `data/final/en_US/`.
+
+```{r session-info}
+cat("R version:", R.version.string, "\n")
+cat("Analysis date: 2026-09-19\n")
+```

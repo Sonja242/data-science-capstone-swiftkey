@@ -1,0 +1,15 @@
+body {
+  font-family: Calibri, "Segoe UI", Arial, sans-serif;
+  color: #17212b;
+  font-size: 17px;
+  line-height: 1.55;
+}
+h1, h2, h3, h4 { color: #123f68; font-weight: 650; }
+h1.title { color: #0b355a; margin-bottom: 8px; }
+h3.subtitle { color: #356987; font-weight: 500; }
+table { border-collapse: collapse; width: 100%; margin: 18px 0 28px; }
+th { background: #e8f0f6; color: #173d5a; }
+th, td { border-bottom: 1px solid #cfd8df; padding: 8px 10px; }
+blockquote { border-left: 5px solid #2878ae; background: #f2f7fb; padding: 12px 18px; }
+.summary-box { background: #edf5fa; border-left: 6px solid #1f73a8; padding: 15px 20px; margin: 20px 0 28px; }
+.caption { color: #52606d; }
