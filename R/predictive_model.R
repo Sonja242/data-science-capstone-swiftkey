@@ -168,6 +168,77 @@ predict_next <- function(model, text, top_n = 3L) {
   predictions[, .(rank, word, probability = score, context_order = order)]
 }
 
+predict_exact_continuation <- function(paths,
+                                       text,
+                                       top_n = 3L,
+                                       chunk_size = 20000L,
+                                       context_lengths = c(12L, 8L, 5L, 3L, 2L)) {
+  clean <- normalize_model_text(text)
+  words <- if (nzchar(clean)) strsplit(clean, " ", fixed = TRUE)[[1L]] else character()
+  if (!length(words)) return(data.table::data.table())
+
+  context_lengths <- unique(pmin(context_lengths, length(words)))
+  context_lengths <- sort(context_lengths[context_lengths > 0L], decreasing = TRUE)
+  patterns <- lapply(context_lengths, function(n_words) {
+    context_words <- tail(words, n_words)
+    paste0(
+      "(?<![[:alpha:]'])",
+      paste(context_words, collapse = "[^[:alpha:]']+"),
+      "[^[:alpha:]']+([[:alpha:]']+)(?![[:alpha:]'])"
+    )
+  })
+  for (path in unname(paths)) {
+    if (!file.exists(path)) next
+    con <- file(path, open = "r")
+    counts_by_context <- lapply(patterns, function(x) integer())
+
+    repeat {
+      chunk <- readLines(con, n = chunk_size, warn = FALSE, skipNul = TRUE)
+      if (!length(chunk)) break
+      for (i in seq_along(patterns)) {
+        matches <- stringi::stri_match_all_regex(
+          chunk,
+          patterns[[i]],
+          omit_no_match = TRUE,
+          opts_regex = stringi::stri_opts_regex(case_insensitive = TRUE)
+        )
+        following_words <- unlist(lapply(matches, function(hit) {
+          if (is.matrix(hit) && ncol(hit) >= 2L) hit[, 2L] else character()
+        }), use.names = FALSE)
+        following_words <- following_words[!is.na(following_words) & nzchar(following_words)]
+        if (length(following_words)) {
+          following_words <- stringi::stri_trans_tolower(following_words)
+          tab <- table(following_words)
+          existing <- counts_by_context[[i]]
+          all_words <- union(names(existing), names(tab))
+          updated <- setNames(integer(length(all_words)), all_words)
+          updated[names(existing)] <- existing
+          updated[names(tab)] <- updated[names(tab)] + as.integer(tab)
+          counts_by_context[[i]] <- updated
+        }
+      }
+    }
+    close(con)
+
+    for (i in seq_along(counts_by_context)) {
+      if (length(counts_by_context[[i]])) {
+        ordered <- sort(counts_by_context[[i]], decreasing = TRUE)
+        ordered <- head(ordered, top_n)
+        return(data.table::data.table(
+          rank = seq_along(ordered),
+          word = names(ordered),
+          probability = as.numeric(ordered) / sum(counts_by_context[[i]]),
+          context_order = context_lengths[[i]] + 1L,
+          occurrences = as.integer(ordered),
+          source_file = basename(path)
+        ))
+      }
+    }
+  }
+
+  data.table::data.table()
+}
+
 actual_word_probability <- function(model, prefix, actual, alpha = 0.5) {
   clean <- normalize_model_text(prefix)
   words <- if (nzchar(clean)) strsplit(clean, " ", fixed = TRUE)[[1L]] else character()
@@ -233,9 +304,17 @@ evaluate_ngram_model <- function(model, cases) {
 
 format_predictions <- function(predictions) {
   if (!nrow(predictions)) return("No prediction available.")
+  evidence <- if ("occurrences" %in% names(predictions)) {
+    paste0(
+      ", ", predictions$occurrences, " corpus match",
+      ifelse(predictions$occurrences == 1L, "", "es")
+    )
+  } else {
+    ""
+  }
   paste0(
     predictions$rank, ". ", predictions$word,
     " (", round(100 * predictions$probability, 1),
-    "%, ", predictions$context_order, "-gram)"
+    "%, ", predictions$context_order, "-gram", evidence, ")"
   )
 }

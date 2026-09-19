@@ -205,7 +205,7 @@ This reproducible workflow produces a working back-off predictor and measures pr
 
 # How to try the model
 
-After knitting this report, run `source("13_try_predictor.R")` in the RStudio Console. Enter any short English phrase. The script prints the three highest-ranked next-word suggestions and the context order used.
+After knitting this report, run `source("13_try_predictor.R")` in the RStudio Console. Enter any short English phrase. For exploration, the script first searches the official corpus for a directly observed continuation using progressively shorter contexts. If none is found, it uses the selected compact back-off model. The script prints the three highest-ranked suggestions, supporting corpus counts when available and the context order used. The held-out benchmark above evaluates only the compact model, so the two stages remain clearly distinguished.
 
 # References
 

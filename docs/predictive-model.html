@@ -1739,7 +1739,7 @@ knitr::kable(display, caption = &quot;Held-out accuracy and efficiency by prunin
 <td align="left">14.3%</td>
 <td align="right">0.113</td>
 <td align="right">28800.2</td>
-<td align="right">5.88</td>
+<td align="right">5.63</td>
 <td align="right">166.1</td>
 </tr>
 <tr class="even">
@@ -1750,7 +1750,7 @@ knitr::kable(display, caption = &quot;Held-out accuracy and efficiency by prunin
 <td align="left">13.9%</td>
 <td align="right">0.110</td>
 <td align="right">20631.3</td>
-<td align="right">7.44</td>
+<td align="right">7.42</td>
 <td align="right">13.9</td>
 </tr>
 <tr class="odd">
@@ -1761,7 +1761,7 @@ knitr::kable(display, caption = &quot;Held-out accuracy and efficiency by prunin
 <td align="left">12.4%</td>
 <td align="right">0.098</td>
 <td align="right">19334.3</td>
-<td align="right">9.14</td>
+<td align="right">8.73</td>
 <td align="right">8.8</td>
 </tr>
 </tbody>
@@ -1835,7 +1835,7 @@ prototype</caption>
 <td align="right">0.139</td>
 <td align="right">0.1103333</td>
 <td align="right">20631.28</td>
-<td align="right">7.44</td>
+<td align="right">7.42</td>
 <td align="right">13.86478</td>
 </tr>
 </tbody>
@@ -1850,7 +1850,7 @@ MiB</strong>, a <strong>91.7% reduction</strong>. Top-1 accuracy is
 nine times per 100 validation phrases. Top-3 accuracy is
 <strong>13.9%</strong>, only <strong>0.4 percentage points
 lower</strong> than the unpruned model. Each prediction takes
-approximately <strong>7.44 milliseconds</strong>, which is fast enough
+approximately <strong>7.42 milliseconds</strong>, which is fast enough
 for an interactive prototype.</p>
 <p>Perplexity falls by <strong>28.4%</strong> relative to the unpruned
 candidate. Lower perplexity means the model assigns less surprise to
@@ -2020,8 +2020,13 @@ mobile-friendly Shiny interface.</p>
 <h1>How to try the model</h1>
 <p>After knitting this report, run
 <code>source(&quot;13_try_predictor.R&quot;)</code> in the RStudio Console. Enter
-any short English phrase. The script prints the three highest-ranked
-next-word suggestions and the context order used.</p>
+any short English phrase. For exploration, the script first searches the
+official corpus for a directly observed continuation using progressively
+shorter contexts. If none is found, it uses the selected compact
+back-off model. The script prints the three highest-ranked suggestions,
+supporting corpus counts when available and the context order used. The
+held-out benchmark above evaluates only the compact model, so the two
+stages remain clearly distinguished.</p>
 </div>
 <div id="references" class="section level1">
 <h1>References</h1>
