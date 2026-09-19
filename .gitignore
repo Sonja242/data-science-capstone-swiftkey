@@ -27,3 +27,9 @@ Thumbs.db
 03_tokenization_cleaning_case_v3.Rmd
 03_tokenization_cleaning_case_v3.html
 README.original.md
+
+# Local neural model environment and downloaded weights
+.venv-neural/
+models/neural/
+__pycache__/
+models/neural_*_pilot.json

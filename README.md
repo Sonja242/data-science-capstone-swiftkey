@@ -1,7 +1,7 @@
 # Data Science Capstone: SwiftKey Corpus Analysis
 
 **Author:** Sonja Sahebzad  
-**Tools:** R, R Markdown, data.table, stringi and ggplot2
+**Tools:** R, R Markdown, data.table, stringi, ggplot2, Python and PyTorch
 
 This repository contains a reproducible workflow for the Johns Hopkins University Data Science Capstone. It explores the official English SwiftKey corpus and compares experimental next-word predictors on separate training, validation and test data. Predictions are fallible; this project is not an answer key.
 
@@ -33,7 +33,10 @@ Open the published [Data Science Capstone report website](https://sonja242.githu
 | `13_try_predictor.R` | Interactive console interface for testing any short English phrase |
 | `14_rebuild_prediction_v2.R` | Rebuild and compare predictors, then evaluate the selected model on reserved test data |
 | `15_train_expanded_predictor.R` | Train six expanded candidates and evaluate on fresh test lines |
-| `16_expanded_predictor_evaluation.Rmd` | Current report with separate free-text and four-choice results |
+| `16_expanded_predictor_evaluation.Rmd` | Corpus-trained model with separate free-text and four-choice results |
+| `17_prepare_neural_comparison.R` | Prepare fresh development and test cases without changing local training |
+| `18_try_neural_predictor.R` | Run the optional local GPU model from the RStudio Console |
+| `19_neural_predictor_evaluation.Rmd` | Neural comparison, uncertainty intervals and the 85% target assessment |
 
 The knitted `.html` files preserve the corresponding code and printed results.
 
@@ -56,3 +59,9 @@ Run `source("tests/test_predictive_model_v3.R")` from the project to check proba
 ## Notes
 
 Results depend on the official Coursera corpus version and the documented random seeds. The selected model is a transparent benchmark for further improvement, profanity filtering and integration into a mobile-friendly Shiny application.
+
+## Optional neural experiment
+
+The [neural model report](https://sonja242.github.io/data-science-capstone-swiftkey/neural-model.html) compares two pretrained Qwen3 Base models with the local n-gram model. It reports free-text and synthetic four-choice scores separately, with evidence for whether the requested 85% threshold is met. External pretraining overlap with the public corpus is unknown. See [the Python setup and reproduction instructions](python/README.md) for pinned model revisions, exact packages, GPU requirements and evaluation commands.
+
+In RStudio, open `18_try_neural_predictor.R` and click Source to enter a phrase and optional comma-separated answer choices. The lightweight R interface remains in `13_try_predictor.R`. Neither interface promises that its first suggestion is correct.

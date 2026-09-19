@@ -1,0 +1,147 @@
+---
+title: "Next-Word Prediction: Testing the 85% Target"
+subtitle: "Local n-grams and pretrained neural models evaluated separately for free text and four choices"
+author: "Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    theme: flatly
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+library(jsonlite)
+knitr::opts_chunk$set(echo=TRUE,message=FALSE,warning=FALSE,fig.width=8,fig.height=4.5)
+audit <- fromJSON("models/neural_comparison_summary.json")
+development <- fread("models/neural_comparison_development.csv")
+scores <- fread("models/neural_comparison_test.csv")
+sources <- fread("models/neural_comparison_sources.csv")
+baseline <- scores[1L]; neural <- scores[2L]
+pct <- function(x) sprintf("%.1f%%",100*x)
+wilson_bounds <- function(p,n) {
+  z <- qnorm(.975); denominator <- 1+z*z/n
+  midpoint <- (p+z*z/(2*n))/denominator
+  width <- z*sqrt(p*(1-p)/n+z*z/(4*n*n))/denominator
+  c(midpoint-width,midpoint+width)
+}
+interval <- function(p,n) paste(pct(wilson_bounds(p,n)),collapse=" to ")
+stopifnot(neural$cases==900L,all(development$cases==300L))
+```
+
+<style>
+body {font-family:Calibri,"Segoe UI",Arial,sans-serif;color:#161616;}
+h1,h2 {color:#164c78;} .main-container {max-width:1060px;}
+table {font-size:.95em;} .note {background:#eef5fb;padding:15px;border-left:4px solid #246394;}
+</style>
+
+**Management summary.** The goal is at least **85% correct predictions**, with 99.8% as a stretch target. On 900 reserved examples, the selected neural model places the recorded next word among its three suggestions in **`r pct(neural$top3)`** of cases. The local n-gram model achieves **`r pct(baseline$top3)`** on the same examples. The neural model selects the recorded word from four synthetic options in **`r pct(neural$synthetic_choice_accuracy)`** of cases. These are different tasks and must be reported separately.
+
+<div class="note">
+**Target decision:** the 85% target for free-text top-three accuracy is **`r if(audit$target_met_free_text_top3) "met on this benchmark" else "not met"`**. The synthetic four-choice target is **`r if(audit$target_met_synthetic_four_choice) "met on this benchmark" else "not met"`**. Neither score is a measured Coursera quiz result or a guarantee for future sentences.
+</div>
+
+# Why compare these models?
+
+The local **Kneser-Ney n-gram model** estimates words from short sequences in the official corpus. A pretrained **Qwen3 Base** model can use longer context learned from broader data [1-3]. We compare the 0.6-billion and 1.7-billion parameter versions using the same interface. This tests sensitivity to model size while retaining an interpretable local baseline. Both neural models run on the laptop's NVIDIA RTX 2000 Ada GPU; the text is not sent to an inference service.
+
+The hybrid interface proposes up to 64 word candidates from the neural model and up to 20 from the local model. It reranks these words by their token likelihood and the probability of a following word boundary. A finite shortlist keeps computation practical. Supplied answer choices are scored in a separate list and cannot supply missing candidates to the free-text list. The displayed ranking is not a calibrated probability that an answer is correct.
+
+# Data and evaluation design
+
+The source is the official English blogs, news and Twitter corpus [1]. The existing pipeline normalizes text and splits unique complete lines into training, validation and test partitions. For this experiment, previously evaluated lines are excluded. We draw **300 development examples** and **900 final test examples**, equally distributed across the three sources, with one random next-word position per line. Prefixes contain only words preceding the target, with neural context limited to the last 128 model tokens.
+
+All models receive identical prefixes and four-choice options. Options contain the recorded word and three reproducibly sampled distractors within 250 vocabulary-frequency ranks. Such alternatives may be easier than carefully written exam options. The neural model with the highest development top-three accuracy is selected before the final test; ties use four-choice accuracy and then speed. No final test result changes the selected model or its settings.
+
+**Scope of independence:** these lines were withheld from local training and earlier evaluations. Qwen's external pretraining may already include parts of this public corpus. That overlap is unknown, so this is a local holdout comparison, not proof of performance on entirely unseen real-world text.
+
+# Development comparison
+
+```{r development-table, echo=FALSE}
+knitr::kable(development[, .(Model=model,Examples=cases,`First word`=pct(top1),
+  `First three`=pct(top3),`Synthetic four-choice`=pct(synthetic_choice_accuracy))])
+```
+
+Selected candidate: **`r audit$selection$model`**. Both model sizes use the same context length and scoring procedure. We did not train a separate combination of their outputs, so this experiment does not establish an optimal ensemble.
+
+# Reserved test results
+
+```{r test-table, echo=FALSE}
+knitr::kable(scores[, .(Model=model,Examples=cases,`First word`=pct(top1),
+  `First three`=pct(top3),`Synthetic four-choice`=pct(synthetic_choice_accuracy),
+  `Mean reciprocal rank at 3`=sprintf("%.3f",mrr_at3))])
+```
+
+The neural top-three result represents **`r round(neural$top3*neural$cases)` of `r neural$cases`** cases, with a 95% Wilson interval of **`r interval(neural$top3,neural$cases)`**. The paired improvement over the local model is **`r sprintf("%+.1f",100*audit$paired_top3_difference)` percentage points**, with a stratified bootstrap 95% interval of **`r sprintf("%+.1f to %+.1f",100*audit$paired_top3_95ci[1],100*audit$paired_top3_95ci[2])` points**. The four-choice interval is **`r interval(neural$synthetic_choice_accuracy,neural$cases)`**. These intervals quantify sampling uncertainty; they do not address possible pretraining overlap. Meeting 85% in this sample does not establish a population minimum of 85% when the lower interval bound is below 85%.
+
+*Hover over a point to see its score and interval. The dashed line marks 85%.*
+
+```{r accuracy-plot, echo=FALSE}
+plot_data <- melt(scores,id.vars=c("model","cases"),
+  measure.vars=c("top1","top3","synthetic_choice_accuracy"),
+  variable.name="Task",value.name="accuracy")
+plot_data[, Task:=factor(Task,levels=c("top1","top3","synthetic_choice_accuracy"),
+  labels=c("Free text: first word","Free text: first three","Synthetic four-choice"))]
+plot_data[, c("lower","upper"):=as.list(wilson_bounds(accuracy,cases)),by=seq_len(nrow(plot_data))]
+plot_data[, hover:=paste0(model,"<br>",Task,"<br>",pct(accuracy),
+  "<br>95% interval: ",pct(lower)," to ",pct(upper))]
+p <- ggplot(plot_data,aes(x=Task,y=accuracy,colour=model,shape=model,group=model,text=hover))+
+  geom_hline(yintercept=.85,linetype="dashed",colour="#5b6670")+
+  geom_errorbar(aes(ymin=lower,ymax=upper),width=.10,position=position_dodge(.4))+
+  geom_point(size=3,position=position_dodge(.4))+
+  scale_y_continuous(labels=scales::percent,limits=c(0,1))+
+  scale_colour_manual(values=c("#52616b","#1765a0"))+
+  labs(x=NULL,y="Accuracy",colour=NULL,shape=NULL)+
+  theme_minimal(base_family="Segoe UI")+theme(legend.position="bottom")
+plotly::ggplotly(p,tooltip="text")
+```
+
+```{r sources-table, echo=FALSE}
+knitr::kable(sources[, .(Source=source,Model=model,Examples=cases,
+  `First three`=pct(top3),`Synthetic four-choice`=pct(synthetic_choice_accuracy))])
+```
+
+# Discussion
+
+The neural model's shortlist contains the recorded target in **`r pct(audit$test_metadata$summary$shortlist_recall)`** of test cases. This is an upper bound for this shortlist's free-text accuracy: a word absent from the list cannot be ranked first. Exact-word accuracy also penalizes a sensible alternative when the original author chose a different word. A sentence can have several reasonable continuations, so a high model score should not be presented as certainty about the author's choice.
+
+The measured neural time is **`r round(audit$test_metadata$summary$milliseconds)` milliseconds per case**, including free-text and supplied-choice scoring after model loading. Loading the model adds startup time. The selected weight file occupies **`r round(audit$test_metadata$summary$weight_mib)` MiB**, and peak allocated GPU memory during this run was **`r round(audit$test_metadata$summary$peak_gpu_mib)` MiB**. The larger pretrained model requires a separate Python environment and GPU memory; this laptop experiment does not yet establish suitability for a small hosted Shiny instance. Perplexity is not compared here because the word n-gram distribution and neural token/shortlist scoring have different units and support.
+
+# Conclusion
+
+`r if(audit$paired_top3_95ci[1]>0) "The paired test supports a free-text accuracy improvement over the local n-gram model." else "The paired test does not establish a reliable free-text improvement over the local n-gram model."` The requested **85% free-text target remains `r if(audit$target_met_free_text_top3) "achieved only within the measured benchmark" else "unachieved"`**. A synthetic multiple-choice result cannot substitute for it. Before deployment, the next useful check is a newly collected, representative set of actual typing examples, followed by latency, memory and output-filtering checks in the intended hosting environment. A 99.8% claim would require strong evidence from that defined task.
+
+# Reproducibility
+
+This HTML report was knitted from `19_neural_predictor_evaluation.Rmd`. Data preparation is in `17_prepare_neural_comparison.R`, inference in `python/neural_predictor.py`, selection and aggregation in `python/run_neural_comparison.py`, and the RStudio interface in `18_try_neural_predictor.R`. The comparison uses fixed seeds, saved file hashes, pinned model revisions and the exact Python package versions in `python/requirements-neural-lock.txt`. Cached and full-sequence scoring are checked for both single-token and multiple-token words before evaluation. Model weights and raw corpus files stay outside Git.
+
+```{r model-provenance, echo=FALSE}
+knitr::kable(data.frame(Field=c("Selected model","Pinned model revision","Inference code SHA-256","Test data SHA-256"),
+  Value=c(audit$selection$model,audit$selection$revision,
+    audit$test_metadata$code_sha256,audit$test_metadata$data_sha256)))
+```
+
+```{r reproduction, eval=FALSE}
+# After rebuilding the local model with 15_train_expanded_predictor.R:
+source("17_prepare_neural_comparison.R")
+# Follow python/README.md to install the pinned environment, download the
+# pinned model revisions, run development comparisons, then the final test.
+rmarkdown::render("19_neural_predictor_evaluation.Rmd")
+# Interactive use from the RStudio Console:
+source("18_try_neural_predictor.R")
+```
+
+```{r session-info}
+sessionInfo()
+```
+
+# References
+
+1. Johns Hopkins University / Coursera. [Official SwiftKey Capstone dataset](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip). English blogs, news and Twitter files.
+2. Qwen Team. [Qwen3-0.6B-Base model card](https://huggingface.co/Qwen/Qwen3-0.6B-Base) and [Qwen3-1.7B-Base model card](https://huggingface.co/Qwen/Qwen3-1.7B-Base). Apache-2.0 pretrained model releases; exact selected revision recorded above.
+3. Hugging Face. [Qwen3 documentation, Transformers 4.56.2](https://huggingface.co/docs/transformers/v4.56.2/model_doc/qwen3). Causal language-model inference and cached token scoring.
+4. PyTorch. [Official previous-version installation instructions](https://pytorch.org/get-started/previous-versions/). PyTorch 2.8.0 with CUDA 12.8 for Windows.

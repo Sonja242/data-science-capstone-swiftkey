@@ -1,0 +1,72 @@
+{
+  "selection": {
+    "size": "1.7B",
+    "model": "Qwen/Qwen3-1.7B-Base",
+    "criterion": "Development top-3; ties: synthetic four-choice accuracy, then speed.",
+    "revision": "ea980cb0a6c2ae4b936e82123acc929f1cec04c1",
+    "code_sha256": "5a4280640c49e427daaef398597492dc229af8ebc7b9ef7241bcdb012cf5b528",
+    "development_sha256": "5903af31535d7e274c825dc5bdee5df569737d002df1033fb412463e477f4441"
+  },
+  "comparison": [
+    {
+      "model": "Local Kneser-Ney v3",
+      "cases": 900,
+      "top1": 0.21888888888888888,
+      "top3": 0.3211111111111111,
+      "synthetic_choice_accuracy": 0.8177777777777778,
+      "mrr_at3": 0.2644444444444444
+    },
+    {
+      "model": "Qwen3-1.7B-Base + local shortlist",
+      "cases": 900,
+      "top1": 0.27444444444444444,
+      "top3": 0.4022222222222222,
+      "synthetic_choice_accuracy": 0.8588888888888889,
+      "mrr_at3": 0.3309259259259259
+    }
+  ],
+  "paired_top3_difference": 0.0811111111111111,
+  "paired_top3_95ci": [
+    0.052222222222222225,
+    0.1111111111111111
+  ],
+  "test_metadata": {
+    "summary": {
+      "model": "Qwen/Qwen3-1.7B-Base",
+      "split": "test",
+      "cases": 900,
+      "top1": 0.27444444444444444,
+      "top3": 0.4022222222222222,
+      "synthetic_choice_accuracy": 0.8588888888888889,
+      "shortlist_recall": 0.7322222222222222,
+      "milliseconds": 171.93249211109813,
+      "torch": "2.8.0+cu128",
+      "gpu": "NVIDIA RTX 2000 Ada Generation Laptop GPU",
+      "peak_gpu_mib": 3887.99365234375,
+      "weight_mib": 3281.770332336426
+    },
+    "download": {
+      "repo": "Qwen/Qwen3-1.7B-Base",
+      "revision": "ea980cb0a6c2ae4b936e82123acc929f1cec04c1",
+      "license": "Apache-2.0"
+    },
+    "configuration": {
+      "context_tokens": 128,
+      "neural_shortlist": 64,
+      "ngram_shortlist": 20,
+      "batch_size": 32
+    },
+    "code_sha256": "5a4280640c49e427daaef398597492dc229af8ebc7b9ef7241bcdb012cf5b528",
+    "data_sha256": "5af0556a93ccd28cdd37db8652ba9368b437edae5e04564943825bb831f66b15",
+    "limitations": [
+      "Synthetic answer options are not actual quiz accuracy.",
+      "Unknown overlap with pretrained-model training data.",
+      "Free predictions rerank a finite shortlist; they are not exhaustive vocabulary search."
+    ]
+  },
+  "target_minimum": 0.85,
+  "target_stretch": 0.998,
+  "target_met_free_text_top3": false,
+  "target_met_synthetic_four_choice": true,
+  "evaluation_scope": "Equal-source local holdout; external pretraining overlap unknown. Synthetic answer options."
+}

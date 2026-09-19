@@ -1,0 +1,8 @@
+{
+  "size": "1.7B",
+  "model": "Qwen/Qwen3-1.7B-Base",
+  "criterion": "Development top-3; ties: synthetic four-choice accuracy, then speed.",
+  "revision": "ea980cb0a6c2ae4b936e82123acc929f1cec04c1",
+  "code_sha256": "5a4280640c49e427daaef398597492dc229af8ebc7b9ef7241bcdb012cf5b528",
+  "development_sha256": "5903af31535d7e274c825dc5bdee5df569737d002df1033fb412463e477f4441"
+}

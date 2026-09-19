@@ -1,0 +1,2136 @@
+{
+  "summary": {
+    "model": "Qwen/Qwen3-1.7B-Base",
+    "split": "development",
+    "cases": 300,
+    "top1": 0.23666666666666666,
+    "top3": 0.38666666666666666,
+    "synthetic_choice_accuracy": 0.8866666666666667,
+    "shortlist_recall": 0.72,
+    "milliseconds": 148.17823366669472,
+    "torch": "2.8.0+cu128",
+    "gpu": "NVIDIA RTX 2000 Ada Generation Laptop GPU",
+    "peak_gpu_mib": 3887.99365234375,
+    "weight_mib": 3281.770332336426
+  },
+  "details": [
+    {
+      "source": "blogs",
+      "line_hash": "ae3c520e57af997669dd59f37128916d4e34b221630fd46e11f172d7467fe05d",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "404a1511ce6f5ffd86d6c4c40877d6e6d7d4596cec24cfcb5d08fa195aa84907",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "5dbf5e6a3de8fbff7d034581402e8f70d1553b578fafbac6b350e960b8706285",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "53efdfc43e7d3a9d891c53613b2e7c78ae90ec27cb9e326d2933ef55f1bf813e",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e21d3c2352aec1b2d616695818516467bd92bc7a0be9ba14b45a670003df372e",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "91ad440156f86125e27f47f2ddf1f0e5b14fd218c90922914423b4a0a2640eb9",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "c59a7d6b0c262fda799ce70d497c297119131bfeb94674c6608e0fdaeae462d3",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "60457001d417046f962e73f98893fe42827adb98db431205c03d53e8370201e1",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "0cdcbafdec764a429b5b2ff012701048ab429eb471efb322dfb54c0b60ac0a5d",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "bc99cee6323fbf4be5bb00788b934eb2f9db002843291511a3868224076d2235",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "ab937407ebd30b855653ae58790a86b14e99bf6ed5c636f90c95ce728f398df1",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e4f71e4bcd691eb23ba250a79247b71a12aa1bd92fde614f4ae102bafedaf03e",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "80ce430b42b419151dde178d9d3a9016f6a92d785b3991049ef9a3a166a43645",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "b225ee375b77b15361ca92fb6cafe80a2f5c08ae7a788d4e640e67e4505ce2d6",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "ac62c82243ef84061a913c14616a15d3f12a0bf1c2207aca5a547a85d9b00a23",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "6773399d32abe9c92ddc120cc629121f8566cdbf516c9e94763fefdb7a6bbcda",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "fac823dd6c8e768267e7925290f29d83943bbd0254a9fd9a4fdb3bcf806dd290",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "7b5fedcdfbcbebdcccff3cea41df05953b813b55b36061691db3b088e1c6bd0d",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "97ccf4a522ffc6da1c1c54174aa1a7b514c46c84e2ab60d02f351be586b429c9",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "011487688c350a382dae17e6545587b9909ac3f3a3393737c2995ce38b50b739",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "bcbfc062f3b7e9ebaa45934b7020fb308a219d1211faa6f521e2bef9d3e42a6a",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "4125d367cc11d2d1b0e00cb666bb0e53f3e2f62f55f5e8144c05cb6a6009d4f0",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "5a3c67dcc80c585abf8e4766b1e3f28bd8ebef804ae2ba6e943965477b76d54c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "f9513c7bea1384d7d5184da4d3908679b03e5fd54261326aec8901ff62ee8a11",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "5435d30522191b41cb6af3981ac971456141a6034ef6e4e071108cd9549ec64c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "3d033d2fba1d7d5d416c96a22e0e95b1afe41d77ab1370a99a7b9cb137a11e5b",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "f985106b5f5777f39d9a0e465f169686257f83c610d1df6939ca7082a2b9a49d",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "f817014eb31be2c03bcfab801ae3709933d2f2d69baf9c30cff06fc8eff40218",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "d2db40dea08ceacf9bf07040ef77716eb5d24a1488b5558154db4f5446a471fd",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "23f2b3b2e27a79e69310b0371b9d026c487bfc8facfebff4ee0455eaab15637a",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e2f87d305cee88fe586e6c347fd1ee4e8394c0950a31f2937dc02f2f109acf02",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "b403e88533462902c4994199a1ca9b1f9baa3f25c0e949f55a695db864c6f102",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e05b0c43a006cb110e70a5f71d939b3deea5797bbc16caf958b5c21d29810ae7",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "b2916897126eeb107abe88e2a147aba1d7688be8e1e069480cd52ca679b29d76",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "7359c562855c110df4b8dbabcd69305539fc57546b84f87ceaca25c4b49d9ad3",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "225d543bf8dc5d6dae62e46c0ed4a6e627802e8d2766d2958565b32f74a335ca",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "9070a5de4840079f827b965dd81b1db7b871a63af1f282a7166318c7f318cd27",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e30015635ba8be9f6f75a53b01ad699dfb7051ea8c5b6e2a3ba0135f2da26fa9",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "cede55e08387ea49a48718eca6694be41ade82cc0570438dc395f92ad035c78a",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "6939c7954e832b07bd81e9f1c79654930d3f90cf3aa1dad3bd07fc08fa7ae7df",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "9bb04bb764bd985f3a5ac3b6aa7987b3477be7f2020da73656ef733dcf314fbe",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e9e5ac14f1f3f7fc8788901108cccb17f418c1f9cac697da8effcf986521d7b6",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "7e4ea363f5f66b23815daddc17de9cc7aa65dbced6b441e3179793d71f16f0b1",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "636ef4ca2fe98438d98aa2a050037515119cecd4da24210b8eb2a81d12564229",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "22b532d2532ac70c999215d7d7b0990a03010fee0321f371a4dc1654de54bff0",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "882e447729cd8ab2a3ffa9db124367d4924a1ab54c967fa900832541b0211195",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "97e6aadfdfb221f2e660664986ddcbc92eb7259f7e814c76d74e20e98c151e6f",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "c0ec705efb5b067867ed107a9cf257a202f14ccd19f7441a47e7dea0abd9e9cf",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "d8ba642964a04d9395b69ab4fb06ef0ea15a6d8e0555f34a0d0923809dd62091",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "eb8233763cbbab9fb6f713d2d2eef7cc343869bbdcd47c5c2d8093cc14c0e751",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "3f2dd059ee2d555db3f33a4f6b55e62534bfa5f9ae2d97e1c310ca0a73a28dff",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "a3eeccc06d581afaf1c6f68d06e991535f2cb4d9e9759b94badcc3ecb803daf2",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "18203b6b0b3cd354d68b77fb361d315259881cae8af6f99229d56e771d1633dd",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "5c368ce91ebbdd10a2af8cf5fb1c886253850b4d8ab1203cd66a54684f462e50",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "853b7ac5ab1ee56204704747a83130e7edb81b0063dd8ed11a1327b949c5203c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "1ed6c471378d095a988e752be0f7293cdc5598a203c6857da0319031d14ad6c5",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "f23172eb7b92a15d42c77b3eef0960365b89aa9cd2812270864d2dedb0041040",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "01196b161f807fc9ae5152de2afe469130a8b134b455211e742ea07ef00ec2f1",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "2256b636a109433598b031360e43ba6f221b96b9cad1f71af354d1c8ad37b8d9",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "10a94f8fc8378b95f41a3449607531e095fd6a927da0a00ea09d0f10278f527b",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "faa41f9479d64aafbf4e9ef304ab563f81e9a64c0afb8170012159001dfce4af",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "0efd3b492d7d23dcd85a15a7975977e640702ac1b946ee98b308d574f0682d77",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "ba8c73ef5c775810443bd69f4ec445b0eedcf00301c950e4d0fc65f044c14883",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "07b3abb79bb42aceefc62d76d3fb3650076880878ced4ab81e0b70f8b9f0ce57",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e74018b361094dac3a9f220b9ff610b7de31a84aa677c3fd69bfca4053d7e357",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "3d483b21edebdb879a73ad8623911e3b253dedc0a0b1026569b3be456915874d",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "131a1f1ec91b145bb88fdb67eac59055a3a84a6e8b64794283a35f28145a2051",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "d51f4c26db062aa9b2ba0ef523f6ac17d306e37d6f16c7a9c78b6edf7bc9326f",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e916161a9c11e13907d8638e86dfbe34cfc4c03b99646cdf18b47b5a01f3ba05",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "916ede6b1b9e05946a8421b61c81ddfb761bfb96f6f641ce049677d92498c630",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "f29b73b29c13591ba334aec0f4a50cf67a1ebba202f36ecb6513d0560697bd24",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "50ad573552bfa019161567ba5b12225ef0c183e186a304904e61694a452ebf3c",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "b980287092a5e8de7cef200ac25d32287e9aad694b017af037f089c4786d82e6",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "2c1d9ccd2fecdd7d7b96717a411291a67f28c6acad4546e56dba9218708b6167",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "72f4cc423ab73c0011b39d2dc2523da0c1f2318686bf3bd553254db47428a5e1",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "050d7943d4a60dc37f41b4b7fa09e2de7f985d4b54ba9973acac2f9d85cd2be2",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "75d902b4ee9a22692cc703f84478f790be338bbbe169b9c48a64c3019e672e34",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "5d72aebfaa9852255bd9829da5a0c75d14d67f6aa2431b1860c444c1c2002211",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "5ea564a1757babda746d617177107551163cd475385ddb7a1be57c9e0b4ec4a8",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "99300b05e6f89a4a4201acdeb8a760e7e95bb673ff53aae0544a52b9ac2715e4",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "6e64d22a5a3a646b8942061906b1061a9618a274a50483f6d3c197c974c81531",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "f22e14a49337f242022d7a19c1247d48da0793168d8306569b2747b2456b9f7e",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "38aaa63e3b7ea387f13a3b16a5b5d6648ad224a4ba692754f25a40bfd557272b",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e6200e4c61ce6f0af953cc05ee656428edd5312cd2eb4ea1baea41f3d3312400",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "ed6d660d63fe9bf5ceee8a926cd09d3e5382b0f7cbea7c71ec70bc90d88c2312",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e150933990fdb6014a30d272a3b7da068d9968cd28dbe6d1b7d2bddd680490e8",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "597718a6eca9e77076965b5a1704c905b9c853e9f749c375aea50829ece2ed2e",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "d5cb3a14b27b30b04a48e2f250f16b44380cd198116d806679be5adc9bee93b2",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "8c171ff0842ceb2d1252fabcf9b2a9879bbf3e1e9c6ed8302850f565ea7592ae",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "0120c6d2474e9cfb5002020491f3ef1ddc826abb47be31a95a4d7ded7c4e9978",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "8b129a33762307dd9f3f0276b29d726a06336b9a23fe9bfc3085a82c5293fcdf",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "ffaaa8e9da91e136d73a57858b9f2542d2b120e31fd4ef500b0163cd167d6e3f",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e49c3e4c167a5926161c68329a8a909221042d834ab5cd7cd838a499f5f0b25f",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "b5b326671a69f5757363f1cf7d7961d5d464f19fff0bcc0ef326fe2dff61f8b2",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "af424af06101b2c97b1dd11ec69b287fe50f378a35b6d9b2a32f3bcb592d676c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "92ca4e157a66b7b266028ea8d047ea613c395819ef96c9680d8c1dcb9130fb92",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "8d18fa3ef34718f638d7943670b65258070294f4e2ddd466f6f1eaec5b953b82",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "blogs",
+      "line_hash": "04bbc368628f15d7b344634e9d3a4bde98fde2b528febcc673d1cf02dc962d5a",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "80c616f8368c232010ef3aecbafe5333655397cd1cb0ee76f528633054eb446d",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "blogs",
+      "line_hash": "e9ecb523721638256ad459bc362e7bcd3a3b23329ee707077dd8530e8fe77c9d",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "e490d5259bcee02613df7558fcacadcfcedbef87d198655f47cdb1395644a99c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "3a4f106ea9c45b1f93334cfe8313f7a123647d3479c98895dd7460ed82501561",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "b8d57ae58d1ad7513c1e3b106bed97685cad4b7a68b26e3c0ab71767970dab1b",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "e5265e014f7be90bf78a2473207d23f8bc55fdbf150fd527997bb5dc289d7a34",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "7afa08c7149a0519d56166adeeedcd22fd5da1c7954fd658547ab9ae1f17e12d",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "d7aab462040586cf6047b1f439a7fe5568dcf5ede7ff5f63d2a49f5fc5d40653",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "817eb3fda6ce59d227dd93cc44ff58e9bf86fcd34c9a4fb8b87cea05bfe47e22",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "94d370f51d398f4bb59d18fa6f792fb1aee0c09f5302852473ed46ac286351de",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "b8c58fdd039d25f91f2670ce870d4e1771f2509d5549c48547fb1135998eb15f",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "c1a5e7469a65f18686c853f2664bacf34e0635bc06b83efd1f594c19060794a0",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "44a95978a5a7ba00aa0f61616b2f9531c693e00d64d59f6f45a3306c99491b15",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "443b5662e1111dece1d1646b5f771a422e3ca8ad0827d21528a3f32c07196ac7",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "46c113218ba2f43cad669e4470e99d4ceacb59e0c9b7b7fadae4a344a8281600",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "8c2d864c952d6d218b2de107654179c328bc1b5f37473d1a8d5c5ffeae987b43",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "b73e32d64ab80467ceb6739531b97ce84f5bb37d8263db42389f8d9ea5b832c5",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "635362f971667df5df123600da341e902a567ef1a9fd8feaf4b8ec4e450016f0",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "3e562fc35f246f9e7a1314fd107cb50a03afe4550f4924e284fc1eb10d2f2d40",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "61c2026b6f019825fcf8d3ec4ab64a3899699a2226a4647eafc82d4653928bca",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "8f74e35173554fc961065516aa0c481bc7210a574932cb01520fe8f628039f2e",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "fc1946a424b59f590ad9acc7754cd6e5db9908f954a64c08388f023e903b0153",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "6d3e1eb7458ee649ff94a5fecaf8a19bc4eb8d28701be0bde727198d359d999c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "d672430db12e99e5d58e21468fb34fdfcb8e9f16d85efb5dcb31a402f340a801",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "4fad73934f00ade53dc908bac458521ac2ecdae82d4fbf882681c119f33d2a57",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "9dcb851a99aa16860b09c891f79ec72c9a45d306e5e290241c4e332812addedb",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "41359140ef2b88a39f0c09907bf925b0f9edcdb33411eabe3bfffd3983d04957",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "f680addf883f7b2fd6a4980e4c666578a05968568c20d00a4433d8aa8ec6aad1",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "9395df8b68a175ed6b48fbf84db8a451860fc1a8955b9610350655575d78d5c6",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "769e52fafc2e8103df7757864f7b2d0efa80405ed9e546a0963d441daa2946fc",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "779c094fa0d9a99c1196b358dae1be71ef81df874789349a6075988d160eddd1",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "b4764c17f97fef8583e1281c0a946bc48b0725dec24986b6b6d7fc1f7f8cf06c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "918cb77cab6b64d82321c335a8291260d3cb535b73ea67c643a0e4074ffdd1e0",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "16c46999369a5f6cf3db4e7dd17ec12ce6744dceb6bf4f798f5fdfd6f1bb4de5",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "a01095fbfaaed467d820521575a5c643ade00fd3cae67b8f25d9903a6cfc73f8",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "8fa3e38557e282210d02167ddfda8956f346be326e727cd9594799dfbb5f3d43",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "1cca105f17f6a6be3c106bee3add54335521ca82967e86425c147f3a85ba3ea1",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "08baae1bba8a2aff237d901b2db9c21482513974c3b1ffe4b94afcc865fbef82",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "390c372436b81fae387f1c058c6724c79242d8a54181e077c749a4f2fa3829ff",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "1b45a74a5318add58244249cdc53f546c92a50582c192d00c288d66c6ddc8af5",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "885c07c6967898973602ffe8d2a0f84663097da1b5a49dc1a3fc13147414c438",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "b0144a7a39b8994dfbf0cd4f973e2745d2fc62610f30195fa2a2f3d4b013d614",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "8a6d801e1c46af1438a2587128a21845c867d2a0c5a4f4ec9f843186208d7869",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "b62fc89110fd6ef55c735bd7ae8feb7e8b6d9ad0c7b19aeadb5b49f077eb2409",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "868a154e76b694e5c0dbabfaa978cff2add1d2ab14b1af0f79c85a8388e5c440",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "8642de6881ad2c44aa50fbc6884517061250e67906392e05e16aedc1405032f9",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "33defe2e187db67b4e1c2748bf77e2d9a75376dfa59d119bd88291d36c18ee24",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "3e17244e2513d383e7fef90c94fa35c967fb5ff3a5a53c99d2d1d8f36b5c0618",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "71b486e15d282f267313a01b3c023bf337df50c82f2691dc519ade848823a8bc",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "fb255d0b8ea0d4868f6ec9c0bf92a5e45c52dc64758238c8172daf42dfa9a05e",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "a7ec9f2fe2b7ade552ef809b52f5c5d30d64ad7b8a749dca0dc19c9177fce10c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "0148e14957469222d6b86804cf4d3a6e5824515a38fcab5a2bbb99fa2b2441ec",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "d5ab52d8092f03619ba4b5d14e5acee8beb5bb9f2a43c87b33d384e798ee839e",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "65665f94a0a5d4c0d9bb814ee9dc1f693f3bd0fedd225d9c7987c63bfda61abb",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "174b86a91075c24ee5ff710595a5d0a0bfaeb9b1b1808948824c4e3ef967b874",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "3823e173055f559c68d3b7f482f705b1927d99533956146130a44f751592c586",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "798199ac3d68fe74a995a471fcb4021a81093083b2ca46b37471e78b6cf5f2d5",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "77d5eaeb6aa46884dd415dfd7cc7abdb252ed9a803e92ea51d939e24aae1e6c2",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "af8fbb06489824ba9a3657c58d18598ca9d4c558ae3aea93fb7c4a17431bdc1f",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "13c5e1d64d0dfa697af1fb301fef03fd8bc81c5628325e6461377b8037be2389",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "fb3da5a2072f6c85dac2797030fa8343143fb3275f39e01efa05ac44e0316557",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "99c05296a811a338c2964bcbab0090aa4e8e1e83f145df293c2dde12ba9fc8a5",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "6a007ef45f6233c604a3e4512da3297efdc260fc075694b7f915b5326dad63f7",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "ef89b83a3125af1af9915eb8052030e6a76a2d8394a4bf1c76b6e2593c4a5073",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "b4f399851305c9992a171b3d77b5cb5835060b5a4b65e49aeed2193a7e0075a9",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "eb7fdaac36001ed97da587f21245a0178e922536c83edaa6f36a27762c638f7e",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "71ed2f3c600e8874187ecd56614323dcef00755364ebf9c33c0330823b9b9ed9",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "ec32d0070151c04dce7a0b4b9cbb8434f8206d4af131267fa4bab882c114660a",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "1fd5515a3edfd9026bf851b0bec5b572e5b6987f9cad0bcca6c6fca8aa33cae4",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "1c90223b241446fb6887b7164dd021d877910cec68f80fdce1a058387da625a4",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "646d7e31f7625b8df38705f4b02faf07dee619701120cf9f8d6c83c9e2ef678c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "792261c4fe909a8cae24935270cfe410e9d62c0dc31b9e6631c900d243b821ab",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "403082925f06898d728b60582570768aeeb077ab084ad4d7c20be5e4cf72f361",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "2496bfe7ab342a75dc42d8b50e64a3f6fc1be77db1da5bfdb8b1332c6af3bc81",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "e3d6ea5ff572a2f88d1c3391db473fb7269ad7e9f629e2217c637e2f6d1af47e",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "88038a66151a34010714ebe96aa261b20ae5b0b02d7d886948af7058a13e102b",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "1c3338077bc9ed27356c9ca5e395044e5cbb48f3fe0568949a219662bdefefab",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "f746e80cc13a6ced8b803dc6d5010ebef07dab714a5e25c5a9312d652afe3f9c",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "38be62e09efe79a6f3a3a9fca9ec46a5ec3fb9a3736d6624f0d662d5eb010a1d",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "5d737fca81e125bb8d48eb9f9ac88614d09ce66b4bbe5b142df8d1c1b4985295",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "cba27c17d31b4977e3363f25d84e3f8e7b2b5751e7ac6637b0379a4f537a18e2",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "468156d55804e7bc2c3cc4c3b73cf6b6f8b25dc378ee758f0144e52873668dc8",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "373803cd0249164d1e64f68f9ca75ab4f3d780fe396053ec71502757fdc665f2",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "cc2ef4e4e0eb6be1d436b52b1dd448f844b8f1db642c2dc03523e292a06a8c13",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "cbf72a10c2626c4a418c701bd1ef317164b4a7a6ee4eb47035c9924c3603038d",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "f937aef13d6822ab558e72e361aa8609f913dfd3b7afa82681dfd3e2dc9d07ca",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "f1efb21d6d2aad91dbe8c462437042ff14a4f4c2a9759bd08ad3b63f28eef29a",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "1a8946ed05d017f91d338eba2ec57380521a2a6f19e066f914e6842744c7e906",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "be36633f32403c4f3b689e90557a18bd405a34497461aaa9b9e021d3a91e48bc",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "6eaaa7c579358e54437b0383df4cb930ba535c4d5e1dea2952fbb0e34689c364",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "6546db800586a74da9177cd35cdb799044e8cd0d8c5ce9698bbc88fbe14734c5",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "0008fcb463018733452e6bab1d4cd0c57300593a985482fdbc3c7289b0eca2ac",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "5fb99d5e63d3b24d38a831b11c3e2c82e43a069bd3963dd80a71490066599971",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "eaf0873792e53622df509586384c9f4d58a0fd63dca707746fdb2c389cb34872",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "2011c9ec220d87cc751c6cad03cd0cdc7867150235debbfc34d731f78c6e10a2",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "4027a378fcf25344714bd1b3bac33af55539863422f45c6a1e94ac91e5365440",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "9827949d730d266700560d3ce37382edc02a96ba6be2f7c5b590138ca05f4352",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "576be9f99e1a68011da8af4fb1333d14982963012a38546e9783c9a3a776ae16",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "e5c2854dadc0d6c32d60401e1a23c61d2dfa013fcd0b1560c3fccd913aa5f29d",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "e772fc7aebf8cf1e173df6fc59d38469d9ee66ca4c4a43a4ed76a766583aec5e",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "news",
+      "line_hash": "44d69fb6f45ecdb80725697bd599f3a1271fef0da7326a893e381774394e86f3",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "news",
+      "line_hash": "7bdf4fa2d398440c462c1972938d3a20e8d4434b3e3ec4c33de8465c6f41bb3b",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "fc46813712df789a7d583ba3c590981b518202865de574ade109bbdd85fd54fd",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "9e74d49c2c74ae4b46f9259f01da5056f76feb65a71d48edaa5a1dc6f4236e69",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "57413c02cb3ee476a1b6a3513f88bd32294fbc960cb95618b97c32cb4c06818d",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "1ecc1821a283488b011c6c3e5123338d68eea1ecd24cfa0995303d41d0b3223d",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "5f74954d0aaeb6d0abbf521625512568c6639fd25582759407e6ef4299d27559",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "fc7414b2de27c8951a1a1fd4ac6386d5db86289c28551ea84153107fc57fd76f",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "f61cce0928c3821e4c28e636caf210f72d07b43c9d3ad4cc02184d3f6b7b1857",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "4d00056b45e3afca37dc539a3344659345785b361b5857c1a7995771adbfcdab",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "af087f10b5658a5ac7b39e8b69c445b26c39742235d70e78283c06d2aa1e7b1f",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "cb0169ee0ada54619dbbebcd0293f526d753d405eccf707b1a2c972aa7127cc8",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "080c8acfd6db717c3885af8cbb8f86000569c2801b823612855b0e246fcf64ba",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "c469d1c65e1e7857b6c82978d49c29ff9a8f38e15cd0215658a1a0dba321e72c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "1c0d53d37f75a2488b01309c885db0a1e497de8bd01a9d1b09e2c662cf1729b9",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "c2233b64347735f2b936e22a08398de1301c0d6451b1fd562a1ee14d9b0a2ae2",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "8838b495e7356a28d0bfa827c6ac04e9b2b49e86b645a761767df6b1e9af0fc3",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "0fe3e0ee365655574e3bfe04dbaebd091b1495ffb594d7022125073a36e209e5",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "90efa1ed0cf02fb40c2c3bf7f9269587617b16ea067952be48621031bfb2ffe3",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "df32c18eb4e33a8dfb781147973d71971c3836fc0937b7dcbf43d75ea020da46",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "15b26360ade5648ac7f450c1951801ace0ed61c0affdd908fd670811cf348c6d",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "9e7001d7c51fd047e98603c5c63e6eb107fcba7bfe99c91689e7b6f954ea7536",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "f7bd4ac6a4036be9e0e9195def62cf26983d26cc86ce92eaa9833b237b788c90",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "8721e89ff7cfd3e2a66579be46a61969aea592239be7cfdcfc537c11b944a176",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "3762ce109586ccd9bc240bd569ccac5612a808a769c679338a15c16ffc3ff6ab",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "64732d31ac18361f99e15274b92175b4f5151d1cd0fa250954dd6cdc0ecbb329",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "c232df9f7df69d42ff21fdb3e9fbe879fc4c266b5712d8d1f66cad6302ece0d7",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "d44c45249cfcf093a5d5385dbcfaedf78798cb51029d94bed4344b1356533543",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "93faa101be934042078bc061acd4d7427a7ba8b56f58e324dae315350636484d",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "98f799bfc532fe994566f661e93a5ca172bfac41673d782898ed1aa629518449",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "d22df51a3f0e2e9b3ea7473fb6f6ee72a948881bcb8a0eaf74ca439a5b5eb5ca",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "bc3e3526f8e29f7007d467a563a93fe4e7f5d048a737247156650609d5cf325e",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "2391a3b576442fa46e05642500891939d38c71c1b11d6ac20e1d9ea79117ecfd",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "015bc5d149b98a35b5c85701b706f1bde83070ca557755fd84bbde5e1ae39ec4",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "159f402464e559b9e9e455d5f8c59a8a0766c7b3f11b0a41b82cb04e300dbcce",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "e8165ae63d58da8fb77603299105b80c51c5c3547b247a38612797131103bcd7",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "ae77f5b3cd8304ba16be7cbe44d91a5a6e6a2a42c9f749fcc1752f756f6fa049",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "d2ffa268dc0aaafcdb6fa9e78addaadb01bdaa9bb332bfe0e3412e7f9b62c81f",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "9ed028ae5f75f421c9fdb9bf0f865b34cc526956f85675ad79d73232dde3d9b8",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "befcf929a909b7ab0ddb57efe57f360a63d911599e4f7053df48f3d6c8b3e4bd",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "19cee558316a19a90c21f00c8d0555a946c279bc69f6183bf998d0c6bcf3afde",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "8ade94e833a65643545a81020c4da4832da6cab653bbaec79e5411e592feb526",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "153db216cfc7674e207c9a1b6846f6f7300a05d271e3dd1716a57bad7aefbcfa",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "d6a1ad8ee0f62c5a5241988cf1511fab60ec673bb8c8494d9ff3a37fe94fdd52",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "c776ee0f5289d8986a0fced420048df88e6d03ae81c37841c14b212bc26bb06c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "954f7b4e73ece3936679a83913b9bbfa3c603282b3be99bd322787c711fd5a2d",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "461ca0c5340452b2f9564691d3a1ea5d76ee22bf5e56f392b2cf72c5b2233bb3",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "c84849fcc0e4b77b3dc635ec9f6452641292e8b4c406fdadffc71fc126d5c3a4",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "bfdf8aee8f293151583f06f4aa18360d0d4046bc2d701d67d4700709a411384c",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "fca1c6dc5553a6d24ff28cc9922a67009e7ba4fe582b67af2fda62812abae1bf",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "e3b61321f4e325458b2b855c4ebf565e9591578dd79a182796e1e943af5045ae",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "6744616378e05c553415480fe4488ff2bf6f72a18cf6c5f498e1a65c8ab1665a",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "d92c9d166bb003cef77621be61490a17a597943e58f0f712f2d05d337cb9b246",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "b9e94833098cb45c3d239edc1b9694325137bc1943886b4b9b2d2ef247f027b3",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "fc8518aeeb1c0811e3fc70d8eb54e4013d0eb6edf05a504e8f0cdfc8d76aade1",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "7d676f3bd6bc22475bae0438e581f523734236f8942c7816737965485826d5ec",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "9d9e772ff48a77996f3300d5f843af5cfd714c34d0dce424a4bb27bfe15c04d1",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "bc9cb62cdee43ecd1f613596557fa13c2ce7533649fc1422624ab62be2ec889a",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "97e1148def9ab1f8a6866bd4b04c1701c91888fdd020bac5e52806d4819591d4",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "d9889a6f642fd2d21692903e6ec62625d487d0e5d4f53349f5a72c6488d4fa52",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "d7d5591b7e18487bac7237f85f135e0b87852e089b02078f0ee20cb9def8d1bb",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "36762779d14d4210ad724807a5b7d4ec1cb0cc9582590b1f7145906896fa6e70",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "714e4f33a3aeec0135e2bbcb87d995442ab41488580568074f86a36a4cfb8c42",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "b6f660fec65a5cb5b441b5660ea8ec889471afd5d86cb57509ba048a36cbc83c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "2fd95b2c7effef477cf545137a46965aec77da4944ff596f2b4a58da722530bc",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "1bee258df8c5e30aaa93890e6892cc737aa18abbb0943179fd256b03e8ee7255",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "5399ffe77f554d0ea907d1366470f506e895c65d6e3e4801a1486b66968c943b",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "a212b4fa50f32c5b0ed3ee5789a3c062c9e047bae990705b2aaffaa9ad6151dd",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "d28497f14d71f7c927414c97b661793a80ee5e3715aa9335f2fd65a54a3a68f0",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "f470cd3810f1a7541a77a1a70d5c3799b0ca039526f7ad28328589731f321d01",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "bec82e5685af7ad9d2d0cb823f9db00f6b66286bd755428385636fea9587e08c",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "b35def234b827825677c9b5329c10ac51036dc7d91c3ea2a24bc3a51472a8c3e",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "f77160d4e68409f77ccff70cc438c8ebd2a26cbf3694d0802fede99399048abc",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "fe5aff29acdea22c909626d30e02b0fa62e9599c1881cf50b3e818d56753aef1",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "992537bd3c08a24b36376cdbcf4c76c2b8d1f38eaaf7fdd1c22a991e2c40aae9",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "1b6b0b752b453a1c0c0d58a5e287743f7644fa2ea2880ec105573dbdab92d467",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "b60c39efd90069e94ee20128331a88a0056cdc574450cdf5e3ea16daab1270da",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "4495255a00cc41fc30dcd312b4394a577439a4a8db79517f507984c93eeec02c",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "f0836e72a0f89a5a93ab4a7b189dcd7f6f070d6da5dcdea26126e87a7af095a1",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "1eb15f4f5a318191b324be7577cdce6e65afcb0ab89bb7b1da08303272112784",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "8cc01d3ab4ffa7542c132d2f82c3e1da0f47776306f4f18fc003b663607277fb",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "243d19fd81a31e4513860c1249e6dcc70a5bcadd8bb63af7ec5a5d8d8fe24c8e",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "02d105af3a98cadf801866312213f976257e47f03e4b828db08e2a484ab62546",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "8fccd47db8b4a44812919b804ff5f686bcf7c9648b212c310271f2a680c03792",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "3cd53a8e4f01ca5fa56fe0eec0bc7caee9926a002c6c90cb96234a510c996538",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "a2bef8e28fbb5d555e10767ce85e5791020f2b375191aa688d9c3b7903839497",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "02b7325e147743189ef2d9456ce7f97f1025fc740dec5fae100c1b942356a1d7",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "c38c28b430e7974edb02d8fc1a9af79e592f9e030ef08d84b77661b5e01d62d0",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "4fccfb8b8f560e20124005595bdb50118a8c9dd05e3c8eaf09b3e6e6c9c065eb",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "d81a456c473704c13e64f58a863bcdc8ab26f68b7ac64abef3029b79f8902df9",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "c42de2fb4a169c608146319b5e180dffb5a1893e7c3054d106eb1addabe4738c",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "fc089b16d18f19852778d2095bc433d7f9e19be1e899d2219c10616d41e0eae8",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "9e6a28f6e97f866daf7a6b41574598fa30e1b559882794214a662356279caadc",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "2aa634216eed57e3107faa85b1c819aa6274ebec80d3f5668c190bc2564db66c",
+      "rank": 3,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "91152c9c4e1afc80091a1de726125132b0d84099614d68200914cb29785cd8d9",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "0f6b7465a3a7b23c77e94545930eb3ec30da6e2d133c2d9306372ea3282a1f63",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "fade268384fe6eacd7a1cb3fbd3482965a032f23df35a526d0160b8d8ee3d7a7",
+      "rank": 1,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "a8595d2174b0d6ba6ffeed80ac86d1fff7714514dcf6df2281090c322ab31e2a",
+      "rank": 2,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "13c34d75f95b263fa6141ebfd8e8f3568acfae8a37bbb798af417aaab1486177",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "4fd90246709525f1137cdc77cb6f39433cb1796078d239b7e03dcf05444da0e0",
+      "rank": 0,
+      "choice_correct": false,
+      "shortlist_contains_target": false
+    },
+    {
+      "source": "twitter",
+      "line_hash": "223c4116eaf76a1e5c6175629542a62c0f2a757bae294a94fff404dd1d0d4487",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": true
+    },
+    {
+      "source": "twitter",
+      "line_hash": "d741e992ea92557e4c1bd63c88b3dc51c36af076287666543625392d2502eb18",
+      "rank": 0,
+      "choice_correct": true,
+      "shortlist_contains_target": false
+    }
+  ],
+  "download": {
+    "repo": "Qwen/Qwen3-1.7B-Base",
+    "revision": "ea980cb0a6c2ae4b936e82123acc929f1cec04c1",
+    "license": "Apache-2.0"
+  },
+  "configuration": {
+    "context_tokens": 128,
+    "neural_shortlist": 64,
+    "ngram_shortlist": 20,
+    "batch_size": 32
+  },
+  "code_sha256": "5a4280640c49e427daaef398597492dc229af8ebc7b9ef7241bcdb012cf5b528",
+  "data_sha256": "5903af31535d7e274c825dc5bdee5df569737d002df1033fb412463e477f4441",
+  "limitations": [
+    "Synthetic answer options are not actual quiz accuracy.",
+    "Unknown overlap with pretrained-model training data.",
+    "Free predictions rerank a finite shortlist; they are not exhaustive vocabulary search."
+  ]
+}
