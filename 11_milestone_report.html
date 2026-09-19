@@ -1931,29 +1931,82 @@ response. Diagnostic information such as model coverage and fallback
 level can be available in an optional panel without distracting the main
 user flow.</p>
 </div>
-<div id="risks-and-next-steps" class="section level1">
-<h1>Risks and next steps</h1>
-<p>The corpus mixes sources, dates and writing styles, and some records
-contain foreign language, spelling variation or unsuitable terms.
-Results will therefore be reported as performance on held-out data from
-this corpus, not as a claim about all English writing. Before release, I
-will complete the train-validation split, compare candidate back-off
-rules, validate the profanity filter, measure latency and test the app
-with phrases from outside the training sample.</p>
-<p>This milestone confirms that the data has been downloaded, loaded and
-summarized successfully and that the project is ready to move from
-exploration into predictive modelling.</p>
+<div id="discussion" class="section level1">
+<h1>Discussion</h1>
+<p>The exploratory results show that source type is a material modelling
+choice. Twitter contributes the largest number of lines, but those lines
+are much shorter than blog and news entries. Training only on pooled
+counts could therefore favour Twitter-style language. The modelling
+pipeline will preserve the source labels, use balanced training samples
+where appropriate and report validation results both overall and by
+source.</p>
+<p>The n-gram profile also confirms a trade-off between context and
+coverage. Longer phrases can produce more relevant predictions, but many
+occur only once. A back-off model is therefore preferable to relying on
+a single n-gram order: it can use detailed context when evidence is
+strong and shorter context when a phrase is rare or unseen. Candidate
+models will include unigram, bigram, trigram and four-gram variants with
+alternative pruning thresholds. The final selection will test whether
+the main performance conclusion changes across these reasonable
+choices.</p>
+<p>The analysis has limitations. Exploratory language-pattern plots use
+a deterministic sample to keep processing reproducible and
+memory-conscious, while the file-level counts use the complete corpus.
+The corpus also mixes dates and writing styles and includes spelling
+variation, foreign-language fragments and unsuitable terms. Performance
+on held-out corpus data will therefore not be presented as performance
+on all English writing.</p>
+<div id="risks-and-next-steps" class="section level2">
+<h2>Risks and next steps</h2>
+<p>Before release, I will complete the train-validation split, compare
+back-off and pruning rules, validate the profanity filter, measure
+response time and model size, and test the app with phrases from outside
+the training sample. These checks will determine whether the improvement
+from additional context justifies the added complexity and memory
+use.</p>
+</div>
+</div>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>The official English SwiftKey files were downloaded, loaded and
+summarized successfully. The corpus contains more than four million
+lines and shows clear differences between blogs, news and Twitter,
+together with the expected sparsity of longer word sequences. These
+findings support a compact, source-aware back-off n-gram model that
+returns three next-word suggestions. The project is ready to proceed
+from exploratory analysis to model validation and development of the
+Shiny prediction app.</p>
 </div>
 <div id="reproducibility" class="section level1">
 <h1>Reproducibility</h1>
-<p>The report was knitted from R Markdown. The code is included behind
-expandable <strong>Code</strong> buttons, and the full analysis uses
-only the official corpus files stored under
-<code>data/final/en_US/</code>.</p>
+<p>This report was knitted from R Markdown. Essential code and its
+results are retained in the document and can be revealed with the
+expandable <strong>Code</strong> buttons. The analysis uses the official
+corpus files stored under <code>data/final/en_US/</code>; cached derived
+summaries allow the report to be rebuilt without silently changing the
+underlying inputs.</p>
 <div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;R version:&quot;</span>, R.version.string, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <pre><code>## R version: R version 4.6.1 (2026-06-24 ucrt)</code></pre>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;Analysis date: 2026-09-19</span><span class="sc">\n</span><span class="st">&quot;</span>)</span></code></pre></div>
 <pre><code>## Analysis date: 2026-09-19</code></pre>
+</div>
+<div id="references" class="section level1">
+<h1>References</h1>
+<ul>
+<li>Coursera and SwiftKey. <em>Data Science Capstone: Coursera-SwiftKey
+Dataset</em>. Official course dataset: <a href="https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip" class="uri">https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip</a>
+(accessed September 19, 2026).</li>
+<li>HC Corpora. <em>About the Corpora</em>. Archived description of
+collection, language filtering and anonymisation: <a href="https://web.archive.org/web/20160930083655/http://www.corpora.heliohost.org/aboutcorpus.html" class="uri">https://web.archive.org/web/20160930083655/http://www.corpora.heliohost.org/aboutcorpus.html</a>
+(accessed September 19, 2026).</li>
+<li>Jurafsky, D., and Martin, J. H. <em>Speech and Language
+Processing</em>. Online manuscript: <a href="https://web.stanford.edu/~jurafsky/slp3/" class="uri">https://web.stanford.edu/~jurafsky/slp3/</a> (accessed
+September 19, 2026).</li>
+<li>Katz, S. M. (1987). Estimation of probabilities from sparse data for
+the language model component of a speech recognizer. <em>IEEE
+Transactions on Acoustics, Speech, and Signal Processing</em>, 35(3),
+400-401. <a href="https://doi.org/10.1109/TASSP.1987.1165125" class="uri">https://doi.org/10.1109/TASSP.1987.1165125</a>.</li>
+</ul>
 </div>
 
 

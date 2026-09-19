@@ -165,17 +165,34 @@ The app will accept a short English phrase and immediately display three suggest
 
 The first release will focus on reliable prediction and fast response. Diagnostic information such as model coverage and fallback level can be available in an optional panel without distracting the main user flow.
 
-# Risks and next steps
+# Discussion
 
-The corpus mixes sources, dates and writing styles, and some records contain foreign language, spelling variation or unsuitable terms. Results will therefore be reported as performance on held-out data from this corpus, not as a claim about all English writing. Before release, I will complete the train-validation split, compare candidate back-off rules, validate the profanity filter, measure latency and test the app with phrases from outside the training sample.
+The exploratory results show that source type is a material modelling choice. Twitter contributes the largest number of lines, but those lines are much shorter than blog and news entries. Training only on pooled counts could therefore favour Twitter-style language. The modelling pipeline will preserve the source labels, use balanced training samples where appropriate and report validation results both overall and by source.
 
-This milestone confirms that the data has been downloaded, loaded and summarized successfully and that the project is ready to move from exploration into predictive modelling.
+The n-gram profile also confirms a trade-off between context and coverage. Longer phrases can produce more relevant predictions, but many occur only once. A back-off model is therefore preferable to relying on a single n-gram order: it can use detailed context when evidence is strong and shorter context when a phrase is rare or unseen. Candidate models will include unigram, bigram, trigram and four-gram variants with alternative pruning thresholds. The final selection will test whether the main performance conclusion changes across these reasonable choices.
+
+The analysis has limitations. Exploratory language-pattern plots use a deterministic sample to keep processing reproducible and memory-conscious, while the file-level counts use the complete corpus. The corpus also mixes dates and writing styles and includes spelling variation, foreign-language fragments and unsuitable terms. Performance on held-out corpus data will therefore not be presented as performance on all English writing.
+
+## Risks and next steps
+
+Before release, I will complete the train-validation split, compare back-off and pruning rules, validate the profanity filter, measure response time and model size, and test the app with phrases from outside the training sample. These checks will determine whether the improvement from additional context justifies the added complexity and memory use.
+
+# Conclusion
+
+The official English SwiftKey files were downloaded, loaded and summarized successfully. The corpus contains more than four million lines and shows clear differences between blogs, news and Twitter, together with the expected sparsity of longer word sequences. These findings support a compact, source-aware back-off n-gram model that returns three next-word suggestions. The project is ready to proceed from exploratory analysis to model validation and development of the Shiny prediction app.
 
 # Reproducibility
 
-The report was knitted from R Markdown. The code is included behind expandable **Code** buttons, and the full analysis uses only the official corpus files stored under `data/final/en_US/`.
+This report was knitted from R Markdown. Essential code and its results are retained in the document and can be revealed with the expandable **Code** buttons. The analysis uses the official corpus files stored under `data/final/en_US/`; cached derived summaries allow the report to be rebuilt without silently changing the underlying inputs.
 
 ```{r session-info}
 cat("R version:", R.version.string, "\n")
 cat("Analysis date: 2026-09-19\n")
 ```
+
+# References
+
+- Coursera and SwiftKey. *Data Science Capstone: Coursera-SwiftKey Dataset*. Official course dataset: <https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip> (accessed September 19, 2026).
+- HC Corpora. *About the Corpora*. Archived description of collection, language filtering and anonymisation: <https://web.archive.org/web/20160930083655/http://www.corpora.heliohost.org/aboutcorpus.html> (accessed September 19, 2026).
+- Jurafsky, D., and Martin, J. H. *Speech and Language Processing*. Online manuscript: <https://web.stanford.edu/~jurafsky/slp3/> (accessed September 19, 2026).
+- Katz, S. M. (1987). Estimation of probabilities from sparse data for the language model component of a speech recognizer. *IEEE Transactions on Acoustics, Speech, and Signal Processing*, 35(3), 400-401. <https://doi.org/10.1109/TASSP.1987.1165125>.
