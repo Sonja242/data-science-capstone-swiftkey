@@ -1,0 +1,153 @@
+{
+  "author": "Sonja Sahebzad",
+  "plan": {
+    "seed": 20261410,
+    "steps": 8,
+    "microbatch": 4,
+    "checkpoints": [
+      8
+    ],
+    "run_label": "mb4",
+    "purpose": "pilot_training_only"
+  },
+  "fingerprint": {
+    "data_sha256": {
+      "local_training.txt": "16472ddcc359ba584ccfc86d2a54e08616c6fea8cd5b780dbc9b8f05567fcb9d",
+      "local_training.npy": "1e10149f99d4a397daeea41055cc8788cb15fa301a331e7c9aa009bd440648f9",
+      "development.csv": "fede576d6e22aa8553aec5c2b6c05314b78b29426ee95bf72d80fc79bd9571ab"
+    },
+    "cache_metadata_sha256": "a7ce935e2ef5c30b38340ef584dbd07662a7ae468526ac202e16b954182c27cd",
+    "base_repository": "Qwen/Qwen3-1.7B-Base",
+    "base_revision": "ea980cb0a6c2ae4b936e82123acc929f1cec04c1",
+    "base_file_sha256": {
+      "config.json": "1bb33a92c3548fbc68b889b490e810440435253598835bd71dff0396060c12db",
+      "tokenizer_config.json": "3c04ed3ca964ea2f6b2b5faf0dc4d31aec1cb1e8b4bcf63f402d295046b422b5",
+      "tokenizer.json": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+      "model.safetensors": "6df85b39330e5a425ee36253d0f894e4387e4f0a15b9c53cb467d668e6b3a841"
+    },
+    "available_blocks": 11282,
+    "block_schedule_sha256": "42a2e670eb96196a4869d4adc90fcca4806225adf4e75811a69c05cbff7e96a3",
+    "training_code_canonical_sha256": "49dbe08829b58bda367b53d6066d5d0b1c652243730b6a035d0e0eb9e49ec354"
+  },
+  "hyperparameters": {
+    "effective_batch": 8,
+    "microbatch": 4,
+    "gradient_accumulation": 2,
+    "block_tokens": 128,
+    "lora_rank": 8,
+    "lora_alpha": 16,
+    "lora_dropout": 0.05,
+    "target_modules": [
+      "q_proj",
+      "v_proj"
+    ],
+    "lora_bias": "none",
+    "optimizer": "AdamW",
+    "betas": [
+      0.9,
+      0.999
+    ],
+    "epsilon": 1e-08,
+    "weight_decay": 0.01,
+    "gradient_clip_norm": 1.0,
+    "peak_learning_rate": 0.0001,
+    "warmup_steps": 16,
+    "cosine_horizon_steps": 1024,
+    "dtype": "bfloat16",
+    "attention": "sdpa",
+    "context_tokens": 128,
+    "gradient_checkpointing": "use_reentrant=False",
+    "external_data_fraction": 0.0,
+    "packing": "Original shuffled local lines, EOS-separated, 128-token blocks",
+    "attention_can_cross_eos": true,
+    "blocks_repeated_within_trajectory": false
+  },
+  "environment": {
+    "python": "3.13.3 (tags/v3.13.3:6280bb5, Apr  8 2025, 14:47:33) [MSC v.1943 64 bit (AMD64)]",
+    "platform": "Windows-11-10.0.26200-SP0",
+    "packages": {
+      "torch": "2.8.0+cu128",
+      "transformers": "4.56.2",
+      "peft": "0.17.1",
+      "accelerate": "1.10.1",
+      "numpy": "2.5.3",
+      "safetensors": "0.6.2"
+    },
+    "cuda": "12.8",
+    "cudnn": 91002,
+    "gpu_name": "NVIDIA RTX 2000 Ada Generation Laptop GPU",
+    "gpu_total_mib": 8187.5,
+    "deterministic_algorithms_warn_only": true,
+    "cublas_workspace_config": ":4096:8",
+    "reproducibility_limit": "Identical seeds and data do not guarantee bitwise equality across platforms or nondeterministic CUDA kernels."
+  },
+  "started_utc": "2026-09-19T22:07:23.745711+00:00",
+  "checkpoints": [
+    {
+      "step": 8,
+      "relative_path": "models/neural/learning_curve_pilot_mb4_seed_20261410/step_8",
+      "metadata_sha256": "a6f1262240c426a5370aa2b9cfdae6e506719b11733500b7db229df0b28f9373",
+      "adapter_sha256": "6fe1f59b3d76fe0bf1415b3d7c371203ea7b3b91d35ac9ed7fd0030c33dab0ae",
+      "consumed_blocks": 64,
+      "input_tokens": 8192,
+      "supervised_token_positions": 8128
+    }
+  ],
+  "completed_utc": "2026-09-19T22:07:30.868599+00:00",
+  "status": "complete",
+  "history": [
+    {
+      "step": 1,
+      "loss": 4.506170272827148,
+      "learning_rate": 6.25e-06,
+      "gradient_norm_before_clipping": 0.4159528315067291
+    },
+    {
+      "step": 2,
+      "loss": 4.662804365158081,
+      "learning_rate": 1.25e-05,
+      "gradient_norm_before_clipping": 0.39169126749038696
+    },
+    {
+      "step": 3,
+      "loss": 4.882573843002319,
+      "learning_rate": 1.8750000000000002e-05,
+      "gradient_norm_before_clipping": 0.4376319646835327
+    },
+    {
+      "step": 4,
+      "loss": 4.687049388885498,
+      "learning_rate": 2.5e-05,
+      "gradient_norm_before_clipping": 0.38537997007369995
+    },
+    {
+      "step": 5,
+      "loss": 4.321372747421265,
+      "learning_rate": 3.125e-05,
+      "gradient_norm_before_clipping": 0.3630408048629761
+    },
+    {
+      "step": 6,
+      "loss": 4.574350833892822,
+      "learning_rate": 3.7500000000000003e-05,
+      "gradient_norm_before_clipping": 0.4187674820423126
+    },
+    {
+      "step": 7,
+      "loss": 4.521866321563721,
+      "learning_rate": 4.375e-05,
+      "gradient_norm_before_clipping": 0.4413524270057678
+    },
+    {
+      "step": 8,
+      "loss": 4.571356534957886,
+      "learning_rate": 5e-05,
+      "gradient_norm_before_clipping": 0.46498268842697144
+    }
+  ],
+  "trainable_parameters": 1605632,
+  "consumed_blocks": 64,
+  "input_tokens": 8192,
+  "supervised_token_positions": 8128,
+  "checkpoint_io_seconds": 0.0590379000059329
+}

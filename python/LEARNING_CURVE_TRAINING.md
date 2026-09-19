@@ -54,13 +54,13 @@ Use the existing Python environment recorded in `requirements-adaptation-lock.tx
 From PowerShell, with the live project selected as the working directory:
 
 ```powershell
-& '.venv-neural/Scripts/python.exe' python/learning_curve_training.py --check-only
+& '.venv-neural/Scripts/python.exe' python/learning_curve_training.py --check-only --microbatch 8
 & '.venv-neural/Scripts/python.exe' tests/test_learning_curve_training.py
 # Optional training-only timing/memory pilot, saved separately:
 & '.venv-neural/Scripts/python.exe' python/learning_curve_training.py --steps 8 --microbatch 2 --run-label mb2
-# Run official seeds serially after fixing the microbatch:
+# Run official seeds serially with the recorded microbatch eight:
 foreach ($seed in @(20261410,20261411,20261412)) {
-  & '.venv-neural/Scripts/python.exe' python/learning_curve_training.py --seed $seed --microbatch 2
+  & '.venv-neural/Scripts/python.exe' python/learning_curve_training.py --seed $seed --microbatch 8
   if ($LASTEXITCODE -ne 0) { throw 'Stop the queue and inspect the failed run.' }
 }
 ```

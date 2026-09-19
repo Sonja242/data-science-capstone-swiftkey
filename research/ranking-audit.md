@@ -75,7 +75,7 @@ From this worktree, using the existing project Python environment:
 
 ```powershell
 $project = 'C:\Users\csj50\OneDrive\Documents\Sonja report\Data Science Capstone'
-& "$project\.venv-neural\Scripts\python.exe" python/audit_ranking_development.py --project-root $project --out-dir research/ranking_audit
+& "$project\.venv-neural\Scripts\python.exe" python/audit_ranking_development.py --project-root $project --out-dir "../Capstone model research/ranking-recheck"
 & "$project\.venv-neural\Scripts\python.exe" -m unittest discover -s tests -p test_ranking_audit.py
 ```
 

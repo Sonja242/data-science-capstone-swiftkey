@@ -1,0 +1,76 @@
+{
+  "author": "Sonja Sahebzad",
+  "recorded_utc": "2026-09-19T22:09:11.279372+00:00",
+  "seeds": [
+    20261410,
+    20261411,
+    20261412
+  ],
+  "steps": [
+    256,
+    512,
+    1024
+  ],
+  "shortlists": [
+    64,
+    256
+  ],
+  "training": {
+    "effective_batch": 8,
+    "microbatch": 8,
+    "block_tokens": 128,
+    "schedule_horizon_steps": 1024,
+    "warmup_steps": 16,
+    "peak_lr": 0.0001,
+    "rank": 8,
+    "alpha": 16,
+    "dropout": 0.05,
+    "data": "Existing official local training pool only; no new external data"
+  },
+  "hardware_pilots": [
+    {
+      "microbatch": 2,
+      "training_seconds_8_steps": 8.284094600006938,
+      "peak_allocated_mib": 3920.13134765625,
+      "peak_reserved_mib": 4086.0
+    },
+    {
+      "microbatch": 4,
+      "training_seconds_8_steps": 4.963471600000048,
+      "peak_allocated_mib": 4469.44677734375,
+      "peak_reserved_mib": 4798.0
+    },
+    {
+      "microbatch": 8,
+      "training_seconds_8_steps": 4.785194500000216,
+      "peak_allocated_mib": 5563.45263671875,
+      "peak_reserved_mib": 6228.0
+    }
+  ],
+  "microbatch_rule": "Fastest observed pilot that fits the 8 GiB GPU; small pilots measure feasibility, not a precise speed guarantee",
+  "development_cases": 600,
+  "development_reused": true,
+  "final_cases": 900,
+  "source_balanced": true,
+  "development_sha256": "fede576d6e22aa8553aec5c2b6c05314b78b29426ee95bf72d80fc79bd9571ab",
+  "final_sha256": "b735379b0ae0029a263497a1f3a688b1c2dabcb1207997a8a9322d00e0af0899",
+  "trainer_code_canonical_sha256": "49dbe08829b58bda367b53d6066d5d0b1c652243730b6a035d0e0eb9e49ec354",
+  "operational_adapter_sha256": "3afd6c544bd4a366bc8d4a2f28c25b14b4c97832a495f95ca1c983ccecfa2c8f",
+  "candidate_definition": "One common prefill; sorted top256 eligible token IDs with logit descending/token ID ascending ties; width64 is its prefix; each union includes same R20, never supplied options",
+  "shared_scoring": "Score largest free union and separate options once; rank each independent free set by whole-word score descending then lexical word",
+  "timing_sample": "First20 cases per source in unchanged development CSV,60 total; independent width calls, warm model, same sample every checkpoint",
+  "selection": "All18 seed/stage/width artifacts required; select group mean top3, mean top1, mean timing; representative nearest group mean top3, then mean top1, then declared seed order",
+  "primary": "Development-selected representative versus prior operational local256 on fresh final900; paired top3 source-stratified line bootstrap10000, seed20261490; exact two-sided McNemar",
+  "promotion": "Positive95% paired bootstrap lower bound AND exact paired p<0.05; otherwise retain prior operational model",
+  "secondary": "Evaluate other two fixed seeds at same selected stage/width on final; mean outcomes per line with conditional descriptive interval, not an ensemble or future-seed uncertainty",
+  "targets": {
+    "free_top3": 0.85,
+    "stretch": 0.998
+  },
+  "implementation_note": "Evaluator implementation and neutral equivalence checks must be hashed before development scoring; hypotheses/data/selection fixed here before official training",
+  "limitations": [
+    "External pretraining overlap unknown",
+    "Synthetic four-choice results are not quiz accuracy",
+    "Repeated use of development600 can overfit; final900 remains reserved until selection"
+  ]
+}

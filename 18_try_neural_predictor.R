@@ -7,12 +7,14 @@ setwd(.neural_root)
 tryCatch(source("R/predictive_model_v3.R"),finally=setwd(.neural_wd))
 
 try_neural_predictor <- function(phrase=NULL,choices=NULL,size=NULL,candidate=NULL) {
+  learning_curve <- file.path(.neural_root,"models","learning_curve_summary.json")
+  use_curve <- is.null(candidate) && is.null(size) && file.exists(learning_curve)
   adaptation <- file.path(.neural_root,"models","adaptation_summary.json")
-  use_adaptation <- !is.null(candidate) || (is.null(size) && file.exists(adaptation))
+  use_adaptation <- !use_curve && (!is.null(candidate) || (is.null(size) && file.exists(adaptation)))
   if(use_adaptation) {
     if(is.null(candidate)) candidate <- jsonlite::read_json(adaptation)$default_candidate
     if(!candidate %in% c("base64","base256","local256","augmented256")) stop("Unknown model candidate.")
-  } else if(is.null(size)) {
+  } else if(!use_curve && is.null(size)) {
     selected <- file.path(.neural_root,"models","neural_selection.json")
     size <- if(file.exists(selected)) jsonlite::read_json(selected)$size else "1.7B"
   }
@@ -32,7 +34,10 @@ try_neural_predictor <- function(phrase=NULL,choices=NULL,size=NULL,candidate=NU
   jsonlite::write_json(list(phrase=model_phrase,choices=as.list(choices),ngram_candidates=as.list(candidates)),
                       request,auto_unbox=TRUE)
   python <- file.path(.neural_root,".venv-neural","Scripts","python.exe")
-  if(use_adaptation) {
+  if(use_curve) {
+    script <- file.path(.neural_root,"python","learning_curve_experiment.py")
+    arguments <- shQuote(script)
+  } else if(use_adaptation) {
     script <- file.path(.neural_root,"python","adaptation_experiment.py")
     arguments <- c(shQuote(script),"--candidate",shQuote(candidate))
   } else {
@@ -44,7 +49,15 @@ try_neural_predictor <- function(phrase=NULL,choices=NULL,size=NULL,candidate=NU
   status <- system2(python,arguments)
   if(status!=0 || !file.exists(output)) stop("The predictor did not complete; see the error above.",call.=FALSE)
   result <- jsonlite::read_json(output,simplifyVector=TRUE)
-  if(use_adaptation) {
+  if(use_curve) {
+    spec <- result$selected_spec
+    if(identical(spec$kind,"curve")) {
+      cat("\nModel: Official-text adapter,",spec$steps,"updates; seed",spec$seed,
+          "and",spec$shortlist,"eligible neural token candidates.\n")
+    } else {
+      cat("\nModel: Prior official-text adapter retained by the final evaluation.\n")
+    }
+  } else if(use_adaptation) {
     labels <- c(base64="Existing neural model",base256="Wider candidate list",
                 local256="Adapted to official texts",augmented256="Adapted with extra dialogue")
     cat("\nModel:",labels[[candidate]],"\n")

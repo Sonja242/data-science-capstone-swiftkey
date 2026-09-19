@@ -274,11 +274,13 @@ class ArtifactBoundaryTests(unittest.TestCase):
             config_path = adapter / "adapter_config.json"
             config_path.write_text(json.dumps(config))
             vocabulary.write_text("word\nexample\n")
+            (root / "models/selected_predictor_v3.rds").write_bytes(b"CPU fixture, not R model")
             evaluator.inference_fingerprint.cache_clear()
             try:
                 with mock.patch.object(evaluator, "ROOT", root):
                     fingerprint = evaluator.inference_fingerprint()
                     self.assertIn("data/neural_evaluation/vocabulary.csv", fingerprint)
+                    self.assertIn("models/selected_predictor_v3.rds", fingerprint)
                     self.assertIn("models/neural/adaptation_local/adapter_config.json", fingerprint)
                     self.assertIn("models/neural/Qwen3-1.7B-Base/model.safetensors", fingerprint)
                     config["lora_alpha"] = 32
