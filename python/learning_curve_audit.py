@@ -112,6 +112,34 @@ def audit_artifact(artifact, expected_keys=None):
     return computed
 
 
+def _select_exact_counts(groups, checkpoints, shortlists, seeds):
+    """Integer success totals preserve mathematical ties across fixed cases."""
+    cases = next(iter(next(iter(groups.values())).values()))["cases"]
+    denominator = cases * len(seeds)
+    totals = {key: {metric: sum(rows[seed][metric + "_successes"] for seed in seeds)
+                   for metric in ("top3", "top1")} for key, rows in groups.items()}
+    averages = []
+    for step in checkpoints:
+        for width in shortlists:
+            key = (step, width)
+            averages.append({"steps": step, "shortlist": width,
+                "top3": totals[key]["top3"] / denominator,
+                "top1": totals[key]["top1"] / denominator,
+                "milliseconds": sum(groups[key][seed]["milliseconds"] for seed in seeds) / len(seeds)})
+    winner = min(averages, key=lambda x: (
+        -totals[(x["steps"], x["shortlist"])]["top3"],
+        -totals[(x["steps"], x["shortlist"])]["top1"], x["milliseconds"],
+        checkpoints.index(x["steps"]), shortlists.index(x["shortlist"])))
+    key = (winner["steps"], winner["shortlist"])
+    group = groups[key]
+    representative = min(seeds, key=lambda seed: (
+        abs(len(seeds) * group[seed]["top3_successes"] - totals[key]["top3"]),
+        abs(len(seeds) * group[seed]["top1_successes"] - totals[key]["top1"]), seeds.index(seed)))
+    return {"selected": winner, "representative_seed": representative,
+            "development_groups": averages,
+            "rule": "Mean top-3, mean top-1, mean latency; representative nearest mean top-3, then mean top-1, then fixed seed order"}
+
+
 def select_on_development(results, checkpoints=(256, 512, 1024),
                           shortlists=(64,), seeds=SEEDS):
     """Select groups by mean top-3, top-1, speed; representative by proximity.
@@ -137,27 +165,13 @@ def select_on_development(results, checkpoints=(256, 512, 1024),
         latency = result["summary"]["milliseconds"]
         if not math.isfinite(latency) or latency <= 0:
             raise ValueError("Invalid latency")
-        groups[group][result["seed"]] = {**computed, "milliseconds": latency}
+        groups[group][result["seed"]] = {**computed, "milliseconds": latency,
+            "top3_successes": sum(row["rank"] > 0 for row in result["details"]),
+            "top1_successes": sum(row["rank"] == 1 for row in result["details"])}
     expected_groups = {(step, width) for step in checkpoints for width in shortlists}
     if set(groups) != expected_groups or any(set(group) != set(seeds) for group in groups.values()):
         raise ValueError("Incomplete checkpoint/shortlist/seed grid")
-    averages = []
-    for step in checkpoints:
-        for width in shortlists:
-            rows = groups[(step, width)]
-            averages.append({"steps": step, "shortlist": width, **{
-                metric: sum(rows[seed][metric] for seed in seeds) / len(seeds)
-                for metric in ("top3", "top1", "milliseconds")}})
-    winner = min(averages, key=lambda x: (-x["top3"], -x["top1"], x["milliseconds"],
-                 checkpoints.index(x["steps"]), shortlists.index(x["shortlist"])))
-    group = groups[(winner["steps"], winner["shortlist"])]
-    representative = min(seeds, key=lambda seed: (
-        abs(group[seed]["top3"] - winner["top3"]),
-        abs(group[seed]["top1"] - winner["top1"]), seeds.index(seed)))
-    return {"selected": winner, "representative_seed": representative,
-            "development_groups": averages,
-            "rule": "Mean top-3, mean top-1, mean latency; representative nearest mean top-3, then mean top-1, then fixed seed order"}
-
+    return _select_exact_counts(groups, checkpoints, shortlists, seeds)
 
 
 def select_development_summary(rows, checkpoints=(256, 512, 1024),
@@ -185,26 +199,19 @@ def select_development_summary(rows, checkpoints=(256, 512, 1024),
             raise ValueError("Invalid top-1/top-3 metrics")
         if not math.isfinite(row["milliseconds"]) or row["milliseconds"] <= 0:
             raise ValueError("Invalid latency")
-        groups[group][seed] = row
+        successes = {}
+        for metric in ("top1", "top3"):
+            count = row[metric] * row["cases"]
+            rounded = round(count)
+            if not math.isclose(count, rounded, abs_tol=1e-9, rel_tol=0):
+                raise ValueError("Summary rates do not represent integer success counts")
+            successes[metric + "_successes"] = rounded
+        groups[group][seed] = {**row, **successes}
     expected_groups = {(step, width) for step in checkpoints for width in shortlists}
     if len(cases) != 1 or set(groups) != expected_groups or any(set(group) != set(seeds) for group in groups.values()):
         raise ValueError("Incomplete checkpoint/shortlist/seed grid or unequal case counts")
-    averages = []
-    for step in checkpoints:
-        for width in shortlists:
-            group = groups[(step, width)]
-            averages.append({"steps": step, "shortlist": width, **{
-                metric: sum(group[seed][metric] for seed in seeds) / len(seeds)
-                for metric in ("top3", "top1", "milliseconds")}})
-    winner = min(averages, key=lambda x: (-x["top3"], -x["top1"], x["milliseconds"],
-                 checkpoints.index(x["steps"]), shortlists.index(x["shortlist"])))
-    group = groups[(winner["steps"], winner["shortlist"])]
-    representative = min(seeds, key=lambda seed: (
-        abs(group[seed]["top3"] - winner["top3"]),
-        abs(group[seed]["top1"] - winner["top1"]), seeds.index(seed)))
-    return {"selected": winner, "representative_seed": representative,
-            "development_groups": averages,
-            "rule": "Mean top-3, mean top-1, mean latency; representative nearest mean top-3, then mean top-1, then fixed seed order"}
+    return _select_exact_counts(groups, checkpoints, shortlists, seeds)
+
 
 def paired_bootstrap(differences, sources, repetitions=10000, seed=20261490, confidence=.95):
     """Line bootstrap; equal source weights; model seeds stay fixed.

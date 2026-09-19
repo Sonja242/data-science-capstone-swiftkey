@@ -14,7 +14,7 @@ from learning_curve_audit import (
 
 
 def detail_fixture(ranks=(0, 1, 2, 3, 0, 1)):
-    return [{"source": SOURCES[i // 2],
+    return [{"source": SOURCES[i // (len(ranks) // 3)],
              "line_hash": hashlib.sha256(f"line-{i}".encode()).hexdigest(),
              "rank": rank, "choice_correct": i % 2 == 0,
              "shortlist_contains_target": bool(rank) or i == 0}
@@ -136,6 +136,40 @@ class IntegrityChecks(unittest.TestCase):
             exact_paired_p([1], [1, 0])
         with self.assertRaises(ValueError):
             exact_paired_p([.5], [1])
+    def test_exact_success_tie_preserves_top1_tiebreak(self):
+        # Both widths have exactly 660/1800 top-3 successes, but floating
+        # sums differ: 3*(220/600) is below (210+220+230)/600 by rounding.
+        rows = []
+        for index, seed in enumerate(SEEDS):
+            rows.append(result(seed, width=64, ranks=tuple([1] * 220 + [0] * 380), latency=200))
+            count = (210, 220, 230)[index]
+            rows.append(result(seed, width=256, ranks=tuple([2] * count + [0] * (600 - count)), latency=100))
+        chosen = select_on_development(rows, checkpoints=(256,), shortlists=(64, 256))
+        self.assertEqual(chosen["selected"]["shortlist"], 64)
+        self.assertEqual(chosen["representative_seed"], SEEDS[0])
+        self.assertEqual(chosen["development_groups"][0]["top3"], chosen["development_groups"][1]["top3"])
+        flat = [{k: row[k] for k in ("seed", "steps", "shortlist", "split")} | row["summary"] for row in rows]
+        self.assertEqual(chosen, select_development_summary(flat, checkpoints=(256,), shortlists=(64, 256)))
+
+    def test_exact_success_tie_preserves_latency_tiebreak(self):
+        rows = []
+        for index, seed in enumerate(SEEDS):
+            rows.append(result(seed, width=64, ranks=tuple([2] * 220 + [0] * 380), latency=100))
+            count = (210, 220, 230)[index]
+            rows.append(result(seed, width=256, ranks=tuple([2] * count + [0] * (600 - count)), latency=200))
+        chosen = select_on_development(rows, checkpoints=(256,), shortlists=(64, 256))
+        self.assertEqual(chosen["selected"]["shortlist"], 64)
+        # Integer distance to the group's mean chooses the middle trajectory.
+        wider = [row for row in rows if row["shortlist"] == 256]
+        self.assertEqual(select_on_development(wider, checkpoints=(256,), shortlists=(256,))["representative_seed"], SEEDS[1])
+
+    def test_summary_rates_must_recover_integer_successes(self):
+        rows = [result(seed) for seed in SEEDS]
+        flat = [{k: row[k] for k in ("seed", "steps", "shortlist", "split")} | row["summary"] for row in rows]
+        flat[0]["top3"] = .999
+        with self.assertRaisesRegex(ValueError, "integer success"):
+            select_development_summary(flat, checkpoints=(256,), shortlists=(64,))
+
     def test_bootstrap_equal_source_estimand_and_reproducibility(self):
         sources = ["blogs"] * 2 + ["news"] * 3 + ["twitter"] * 5
         differences = [1] * 2 + [0] * 3 + [-1] * 5
