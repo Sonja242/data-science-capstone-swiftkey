@@ -5,6 +5,10 @@
 
 This repository contains a reproducible analysis workflow for the Johns Hopkins University Data Science Capstone. It explores the official English SwiftKey corpus and demonstrates memory-conscious methods for working with large text files.
 
+
+## View the finished reports
+
+Open the published [Data Science Capstone report website](https://sonja242.github.io/data-science-capstone-swiftkey/). The site renders the knitted HTML reports as complete web pages; the `.Rmd` files in this repository remain available as reproducible source code.
 ## What the project demonstrates
 
 - locating and validating the official corpus files;
@@ -43,3 +47,4 @@ The `R/` directory contains helper functions for chunked corpus processing and e
 ## Notes
 
 Results depend on the official Coursera corpus version. The reports state matching assumptions such as case sensitivity, word boundaries, and exact equality so the analysis can be checked and reproduced.
+
