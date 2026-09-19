@@ -1,7 +1,7 @@
 ---
 title: "Professional SwiftKey Corpus Pipeline"
 subtitle: "Reproducible sampling, cleaning and tokenization"
-author: "Sonja Sahebzad"
+author: "Author: Sonja Sahebzad"
 date: "2026-09-19"
 output:
   html_document:
@@ -176,3 +176,4 @@ knitr::kable(validation_results, caption = "Pipeline validation checks")
 ```{r session-information}
 sessionInfo()
 ```
+

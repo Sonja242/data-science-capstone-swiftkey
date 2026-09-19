@@ -1,6 +1,6 @@
 ---
 title: "SwiftKey Corpus: Sampling, Tokenization and Cleaning"
-author: "Sonja Sahebzad"
+author: "Author: Sonja Sahebzad"
 date: "2026-09-19"
 output:
   html_document:
@@ -235,3 +235,4 @@ par(old_par)
 # Next step
 
 The cleaned tokens can next be converted into unigram, bigram and trigram frequency tables. Those candidate models can be compared using held-out text, prediction coverage, accuracy and memory use before building the final Shiny application.
+
