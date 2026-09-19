@@ -116,7 +116,7 @@ knitr::kable(data.frame(
   Item = c("Sampling and partition seed", "Validation / test positions", "Bootstrap seed",
            "Vocabulary", "Probability smoothing", "Runtime"),
   Setting = c("20260924 (+ source index); partitions +100", "20261001 / 20261002", "20261003",
-              paste(length(model$vocabulary) - 1L, "training words plus <unk>"),
+              paste(length(model$vocabulary) - 1L, "training words plus one unknown-word category"),
               "Unigram additive 0.1; absolute discount 0.75 or count-weighted interpolation",
               paste("R", getRversion(), "| data.table", packageVersion("data.table"),
                     "| stringi", packageVersion("stringi")))))
