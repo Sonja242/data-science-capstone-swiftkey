@@ -1,0 +1,165 @@
+---
+title: "First Predictive Text Model"
+subtitle: "Back-off n-grams, validation, efficiency and accuracy"
+author: "Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: show
+    theme: flatly
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, message = FALSE)
+source("R/predictive_model.R")
+library(data.table)
+library(ggplot2)
+```
+
+# Purpose
+
+This report builds and evaluates a first next-word prediction model from the official English SwiftKey corpus. The main question is practical: how much predictive performance can be retained while reducing memory use and response time?
+
+# Data and validation design
+
+The three source files are sampled reproducibly. Lines are split into training and validation partitions before any n-grams are counted. The final word of each selected validation line is hidden and used as the target; all preceding words form the input phrase. This prevents evaluation on phrases used to build the model.
+
+```{r paths}
+paths <- c(
+  blogs = file.path("data", "final", "en_US", "en_US.blogs.txt"),
+  news = file.path("data", "final", "en_US", "en_US.news.txt"),
+  twitter = file.path("data", "final", "en_US", "en_US.twitter.txt")
+)
+stopifnot(all(file.exists(paths)))
+```
+
+```{r build-or-load-model, cache=FALSE}
+dir.create("models", showWarnings = FALSE)
+artifact_path <- file.path("models", "first_backoff_model.rds")
+
+if (file.exists(artifact_path)) {
+  artifacts <- readRDS(artifact_path)
+} else {
+  sampled <- sample_corpus_lines(
+    paths,
+    probability = 0.02,
+    maximum_per_source = 60000L
+  )
+  split <- split_training_validation(sampled)
+  raw_model <- build_ngram_model(split$training$text, maximum_order = 4L)
+  validation_cases <- make_validation_cases(split$validation$text, maximum_cases = 1000L)
+  artifacts <- list(
+    sample_summary = as.data.frame(table(sampled$source)),
+    raw_model = raw_model,
+    validation_cases = validation_cases
+  )
+  saveRDS(artifacts, artifact_path, compress = "xz")
+}
+
+knitr::kable(
+  artifacts$sample_summary,
+  col.names = c("Source", "Sampled lines"),
+  caption = "Reproducible corpus sample used for model development"
+)
+```
+
+# Model
+
+The model counts unigrams, bigrams, trigrams and four-grams. For a new phrase it first searches the longest available context. If that context is absent, it backs off to a shorter context and finally to overall word frequency. This gives specific predictions when evidence is available while retaining coverage for unfamiliar phrases.
+
+Three pruning settings are compared. A threshold of one retains every observed sequence. Higher thresholds discard rare multiword sequences, which can reduce model size and sometimes improve generalization by removing noise.
+
+```{r evaluate-candidates}
+candidate_models <- lapply(c(1L, 2L, 3L), function(threshold) {
+  prune_ngram_model(artifacts$raw_model, minimum_count = threshold)
+})
+
+evaluation <- rbindlist(lapply(
+  candidate_models,
+  evaluate_ngram_model,
+  cases = artifacts$validation_cases
+))
+write.csv(
+  evaluation,
+  file.path("models", "candidate_evaluation.csv"),
+  row.names = FALSE
+)
+
+display <- copy(evaluation)
+display[, `:=`(
+  top1_accuracy = scales::percent(top1_accuracy, accuracy = 0.1),
+  top2_accuracy = scales::percent(top2_accuracy, accuracy = 0.1),
+  top3_accuracy = scales::percent(top3_accuracy, accuracy = 0.1),
+  mean_reciprocal_rank = round(mean_reciprocal_rank, 3),
+  perplexity = round(perplexity, 1),
+  milliseconds_per_prediction = round(milliseconds_per_prediction, 2),
+  model_size_mib = round(model_size_mib, 1)
+)]
+knitr::kable(display, caption = "Held-out accuracy and efficiency by pruning threshold")
+```
+
+# Accuracy and efficiency trade-off
+
+```{r tradeoff-plot, fig.width=8, fig.height=4.8}
+ggplot(evaluation, aes(model_size_mib, top3_accuracy, label = minimum_count)) +
+  geom_line(color = "#1f5a92", linewidth = 0.8) +
+  geom_point(color = "#1f5a92", size = 3) +
+  geom_text(nudge_y = 0.003, color = "black") +
+  scale_y_continuous(labels = scales::percent_format(accuracy = 0.1)) +
+  labs(
+    title = "Prediction accuracy versus model size",
+    subtitle = "Labels show the minimum retained n-gram count",
+    x = "Model size (MiB)",
+    y = "Top-3 accuracy"
+  ) +
+  theme_minimal(base_family = "Segoe UI")
+```
+
+Top-1 accuracy requires the correct word to rank first. Top-2 and top-3 accuracy give credit when it appears among the first two or three suggestions. Mean reciprocal rank rewards correct words more strongly when they appear near the top. Perplexity measures how surprised the probability model is by unseen validation text; lower values are better. Response time and memory size capture whether the model is practical for an interactive app.
+
+```{r select-model}
+best_index <- which.max(
+  evaluation$top3_accuracy -
+    0.0001 * evaluation$model_size_mib -
+    0.0001 * evaluation$milliseconds_per_prediction
+)
+selected_model <- candidate_models[[best_index]]
+selected_result <- evaluation[best_index, ]
+
+saveRDS(selected_model, file.path("models", "selected_backoff_model.rds"), compress = "xz")
+knitr::kable(selected_result, caption = "Selected candidate for the first interactive prototype")
+```
+
+# Independent prediction examples
+
+These neutral examples demonstrate the interface. They are not part of the validation set and are not assessment questions.
+
+```{r examples}
+examples <- c("I went to the", "Thank you for the", "This is a very")
+example_predictions <- rbindlist(lapply(examples, function(text) {
+  result <- predict_next(selected_model, text, top_n = 3L)
+  result[, input := text]
+  result
+}), fill = TRUE)
+
+knitr::kable(
+  example_predictions[, .(input, rank, word, context_order)],
+  caption = "Three next-word suggestions for neutral example phrases"
+)
+```
+
+# Discussion
+
+The candidate comparison answers the central trade-off question directly. If pruning materially reduces model size and prediction time while top-3 accuracy remains stable, the smaller model is preferable for Shiny. If accuracy falls sharply, the threshold is too aggressive. Perplexity is reported alongside ranking accuracy because a probability model can improve its average confidence without improving which word is placed first. The two measures therefore need not move together.
+
+The current evaluation is an honest first benchmark, not a final performance claim. Accuracy depends on sample size, source mix, normalization and the amount of rare context retained. Before deployment, the chosen model should also be tested separately on blogs, news and Twitter and checked for profanity, undesirable suggestions and latency on the hosting environment.
+
+# Conclusion
+
+This reproducible workflow produces a working back-off predictor and measures predictive quality, speed and memory use on held-out text. The selected model is saved for the interactive prototype. The next development step is to validate the chosen configuration on a larger sample, add profanity filtering and connect the predictor to a mobile-friendly Shiny interface.
+
+# How to try the model
+
+After knitting this report, run `source("13_try_predictor.R")` in the RStudio Console. Enter any short English phrase. The script prints the three highest-ranked next-word suggestions and the context order used.

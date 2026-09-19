@@ -7,10 +7,14 @@
 # Generated caches and support folders
 *_cache/
 *_files/
+rsconnect/
 
 # Official corpus: download from Coursera instead of committing it
 data/
 *.zip
+
+# Generated model objects: rebuild them from the R Markdown source
+models/*.rds
 
 # Operating-system files
 .DS_Store
