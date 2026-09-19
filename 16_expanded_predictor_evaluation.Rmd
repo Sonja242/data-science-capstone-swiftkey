@@ -1,0 +1,133 @@
+---
+title: "Stronger Next-Word Prediction"
+subtitle: "Larger training data, independent evaluation and separate four-choice results"
+author: "Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    theme: flatly
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE, fig.width = 7, fig.height = 4)
+audit <- readRDS("models/expanded_evaluation_v3.rds")
+model <- readRDS("models/selected_predictor_v3.rds")
+stopifnot(identical(unname(audit$code_md5), unname(tools::md5sum(names(audit$code_md5)))))
+current <- audit$selected_test$overall
+previous <- audit$baseline_test$overall
+pct <- function(x) sprintf("%.1f%%", 100*x)
+num <- function(x, digits=0) format(round(x, digits), big.mark=",", nsmall=digits, trim=TRUE)
+wilson <- function(p, n) {
+  z <- qnorm(.975); center <- (p + z*z/(2*n))/(1+z*z/n)
+  half <- z*sqrt(p*(1-p)/n+z*z/(4*n*n))/(1+z*z/n)
+  paste(pct(center-half), "to", pct(center+half))
+}
+```
+
+<style>
+body {font-family: Calibri, "Segoe UI", Arial, sans-serif; color:#161616;}
+h1,h2 {color:#164c78;} .main-container {max-width:1060px;} table {font-size:.95em;}
+</style>
+
+**Management summary.** A larger language model was trained because the earlier prototype's 21.6% top-three accuracy was inadequate for the intended experience. In this **new independent test**, the selected model finds the recorded next word among its first three suggestions in **`r pct(current$top3)`** of cases, compared with **`r pct(previous$top3)`** for the unchanged previous model on exactly the same examples. The free-text target of above 50% is **`r if(current$top3 > .5) "met on this benchmark" else "not met"`**. Results for choosing among four supplied words are reported separately.
+
+# What improved
+
+The experiment compares smaller and larger training sets, three-word and five-word n-grams, and two smoothing approaches. A five-word n-gram uses up to four preceding words. **Kneser-Ney interpolation** uses the diversity of preceding contexts to improve estimates for unfamiliar combinations [2,5]. Discounting and pruning send probability mass to shorter contexts rather than forcing rare phrases to dominate. All displayed probabilities belong to one normalized distribution.
+
+The selected configuration is **`r audit$selection$id`**, trained on **`r num(model$training_lines)` lines** and **`r num(model$training_tokens)` word tokens**. Configuration selection uses validation accuracy only; test outcomes do not select parameters. This is a word-frequency model, without a neural model or semantic understanding.
+
+# Data and fair comparison
+
+The three official English files [1] are read in full, normalized consistently and deduplicated by complete normalized line. All lines sampled in the previous experiment are excluded before an 80% training, 10% validation and 10% test split. Consequently, neither the previous model nor the new model has trained on the new test lines. The smaller candidate uses one quarter of the new training partition; the larger uses all of it.
+
+```{r partitions, echo=FALSE}
+knitr::kable(dcast(audit$partitions, source ~ split, value.var="lines"),
+             caption="New corpus partitions after exclusions and deduplication")
+```
+
+One random next-word position is sampled per eligible line. Validation uses 600 examples per source and the final test uses 1,000 per source. Equal source weights give blogs, news and Twitter equal influence. Scores describe this setup, not every user's typing habits. The old 21.6% result came from a different test and is not directly comparable with these scores.
+
+# Validation results
+
+```{r comparison, echo=FALSE}
+v <- copy(audit$validation)
+knitr::kable(v[, .(Candidate=id, `Training lines`=num(training_lines),
+  `Top-1`=pct(top1), `Top-3`=pct(top3), `Synthetic four-choice`=pct(choice_accuracy),
+  `Memory MiB`=num(memory_mib,1))], caption="Selection criterion: highest free-text validation top-3 accuracy")
+```
+
+# Independent test results
+
+```{r test-results, echo=FALSE}
+scores <- rbindlist(list(cbind(Model="Previous v2", previous), cbind(Model="Selected v3", current)))
+knitr::kable(scores[, .(Model, Examples=cases, `First suggestion`=pct(top1),
+  `First three suggestions`=pct(top3), `Synthetic four-choice`=pct(choice_accuracy),
+  `MRR at 3`=num(mrr_at_3,3))])
+```
+
+**Free text.** The recorded next word appears in the first three suggestions in **`r round(current$top3*current$cases)` of `r current$cases`** cases. The 95% Wilson interval is **`r wilson(current$top3,current$cases)`**. The paired improvement over v2 is **`r sprintf("%+.1f",100*(current$top3-previous$top3))` percentage points**, with a bootstrap 95% interval of **`r sprintf("%+.1f to %+.1f",100*audit$improvement_ci[1],100*audit$improvement_ci[2])` points**. `r if(audit$improvement_ci[1]>0) "The interval supports an improvement in this test." else "This test does not establish a reliable improvement."`
+
+**Four supplied choices.** Accuracy is **`r pct(current$choice_accuracy)`**, with a 95% interval of **`r wilson(current$choice_accuracy,current$cases)`**. Each question contains the observed next word and three different words of similar training frequency, chosen reproducibly. The same options are used for every model. These alternatives are **synthetic** and can be much easier than plausible alternatives written by a teacher. This number is not a Coursera quiz score, a guarantee for future questions, or evidence of equally high free-text accuracy. Random selection among four options averages 25%.
+
+```{r source-results, echo=FALSE}
+knitr::kable(audit$selected_test$by_source[, .(Source=source, Examples=cases,
+  `Top-3`=pct(top3), `Synthetic four-choice`=pct(choice_accuracy))])
+```
+
+```{r improvement-plot, echo=FALSE}
+plot_data <- melt(scores[, .(Model, top1, top3)], id.vars="Model")
+ggplot(plot_data, aes(Model, value, fill=variable)) + geom_col(position="dodge", width=.65) +
+  geom_text(aes(label=pct(value)), position=position_dodge(.65), vjust=-.5, size=3.7) +
+  geom_hline(yintercept=.5, linetype="dashed", colour="#333333") +
+  scale_fill_manual(values=c("#164c78","#90b5d3"), labels=c("First suggestion","First three")) +
+  scale_y_continuous(labels=scales::percent_format(), limits=c(0,max(.6,max(plot_data$value)+.06))) +
+  labs(x=NULL,y="Exact next-word accuracy",fill=NULL,caption="Dashed line: 50% target. Four-choice results are a different task.") +
+  theme_minimal(base_family="sans") + theme(legend.position="bottom")
+```
+
+# Efficiency and limitations
+
+The selected object uses **`r num(current$memory_mib,1)` MiB** in memory. The warmed test loop averages **`r num(current$milliseconds,2)` milliseconds per case**, including both rankings and scoring. This is not a Shiny deployment latency measurement. Size and speed should be retested on the eventual hosting tier.
+
+Next-word perplexity at the sampled positions is **`r num(current$perplexity,1)`**, calculated from the same distribution as ranking; lower is better. **`r pct(current$oov)`** of targets were absent from training and are counted as misses. For perplexity they map to an unknown-word category. Models with different vocabularies use different unknown categories, so their perplexities are not directly compared.
+
+The analysis keeps internal apostrophes and stopwords but restricts tokens to Latin letters. Punctuation is removed, so some contexts cross sentence boundaries within a line. Names, novel phrases, language mixing and meaning remain limitations. Different valid continuations are counted wrong if they differ from the recorded word. Removing complete duplicate lines limits leakage but cannot exclude all overlapping or paraphrased passages.
+
+# Discussion and conclusion
+
+`r if(current$top3>.5) "The selected model exceeds the 50% free-text target on the reserved benchmark, subject to the interval and sampling limitations above." else "The larger model has not reached the requested 50% free-text target. The measured four-choice score cannot be substituted for that missing result."` A requested target of 99.8% cannot be promised for unrestricted next-word prediction. Many phrases have several reasonable next words, and the original writer's choice is unknown.
+
+Further development should test sentence-aware processing and stronger language models, using a newly reserved test set after any new tuning. A narrower domain or user-supplied answer options changes the problem and must retain its own evaluation. The current console shows unrestricted suggestions and, when provided, a separate ranking of the user's options.
+
+# Reproducibility
+
+This HTML is knitted from `16_expanded_predictor_evaluation.Rmd`. Model functions are in `R/predictive_model_v3.R`, training and evaluation in `15_train_expanded_predictor.R`, and the interactive entry point remains `13_try_predictor.R`. The previous implementation and results are retained.
+
+Seeds **20261101 through 20261106** fix partitioning, validation positions, test positions, the two option sets and the paired bootstrap. The official corpus hashes, both model-code hashes and session information are stored in `models/expanded_evaluation_v3.rds`. CSV tables accompany the source and HTML. Large corpus and model files remain local.
+
+```{r commands, eval=FALSE}
+source("15_train_expanded_predictor.R")
+rmarkdown::render("16_expanded_predictor_evaluation.Rmd")
+source("13_try_predictor.R")
+```
+
+```{r environment, echo=FALSE}
+knitr::kable(data.frame(Component=c("R","data.table","stringi"),
+  Version=c(as.character(getRversion()),as.character(packageVersion("data.table")),
+            as.character(packageVersion("stringi")))))
+```
+
+# References
+
+1. Coursera and SwiftKey. *Data Science Capstone corpus*. [Official dataset](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip).
+2. Jurafsky, D., and Martin, J. H. (2026 draft). *Speech and Language Processing*, Chapter 3: N-gram Language Models. [Stanford chapter](https://web.stanford.edu/~jurafsky/slp3/3.pdf).
+3. data.table authors. *Enhanced data.frame and keyed joins*. [Documentation](https://rdatatable.gitlab.io/data.table/reference/data.table.html).
+4. stringi authors. *Character string processing facilities*. [Documentation](https://stringi.gagolewski.com/).
+5. Chen, S. F., and Goodman, J. (1998). *An Empirical Study of Smoothing Techniques for Language Modeling*. Harvard Technical Report TR-10-98. [Original research](https://dash.harvard.edu/handle/1/25104739).
