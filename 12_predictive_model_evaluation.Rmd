@@ -20,7 +20,7 @@ library(ggplot2)
 
 # Purpose
 
-This report builds and evaluates a first next-word prediction model from the official English SwiftKey corpus. The main question is practical: how much predictive performance can be retained while reducing memory use and response time?
+This report builds and evaluates a first next-word prediction model from the official English SwiftKey corpus [1]. The main question is practical: how much predictive performance can be retained while reducing memory use and response time? The model uses the established n-gram and back-off principle described in the language-modeling literature [2, 3].
 
 # Data and validation design
 
@@ -132,6 +132,23 @@ saveRDS(selected_model, file.path("models", "selected_backoff_model.rds"), compr
 knitr::kable(selected_result, caption = "Selected candidate for the first interactive prototype")
 ```
 
+## What the values mean
+
+```{r interpret-values, echo=FALSE}
+baseline_result <- evaluation[minimum_count == 1L, ]
+most_pruned_result <- evaluation[minimum_count == 3L, ]
+size_reduction <- 100 * (1 - selected_result$model_size_mib / baseline_result$model_size_mib)
+top3_change_pp <- 100 * (selected_result$top3_accuracy - baseline_result$top3_accuracy)
+perplexity_reduction <- 100 * (1 - selected_result$perplexity / baseline_result$perplexity)
+aggressive_top3_change_pp <- 100 * (
+  most_pruned_result$top3_accuracy - selected_result$top3_accuracy
+)
+```
+
+The selected threshold is **`r selected_result$minimum_count`**, so a multiword sequence must occur at least twice to remain in the model. This reduces the in-memory model from **`r round(baseline_result$model_size_mib, 1)` MiB** to **`r round(selected_result$model_size_mib, 1)` MiB**, a **`r round(size_reduction, 1)`% reduction**. Top-1 accuracy is **`r scales::percent(selected_result$top1_accuracy, accuracy = 0.1)`**, meaning the first suggestion is correct about nine times per 100 validation phrases. Top-3 accuracy is **`r scales::percent(selected_result$top3_accuracy, accuracy = 0.1)`**, only **`r abs(round(top3_change_pp, 1))` percentage points lower** than the unpruned model. Each prediction takes approximately **`r round(selected_result$milliseconds_per_prediction, 2)` milliseconds**, which is fast enough for an interactive prototype.
+
+Perplexity falls by **`r round(perplexity_reduction, 1)`%** relative to the unpruned candidate. Lower perplexity means the model assigns less surprise to held-out text. Its absolute value remains high because the vocabulary is large and the training sample is deliberately limited. Perplexity and ranking accuracy therefore do not move in exactly the same direction. Raising the threshold to three reduces memory further but lowers top-3 accuracy by **`r abs(round(aggressive_top3_change_pp, 1))` percentage points**, so that option prunes too aggressively for the small additional saving.
+
 # Independent prediction examples
 
 These neutral examples demonstrate the interface. They are not part of the validation set and are not assessment questions.
@@ -152,9 +169,35 @@ knitr::kable(
 
 # Discussion
 
-The candidate comparison answers the central trade-off question directly. If pruning materially reduces model size and prediction time while top-3 accuracy remains stable, the smaller model is preferable for Shiny. If accuracy falls sharply, the threshold is too aggressive. Perplexity is reported alongside ranking accuracy because a probability model can improve its average confidence without improving which word is placed first. The two measures therefore need not move together.
+The candidate comparison answers the central trade-off question directly. The threshold-two model retains nearly all ranking accuracy while using much less memory, making it the strongest candidate for Shiny. The threshold-three model is smaller but loses more top-3 accuracy. Perplexity is reported alongside ranking accuracy because a probability model can improve its average confidence without improving which word is placed first. The two measures therefore need not move together.
 
 The current evaluation is an honest first benchmark, not a final performance claim. Accuracy depends on sample size, source mix, normalization and the amount of rare context retained. Before deployment, the chosen model should also be tested separately on blogs, news and Twitter and checked for profanity, undesirable suggestions and latency on the hosting environment.
+
+# Reproducibility
+
+The workflow can be rerun from the R Markdown source. It uses the official corpus files, documented parameters and fixed random seeds. Training and validation are separated before n-gram construction. Generated model objects are excluded from Git because they can be rebuilt; the compact benchmark table is retained in `models/candidate_evaluation.csv`.
+
+```{r reproducibility-table, echo=FALSE}
+reproducibility <- data.frame(
+  Item = c(
+    "Corpus sample", "Validation split", "Validation cases",
+    "Random seeds", "Maximum n-gram order", "Core packages"
+  ),
+  Value = c(
+    "2% per source, maximum 60,000 lines per source",
+    "15% of sampled lines, separated before training",
+    "1,000 held-out final-word predictions",
+    "20260919, 20260920 and 20260921",
+    "4",
+    paste0(
+      "R ", getRversion(), "; data.table ", packageVersion("data.table"),
+      "; stringi ", packageVersion("stringi")
+    )
+  ),
+  stringsAsFactors = FALSE
+)
+knitr::kable(reproducibility, caption = "Parameters needed to reproduce the benchmark")
+```
 
 # Conclusion
 
@@ -163,3 +206,11 @@ This reproducible workflow produces a working back-off predictor and measures pr
 # How to try the model
 
 After knitting this report, run `source("13_try_predictor.R")` in the RStudio Console. Enter any short English phrase. The script prints the three highest-ranked next-word suggestions and the context order used.
+
+# References
+
+1. Coursera and SwiftKey. *Data Science Capstone training corpus*. [Official dataset download](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip).
+2. Katz, S. M. (1987). Estimation of probabilities from sparse data for the language model component of a speech recognizer. *IEEE Transactions on Acoustics, Speech, and Signal Processing, 35*(3), 400-401. [https://doi.org/10.1109/TASSP.1987.1165125](https://doi.org/10.1109/TASSP.1987.1165125).
+3. Jurafsky, D., and Martin, J. H. *Speech and Language Processing*, Language Models with N-Grams. [Stanford draft](https://web.stanford.edu/~jurafsky/slp3/).
+4. Dowle, M., and Srinivasan, A. *data.table: Extension of data.frame*. [CRAN package page](https://cran.r-project.org/package=data.table).
+5. Gagolewski, M. *stringi: Fast and Portable Character String Processing Facilities*. [CRAN package page](https://cran.r-project.org/package=stringi).
