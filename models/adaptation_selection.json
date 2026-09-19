@@ -1,0 +1,6 @@
+{
+  "candidate": "local256",
+  "criterion": "Development top-3, then synthetic choice accuracy, then speed",
+  "code_sha256": "223dde1c690a3baa7e9fdf3c2407f6c0620ab610f9548fc935a3cb35e6a7e456",
+  "development_sha256": "fede576d6e22aa8553aec5c2b6c05314b78b29426ee95bf72d80fc79bd9571ab"
+}

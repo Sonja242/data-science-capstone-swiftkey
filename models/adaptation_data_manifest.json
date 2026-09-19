@@ -1,0 +1,25 @@
+{
+  "local_lines": 48000,
+  "local_sources": [
+    {
+      "source": "twitter",
+      "N": 24000
+    },
+    {
+      "source": "blogs",
+      "N": 12000
+    },
+    {
+      "source": "news",
+      "N": 12000
+    }
+  ],
+  "external_dialogs": 6168,
+  "external_raw_utterances": 135647,
+  "external_normalized_unique_lines": 98557,
+  "excluded_external_holdout_matches": 203,
+  "development_cases": 600,
+  "test_cases": 900,
+  "seeds": [20261301, 20261302, 20261303, 20261304, 20261305, 20261306, 20261307, 20261308],
+  "limitations": "Complete-line duplicates excluded; near duplicates and pretrained-model overlap can remain."
+}

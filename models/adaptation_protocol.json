@@ -1,0 +1,32 @@
+{
+  "recorded_utc": "2026-09-19T21:15:15.327411+00:00",
+  "task": "Exact next English word; free top-1/top-3 and separate synthetic four-choice scores",
+  "minimum_target": 0.85,
+  "stretch_target": 0.998,
+  "candidates": [
+    "base64",
+    "base256",
+    "local256",
+    "augmented256"
+  ],
+  "selection": "Development top-3, then synthetic four-choice, then latency",
+  "secondary_test_contrasts": [
+    "base256-base64",
+    "local256-base256",
+    "augmented256-local256"
+  ],
+  "test_cases": 900,
+  "development_cases": 600,
+  "training_steps_per_recipe": 256,
+  "input_tokens_per_recipe": 262144,
+  "training_data_mixtures": {
+    "local": "100% official training blocks",
+    "augmented": "75% official plus 25% Taskmaster training blocks"
+  },
+  "promotion": "Selected candidate replaces default only if paired test top-3 95% lower bound is above zero",
+  "test_sha256": "e3cafcd1f11919c7eeab6563d435622f25d68fefb21bfed58633a4ce87ed18a6",
+  "comparison_code_sha256": "223dde1c690a3baa7e9fdf3c2407f6c0620ab610f9548fc935a3cb35e6a7e456",
+  "pre_vectorization_code_sha256": "ebf26685b7278024edf3030a59df83d49bf34771ecd9325f753add0b4dc93f24",
+  "implementation_note": "Equivalent vectorized scoring for wider candidates, checked against original scores before final testing; candidate definitions and data unchanged.",
+  "implementation_checked_utc": "2026-09-19T21:24:30.853221+00:00"
+}

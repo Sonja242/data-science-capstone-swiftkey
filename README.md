@@ -36,7 +36,9 @@ Open the published [Data Science Capstone report website](https://sonja242.githu
 | `16_expanded_predictor_evaluation.Rmd` | Corpus-trained model with separate free-text and four-choice results |
 | `17_prepare_neural_comparison.R` | Prepare fresh development and test cases without changing local training |
 | `18_try_neural_predictor.R` | Run the optional local GPU model from the RStudio Console |
-| `19_neural_predictor_evaluation.Rmd` | Neural comparison, uncertainty intervals and the 85% target assessment |
+| `19_neural_predictor_evaluation.Rmd` | Initial neural comparison, uncertainty intervals and the 85% target assessment |
+| `20_prepare_adaptation.R` | Prepare matched training pools and fresh holdout examples |
+| `21_data_adaptation_report.Rmd` | Error analysis, two LoRA training recipes and a controlled extra-data comparison |
 
 The knitted `.html` files preserve the corresponding code and printed results.
 
@@ -65,3 +67,11 @@ Results depend on the official Coursera corpus version and the documented random
 The [neural model report](https://sonja242.github.io/data-science-capstone-swiftkey/neural-model.html) compares two pretrained Qwen3 Base models with the local n-gram model. It reports free-text and synthetic four-choice scores separately, with evidence for whether the requested 85% threshold is met. External pretraining overlap with the public corpus is unknown. See [the Python setup and reproduction instructions](python/README.md) for pinned model revisions, exact packages, GPU requirements and evaluation commands.
 
 In RStudio, open `18_try_neural_predictor.R` and click Source to enter a phrase and optional comma-separated answer choices. The lightweight R interface remains in `13_try_predictor.R`. Neither interface promises that its first suggestion is correct.
+
+## Does extra training data help?
+
+The [data-adaptation report](https://sonja242.github.io/data-science-capstone-swiftkey/data-adaptation.html) compares candidate-list expansion, adaptation to official training texts, and a training mixture with Google Taskmaster-1 conversations (CC BY 4.0, with attribution). Four candidates are compared using new development and test lines, with selection made before final testing. The report distinguishes measured gains from inconclusive results and retains separate free-text and synthetic four-choice scores. See [the full reproduction guide](python/ADAPTATION.md).
+
+On 900 fresh test cases, local adaptation raises free-text top-three accuracy from **34.1% to 36.2%** (paired 95% interval for the gain: **0.7 to 3.6 percentage points**). Synthetic four-choice accuracy is **85.7%**. The extra dialogue mixture does not establish a further benefit, and the 85% free-text target remains unmet.
+
+The existing `18_try_neural_predictor.R` remains the entry point. It uses the candidate admitted by the documented final-test promotion rule, with an explicit option to try experimental candidates. Earlier evaluation reports and source files remain available.

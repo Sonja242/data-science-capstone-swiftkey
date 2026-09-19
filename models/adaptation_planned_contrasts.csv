@@ -1,0 +1,7 @@
+contrast,metric,difference,lower,upper
+Expanded shortlist,top3,0.0,0.0,0.0
+Expanded shortlist,choice,0.0,0.0,0.0
+Local adaptation,top3,0.021111111111111112,0.006666666666666667,0.035555555555555556
+Local adaptation,choice,0.015555555555555555,0.0,0.03111111111111111
+Extra dialogue data,top3,-0.006666666666666667,-0.014444444444444446,0.001111111111111111
+Extra dialogue data,choice,0.0,-0.01,0.01

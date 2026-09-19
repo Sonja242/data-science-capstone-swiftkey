@@ -1,0 +1,188 @@
+---
+title: "Can Better-Matched Data Improve Next-Word Prediction?"
+subtitle: "Error diagnosis, controlled adaptation and a fresh final test"
+author: "Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    theme: flatly
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+knitr::opts_chunk$set(echo=TRUE,message=FALSE,warning=FALSE,fig.width=8,fig.height=4.5)
+audit <- jsonlite::fromJSON("models/adaptation_summary.json")
+data_info <- jsonlite::fromJSON("models/adaptation_data_manifest.json")
+external_info <- jsonlite::fromJSON("models/adaptation_external_source.json")
+development <- fread("models/adaptation_development.csv")
+test <- fread("models/adaptation_test.csv")
+contrasts <- fread("models/adaptation_planned_contrasts.csv")
+errors <- fread("models/adaptation_error_analysis.csv")
+sources <- fread("models/adaptation_sources.csv")
+train_local <- jsonlite::fromJSON("models/adaptation_training_local.json")
+train_augmented <- jsonlite::fromJSON("models/adaptation_training_augmented.json")
+selected <- test[candidate==audit$selection$candidate]
+reference <- test[candidate=="base64"]
+wider <- test[candidate=="base256"]
+labels <- c(base64="Existing neural model",base256="Wider candidate list",
+  local256="Adapted to official texts",augmented256="Adapted with extra dialogue")
+pct <- function(x) sprintf("%.1f%%",100*x)
+points <- function(x) sprintf("%+.1f",100*x)
+count <- function(x) format(x,big.mark=",",scientific=FALSE,trim=TRUE)
+bounds <- function(p,n) {
+  z <- qnorm(.975); d <- 1+z*z/n
+  center <- (p+z*z/(2*n))/d; half <- z*sqrt(p*(1-p)/n+z*z/(4*n*n))/d
+  c(center-half,center+half)
+}
+interval <- function(p,n) paste(pct(bounds(p,n)),collapse=" to ")
+extra <- contrasts[contrast=="Extra dialogue data" & metric=="top3"]
+```
+
+<style>
+body {font-family:Calibri,"Segoe UI",Arial,sans-serif;color:#161616;}
+h1,h2 {color:#164c78;} .main-container {max-width:1100px;}
+table {font-size:.95em;} .note {background:#eef5fb;padding:16px;border-left:4px solid #246394;}
+</style>
+
+**Management summary.** This experiment tests whether the next-word predictor benefits from a wider candidate list, additional training on the official corpus, or extra conversational data. On **900 fresh test examples**, the model chosen on development data achieves **`r pct(selected$top3)`** top-three accuracy, compared with **`r pct(reference$top3)`** for the unchanged neural model. Its four-choice accuracy is **`r pct(selected$synthetic_choice_accuracy)`**, using artificial alternatives rather than actual quiz questions.
+
+<div class="note">
+
+**Decision:** the 85% free-text target is **`r if(audit$free_text_85_met) "met in this sample" else "not met"`**. `r if(audit$promote) "The paired test supports promoting the development-selected candidate." else "The paired test does not establish a reliable improvement, so the existing neural predictor remains the default."` More training data is treated as a hypothesis to test, not a promise of 99.8% accuracy.
+
+</div>
+
+# What the previous errors showed
+
+On the previous 300 development examples, the correct word was absent from the candidate list in **28.0%** of cases. In another **33.3%**, it was present but ranked below the first three. This separates missing candidates from ranking errors. Short context was also associated with poorer performance; this descriptive comparison does not prove a causal effect of context length.
+
+```{r diagnosis, echo=FALSE}
+knitr::kable(errors[group %in% c("1-3 context words","4-9 context words","10+ context words"),
+ .(Context=group,Examples=cases,`First three`=pct(top3),`Missing candidate`=pct(target_missing),
+   `Present but ranked too low`=pct(ranking_miss))])
+```
+
+# Data and controlled changes
+
+The local adaptation pool contains **`r count(data_info$local_lines)` normalized training lines**: 24,000 Twitter, 12,000 blog and 12,000 news lines. Twitter receives extra weight as an exploratory choice: it had the lowest top-three accuracy in the previous development sample (36%, versus 38% for blogs and 42% for news). With only 100 examples per source, that comparison is uncertain. These lines are entirely within the existing official training partition [1].
+
+The added source is Google's **Taskmaster-1**, a collection of English task-oriented conversations, released under CC BY 4.0 [2]. We use only its official training conversation IDs: **`r count(data_info$external_dialogs)` conversations**, yielding **`r count(data_info$external_normalized_unique_lines)` unique eligible utterances** after cleaning. **`r data_info$excluded_external_holdout_matches`** complete normalized utterances matching our official holdout partitions were excluded. The conversations concern practical tasks; they are not interchangeable with casual tweets. This possible mismatch is precisely why their benefit is measured.
+
+Training runs locally on an NVIDIA RTX 2000 Ada laptop GPU with 8 GiB of video memory. Two small **LoRA adapters**, trainable additions to the model [3], update `r count(train_local$trainable_parameters)` parameters of the frozen Qwen3-1.7B Base model [4]. Each receives **256 optimization steps and 262,144 input tokens**, with identical architecture and training settings. One uses only official text; the other replaces 25% of its training blocks with Taskmaster text. This tests data composition at equal computation, rather than increasing both data and training time. The full data pool is larger than the portion consumed in this bounded experiment.
+
+| Candidate | Neural candidates, plus up to 20 local candidates | Additional training |
+|---|---:|---|
+| Existing neural model | 64 | None |
+| Wider candidate list | 256 | None |
+| Adapted to official texts | 256 | Official training texts |
+| Adapted with extra dialogue | 256 | 75% official and 25% Taskmaster blocks |
+
+# Validation and leakage controls
+
+We reserve **600 new development cases** and **900 new final test cases**, equally divided among blogs, news and Twitter. Previously evaluated lines are excluded. Complete normalized lines, rather than individual words from the same line, define the local partitions. Each case asks for one randomly selected next word given only its preceding text. Both training recipes and all four comparisons were fixed before final test outcomes were inspected.
+
+Development top-three accuracy selects the candidate; ties use four-choice accuracy and then speed. All four fixed candidates are subsequently tested to isolate shortlist, adaptation and extra-data effects. The final test does not choose new parameters. The RStudio interface applies the same normalization as the evaluation. Exact duplicates are checked, but near duplicates and overlap with Qwen's external pretraining may remain. Without reliable timestamps, this is a line-held-out language test, not a future-period forecasting study.
+
+```{r development-table, echo=FALSE}
+knitr::kable(development[,.(Candidate=unname(labels[candidate]),Examples=cases,
+  `First word`=pct(top1),`First three`=pct(top3),`Synthetic four-choice`=pct(synthetic_choice_accuracy))])
+```
+
+Selected before the final test: **`r unname(labels[audit$selection$candidate])`**.
+
+# Fresh final test
+
+**First word** counts exact matches at rank one; **first three** counts matches anywhere in the three suggestions. Candidate coverage is the proportion for which the observed word enters the shortlist. MRR at 3 rewards higher placement: 1, 1/2 or 1/3 for a correct word in those positions, and 0 otherwise.
+
+```{r final-table, echo=FALSE}
+knitr::kable(test[,.(Candidate=unname(labels[candidate]),`First word`=pct(top1),
+  `First three`=pct(top3),`Synthetic four-choice`=pct(synthetic_choice_accuracy),
+  `Candidate coverage`=pct(shortlist_recall),`MRR at 3`=sprintf("%.3f",mrr_at3),`Milliseconds per case`=round(milliseconds))])
+```
+
+Earlier reports use different test examples, so their percentages are not directly comparable with this table. Every comparison here uses the same 900 cases. Timing includes neural free-text and choice scoring after loading, with precomputed R shortlists. Model loading and R shortlist preparation add time.
+
+For the selected candidate, the 95% Wilson interval is **`r interval(selected$top3,selected$cases)`** for top-three accuracy and **`r interval(selected$synthetic_choice_accuracy,selected$cases)`** for four-choice accuracy. Its paired free-text change versus the existing model is **`r points(audit$paired$top3$difference)` percentage points**, with a source-stratified bootstrap 95% interval of **`r points(audit$paired$top3$ci95[1])` to `r points(audit$paired$top3$ci95[2])` points**.
+
+The constant reference predicts **“`r audit$constant_baseline$word`”** every time and achieves **`r pct(audit$constant_baseline$test_top1)`** top-one accuracy. This explicitly checks whether a frequent word alone explains apparent success. Four-choice options contain the observed word and three frequency-matched synthetic distractors. A high score on these alternatives does not establish the same score on an exam or unrestricted typing.
+
+*Hover over the points for exact scores and intervals. The dashed line marks 85%.*
+
+```{r results-plot, echo=FALSE}
+d <- melt(test,id.vars=c("candidate","cases"),measure.vars=c("top3","synthetic_choice_accuracy"),
+  variable.name="Task",value.name="accuracy")
+d[,Task:=factor(Task,levels=c("top3","synthetic_choice_accuracy"),
+  labels=c("Free text: first three","Synthetic four-choice"))]
+d[,Candidate:=factor(unname(labels[candidate]),levels=unname(labels))]
+d[,c("lower","upper"):=as.list(bounds(accuracy,cases)),by=seq_len(nrow(d))]
+d[,tooltip:=paste0(Candidate,"<br>",Task,"<br>",pct(accuracy),
+  "<br>95% interval: ",pct(lower)," to ",pct(upper))]
+p <- ggplot(d,aes(Candidate,accuracy,colour=Task,shape=Task,group=Task,text=tooltip))+
+  geom_hline(yintercept=.85,linetype="dashed",colour="#63727c")+
+  geom_errorbar(aes(ymin=lower,ymax=upper),width=.12,position=position_dodge(.4))+
+  geom_point(size=3,position=position_dodge(.4))+
+  scale_y_continuous(labels=scales::percent,limits=c(0,1))+
+  scale_colour_manual(values=c("#1765a0","#52616b"))+
+  labs(x=NULL,y="Accuracy",colour=NULL,shape=NULL)+theme_minimal(base_family="Segoe UI")+
+  theme(legend.position="bottom",axis.text.x=element_text(angle=12,hjust=1))
+plotly::ggplotly(p,tooltip="text")
+```
+
+# Did the extra data help?
+
+The direct comparison between the two adapters changes only the training-data mixture. Extra dialogue changes top-three accuracy by **`r points(extra$difference)` percentage points**; its paired 95% interval is **`r points(extra$lower)` to `r points(extra$upper)` points**. `r if(extra$lower>0) "This contrast supports a benefit under these settings." else if(extra$upper<0) "This contrast indicates worse performance under these settings." else "The interval includes no change, so this experiment does not establish a reliable benefit from the extra dialogue."`
+
+```{r planned-contrasts, echo=FALSE}
+knitr::kable(contrasts[,.(Comparison=contrast,Metric=ifelse(metric=="top3","Free top-three","Synthetic four-choice"),
+  `Change, percentage points`=points(difference),`95% paired interval`=paste(points(lower),"to",points(upper)))])
+```
+
+These secondary intervals are exploratory and are not corrected for multiple comparisons. We also inspect source-specific results because the effect of conversational training may interact with writing style.
+
+```{r source-table, echo=FALSE}
+knitr::kable(sources[,.(Source=source,Candidate=unname(labels[candidate]),
+  `First three`=pct(top3),`Synthetic four-choice`=pct(synthetic_choice_accuracy))])
+```
+
+# Discussion and conclusion
+
+Expanding the candidate list increased coverage from **`r pct(reference$shortlist_recall)`** to **`r pct(wider$shortlist_recall)`**, while top-three accuracy changed from **`r pct(reference$top3)`** to **`r pct(wider$top3)`**. This illustrates why candidate coverage alone is insufficient.
+
+The findings apply to this fixed training budget, shortlist and normalized English data. They do not prove that larger or differently matched datasets cannot help. A wider shortlist can improve coverage without improving the first three positions; training can lower its own loss without improving held-out accuracy. Those outcomes must be assessed separately. Correct alternative continuations also count as errors when they differ from the recorded author's word.
+
+**Operational decision:** `r if(audit$promote) paste("use",unname(labels[audit$selection$candidate]),"as the tested default.") else "retain the existing model as default and keep the experimental adapters available."` The 85% free-text target is **`r if(audit$free_text_85_met) "met in the sample, subject to the uncertainty interval" else "still unachieved"`**. A 99.8% guarantee is unsupported. The next experiment should be driven by the observed error types and representative intended-use text, with a new final holdout before any additional tuning.
+
+# Reproducibility
+
+This report was knitted from `21_data_adaptation_report.Rmd`. The complete workflow is documented in `python/ADAPTATION.md`. It retains the RStudio project, R source, compiled HTML, aggregate CSVs, prediction ranks, training logs and model/data hashes. The wider-list scorer was vectorized and checked against the original calculation before final testing; tested rankings were preserved and maximum log-score differences were below 0.00001. We use fixed seeds, pinned base-model and dataset revisions, and a separately recorded package lock file. Weights and raw text remain outside Git.
+
+```{r training-details, echo=FALSE}
+knitr::kable(data.frame(Recipe=c("Official text","With extra dialogue"),
+  Steps=c(train_local$steps,train_augmented$steps),
+  `Input tokens`=c(train_local$input_tokens,train_augmented$input_tokens),
+  `Training seconds`=round(c(train_local$seconds,train_augmented$seconds)),
+  `Peak GPU MiB`=round(c(train_local$peak_gpu_mib,train_augmented$peak_gpu_mib)),check.names=FALSE))
+```
+
+```{r run-workflow,eval=FALSE}
+source("20_prepare_adaptation.R")
+# Run the pinned Python workflow described in python/ADAPTATION.md.
+rmarkdown::render("21_data_adaptation_report.Rmd")
+source("18_try_neural_predictor.R")
+```
+
+```{r session}
+sessionInfo()
+```
+
+# References
+
+1. Johns Hopkins University / Coursera. [Official SwiftKey Capstone corpus](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip).
+2. Byrne, B. and colleagues (2019). [Taskmaster-1: Toward a Realistic and Diverse Dialog Dataset](https://research.google/pubs/taskmaster-1-toward-a-realistic-and-diverse-dialog-dataset/). Google LLC. [Dataset documentation and CC BY 4.0 attribution](https://github.com/google-research-datasets/Taskmaster/blob/d92cb6af3005f1dc09c39e75e7daf4a04905e00b/TM-1-2019/README.md). Training conversations only; normalized, deduplicated and filtered as described above.
+3. Hu, E. J. and colleagues (2021). [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685). Implementation: [Hugging Face PEFT documentation](https://huggingface.co/docs/peft/v0.17.0/package_reference/lora).
+4. Qwen Team. [Qwen3-1.7B-Base](https://huggingface.co/Qwen/Qwen3-1.7B-Base), revision `ea980cb0a6c2ae4b936e82123acc929f1cec04c1`, Apache-2.0.

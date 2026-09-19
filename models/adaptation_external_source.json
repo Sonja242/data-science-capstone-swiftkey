@@ -1,0 +1,7 @@
+{
+  "revision": "d92cb6af3005f1dc09c39e75e7daf4a04905e00b",
+  "repository": "google-research-datasets/Taskmaster",
+  "sha256": "1e590ed0ccee279e40c2fb9e083d3b9417477c6bfe35ce5b2277167698dd858d",
+  "license": "CC BY 4.0",
+  "subset": "TM-1-2019 self-dialogs, official training conversation IDs"
+}

@@ -1,0 +1,128 @@
+{
+  "selection": {
+    "candidate": "local256",
+    "criterion": "Development top-3, then synthetic choice accuracy, then speed",
+    "code_sha256": "223dde1c690a3baa7e9fdf3c2407f6c0620ab610f9548fc935a3cb35e6a7e456",
+    "development_sha256": "fede576d6e22aa8553aec5c2b6c05314b78b29426ee95bf72d80fc79bd9571ab"
+  },
+  "test": [
+    {
+      "candidate": "base64",
+      "cases": 900,
+      "top1": 0.22555555555555556,
+      "top3": 0.3411111111111111,
+      "synthetic_choice_accuracy": 0.8411111111111111,
+      "mrr_at3": 0.2774074074074074,
+      "shortlist_recall": 0.6977777777777778,
+      "milliseconds": 183.4350547777851,
+      "peak_gpu_mib": 3887.99365234375
+    },
+    {
+      "candidate": "base256",
+      "cases": 900,
+      "top1": 0.22555555555555556,
+      "top3": 0.3411111111111111,
+      "synthetic_choice_accuracy": 0.8411111111111111,
+      "mrr_at3": 0.2774074074074074,
+      "shortlist_recall": 0.7611111111111111,
+      "milliseconds": 254.55806455555526,
+      "peak_gpu_mib": 4469.7783203125
+    },
+    {
+      "candidate": "local256",
+      "cases": 900,
+      "top1": 0.24333333333333335,
+      "top3": 0.3622222222222222,
+      "synthetic_choice_accuracy": 0.8566666666666667,
+      "mrr_at3": 0.2961111111111111,
+      "shortlist_recall": 0.7744444444444445,
+      "milliseconds": 276.8034477777676,
+      "peak_gpu_mib": 4469.7783203125
+    },
+    {
+      "candidate": "augmented256",
+      "cases": 900,
+      "top1": 0.24,
+      "top3": 0.35555555555555557,
+      "synthetic_choice_accuracy": 0.8566666666666667,
+      "mrr_at3": 0.2922222222222222,
+      "shortlist_recall": 0.78,
+      "milliseconds": 265.7143653333252,
+      "peak_gpu_mib": 4469.7783203125
+    }
+  ],
+  "paired": {
+    "top3": {
+      "difference": 0.021111111111111112,
+      "ci95": [
+        0.006666666666666667,
+        0.035555555555555556
+      ]
+    },
+    "choice": {
+      "difference": 0.015555555555555555,
+      "ci95": [
+        0.0011111111111111107,
+        0.03111111111111111
+      ]
+    }
+  },
+  "secondary_contrasts": [
+    {
+      "contrast": "Expanded shortlist",
+      "metric": "top3",
+      "difference": 0.0,
+      "lower": 0.0,
+      "upper": 0.0
+    },
+    {
+      "contrast": "Expanded shortlist",
+      "metric": "choice",
+      "difference": 0.0,
+      "lower": 0.0,
+      "upper": 0.0
+    },
+    {
+      "contrast": "Local adaptation",
+      "metric": "top3",
+      "difference": 0.021111111111111112,
+      "lower": 0.006666666666666667,
+      "upper": 0.035555555555555556
+    },
+    {
+      "contrast": "Local adaptation",
+      "metric": "choice",
+      "difference": 0.015555555555555555,
+      "lower": 0.0,
+      "upper": 0.03111111111111111
+    },
+    {
+      "contrast": "Extra dialogue data",
+      "metric": "top3",
+      "difference": -0.006666666666666667,
+      "lower": -0.014444444444444446,
+      "upper": 0.001111111111111111
+    },
+    {
+      "contrast": "Extra dialogue data",
+      "metric": "choice",
+      "difference": 0.0,
+      "lower": -0.01,
+      "upper": 0.01
+    }
+  ],
+  "constant_baseline": {
+    "word": "the",
+    "rule": "Most frequent word in the smaller official training partition",
+    "test_top1": 0.042222222222222223
+  },
+  "promote": true,
+  "default_candidate": "local256",
+  "free_text_85_met": false,
+  "synthetic_choices_85_met": true,
+  "limitations": [
+    "External pretrained-model overlap is unknown.",
+    "Synthetic options are not a quiz score.",
+    "A small fixed-budget adaptation experiment does not establish the best attainable model."
+  ]
+}

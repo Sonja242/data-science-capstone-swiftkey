@@ -1,0 +1,18 @@
+{
+  "passed": true,
+  "development_cases": 600,
+  "test_cases": 900,
+  "training_lines": {
+    "local_training.txt": 48000,
+    "taskmaster_training.txt": 98557
+  },
+  "new_holdout_overlaps_previous_neural_cases": 0,
+  "training_exact_line_overlaps_new_holdout": 0,
+  "training_data_code_adapter_hashes_verified": true,
+  "evaluation_matches_frozen_protocol": true,
+  "development_outcomes_identical_before_after_vectorization": {
+    "base64": 600,
+    "base256": 600
+  },
+  "limitations": "Exact normalized-line checks do not exclude near duplicates or external pretraining overlap."
+}

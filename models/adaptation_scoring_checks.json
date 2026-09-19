@@ -1,0 +1,14 @@
+[
+  {
+    "candidates": 247,
+    "max_absolute_log_score_difference": 3.814697265625e-06,
+    "original_seconds": 0.21787190000759438,
+    "vectorized_seconds": 0.17223419999936596
+  },
+  {
+    "candidates": 256,
+    "max_absolute_log_score_difference": 3.814697265625e-06,
+    "original_seconds": 0.1962700999865774,
+    "vectorized_seconds": 0.15464250001241453
+  }
+]
