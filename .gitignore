@@ -8,6 +8,7 @@
 *_cache/
 *_files/
 rsconnect/
+backups/
 
 # Official corpus: download from Coursera instead of committing it
 data/
