@@ -34,12 +34,19 @@ light_blue <- "#80b6d6"
 ```
 
 <div class="summary-box">
-<strong>Management summary.</strong> The official English SwiftKey corpus contains three large text sources: blogs, news and Twitter. Together they provide more than four million lines of natural language. The analysis confirms that the files are usable, but also shows that their writing styles differ and that rare word sequences are common. The planned product will therefore use a compact back-off n-gram model, validate predictions on unseen text, filter unsuitable suggestions and return three next-word options quickly in a Shiny app.
+<strong>Management summary.</strong> The official English SwiftKey corpus contains 4.27 million lines and 102.40 million word tokens across blogs, news and Twitter. Complete-file counts show strong source differences, while a reproducible sample shows that longer word sequences are highly sparse. These findings motivate testing a compact back-off n-gram model that is validated on unseen text, filters unsuitable suggestions and returns three next-word options quickly in a Shiny app.
 </div>
 
 # Data and scope
 
-The analysis uses the unmodified English files supplied through the Coursera Capstone download. The files are processed in chunks, so the complete corpus does not have to be held in memory. A deterministic sample is retained for exploratory plots and language-pattern summaries.
+The analysis uses the three unmodified English files supplied through the Coursera and SwiftKey Capstone download (see References). They are processed in chunks so that the complete corpus does not have to be held in memory. Complete-file summaries and a deterministic sample serve different purposes, as described below.
+
+## Analytical approach
+
+- **Complete-file summaries:** every line in all three files is scanned in chunks of 20,000 lines. File size is reported in mebibytes (`bytes / 1024^2`). A word token is counted with the Unicode-aware `stringi::stri_count_words()` function. These complete scans produce the file sizes, line counts, word counts and average words per line in Table 1.
+- **Reproducible exploratory sample:** each line has a 0.15% selection probability, with a fixed seed and a maximum of 4,500 lines per source. This produced 6,313 lines: 1,327 blogs, 1,484 news and 3,502 Twitter. Sampling reduces the memory and processing cost of distribution, term-frequency and n-gram analyses while retaining observations from every source. The fixed seed makes the selected sample reproducible.
+- **Text preparation:** sampled text is converted from Windows-1252 to UTF-8. For term and n-gram summaries it is lowercased; URLs, user mentions, HTML entities and non-letter characters are removed; meaningful internal apostrophes are retained; and repeated whitespace is collapsed. The frequent-term plot additionally removes a documented list of common English stopwords so that more informative content words remain visible.
+- **Visual treatment:** the line-length histogram omits observations above the sample's 99th percentile from the display only. This prevents a few extreme lines from compressing the main distribution; no observations are removed from the complete-file counts in Table 1.
 
 ```{r build-artifacts}
 paths <- official_corpus_paths()
@@ -91,6 +98,8 @@ ggplot(plot_scale, aes(source, millions, fill = measure)) +
   theme_minimal(base_size = 13) +
   theme(legend.position = "top", panel.grid.major.x = element_blank())
 ```
+
+The two measures tell different stories. Twitter contributes 2.36 million short records, whereas blogs contain fewer than 0.90 million lines but the largest word total at 37.55 million. Showing both line and word counts prevents the largest record count from being mistaken for the largest amount of text.
 
 # How line length differs
 
@@ -159,6 +168,8 @@ The first production candidate will be a **frequency-based back-off n-gram model
 
 The model will be compared with simpler baselines. A held-out validation set will measure top-1 accuracy, top-3 accuracy, mean reciprocal rank, coverage, response time and model size. The final choice will balance predictive quality with the speed required for an interactive product.
 
+In practical terms, if a user enters `I went to the`, the model will first search for words observed after the context `went to the`. If that context is unseen or unreliable, it will fall back to `to the`, then `the`, and finally to overall word frequency. This hierarchy explains how the app can still return suggestions for unfamiliar phrases.
+
 # Shiny product plan
 
 The app will accept a short English phrase and immediately display three suggested next words. It will also show a plain-language explanation of the context used, allow the user to append a suggestion to the phrase and provide example prompts. The interface will be mobile-friendly because predictive typing is primarily a mobile use case.
@@ -183,7 +194,7 @@ The exploratory analysis confirms that the official SwiftKey corpus was download
 
 # Reproducibility
 
-This report was knitted from R Markdown. Essential code and its results are retained in the document and can be revealed with the expandable **Code** buttons. The analysis uses the official corpus files stored under `data/final/en_US/`; cached derived summaries allow the report to be rebuilt without silently changing the underlying inputs.
+This report was knitted from R Markdown. Essential code and its results are retained in the document and can be revealed with the expandable **Code** buttons. The analysis uses the official corpus files stored under `data/final/en_US/`; cached derived summaries avoid repeated scans of the large source files; deleting the cache forces a complete rebuild from those inputs.
 
 ```{r session-info}
 cat("R version:", R.version.string, "\n")
