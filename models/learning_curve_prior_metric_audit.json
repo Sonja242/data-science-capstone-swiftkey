@@ -1,0 +1,54 @@
+{
+  "passed": true,
+  "audited_artifacts": [
+    {
+      "filename": "adaptation_base64_development.json",
+      "sha256": "2d6cbf0a43187ca66796bf89aa6f1a974a0c21571b492693600a8f1a95ca9e7f",
+      "metrics": {
+        "cases": 600,
+        "top1": 0.22833333333333333,
+        "top3": 0.3516666666666667,
+        "mrr_at3": 0.28194444444444444,
+        "synthetic_choice_accuracy": 0.8483333333333334,
+        "shortlist_recall": 0.685
+      }
+    },
+    {
+      "filename": "adaptation_base256_development.json",
+      "sha256": "3a959c6140799cef0606ce4cd4f7b420fe511e49b825b27da6d3f4f96f149c91",
+      "metrics": {
+        "cases": 600,
+        "top1": 0.22833333333333333,
+        "top3": 0.3516666666666667,
+        "mrr_at3": 0.28194444444444444,
+        "synthetic_choice_accuracy": 0.8483333333333334,
+        "shortlist_recall": 0.7716666666666666
+      }
+    },
+    {
+      "filename": "adaptation_local256_development.json",
+      "sha256": "b3393f6a2445b9d7466212860078bb2d80453af9ad7a7facd68af482776955fa",
+      "metrics": {
+        "cases": 600,
+        "top1": 0.24833333333333332,
+        "top3": 0.37,
+        "mrr_at3": 0.2991666666666667,
+        "synthetic_choice_accuracy": 0.8666666666666667,
+        "shortlist_recall": 0.7783333333333333
+      }
+    },
+    {
+      "filename": "adaptation_augmented256_development.json",
+      "sha256": "c9f0da29f31eb70dcfea99808213c112c3d6f082ecac3626f499804715cba2bc",
+      "metrics": {
+        "cases": 600,
+        "top1": 0.245,
+        "top3": 0.3616666666666667,
+        "mrr_at3": 0.295,
+        "synthetic_choice_accuracy": 0.87,
+        "shortlist_recall": 0.7866666666666666
+      }
+    }
+  ],
+  "note": "Metrics and internal consistency only; selection and disjointness need explicit corresponding manifests."
+}

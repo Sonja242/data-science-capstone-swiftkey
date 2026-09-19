@@ -1,0 +1,17 @@
+{
+  "passed": true,
+  "author": "Sonja Sahebzad",
+  "partition_lines": 4016699,
+  "partition_normalized_lines_unique": true,
+  "original_v3_sampling_reconstruction_identical": true,
+  "four_prior_exports_reconstructed_exactly": true,
+  "prior_evaluation_cases": 7500,
+  "prior_evaluation_row_overlap": 0,
+  "local_training_lines": 48000,
+  "local_training_all_in_train_partition": true,
+  "new_learning_curve_holdout_text_or_outcomes_inspected": false,
+  "reserved_hash_manifest_cases": 900,
+  "reserved_hash_overlap_prior_evaluations": 0,
+  "reserved_hash_overlap_prior_adaptation_training": 0,
+  "limitations": "Exact normalized-line separation only; near duplicates, related documents and unknown pretrained-model overlap remain possible."
+}
