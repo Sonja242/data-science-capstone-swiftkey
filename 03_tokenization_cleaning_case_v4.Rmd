@@ -1,0 +1,237 @@
+---
+title: "SwiftKey Corpus: Sampling, Tokenization and Cleaning"
+author: "Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 9,
+  fig.height = 5
+)
+```
+
+# Purpose
+
+This reproducible case study uses the official English SwiftKey corpus supplied by Coursera. It demonstrates how to inspect large text files without loading the complete corpus into memory, draw a small sample, tokenize text, and remove terms that should not be predicted. The resulting sample is intended for learning and initial exploration; a production language model requires broader validation.
+
+# Locate the official files
+
+```{r locate-files}
+data_dir <- file.path("data", "final", "en_US")
+
+corpus_files <- c(
+  blogs = file.path(data_dir, "en_US.blogs.txt"),
+  news = file.path(data_dir, "en_US.news.txt"),
+  twitter = file.path(data_dir, "en_US.twitter.txt")
+)
+
+file_check <- data.frame(
+  source = names(corpus_files),
+  file = basename(corpus_files),
+  exists = file.exists(corpus_files),
+  size_mb = round(file.info(corpus_files)$size / 1024^2, 1),
+  row.names = NULL
+)
+
+file_check
+stopifnot(all(file_check$exists))
+```
+
+# Read a small sample in chunks
+
+The function below processes one chunk at a time. A Bernoulli draw decides whether each line is retained. This follows the course advice to work with a manageable subset instead of loading hundreds of megabytes at once.
+
+```{r sampling-function}
+sample_lines_chunked <- function(path,
+                                 probability = 0.0005,
+                                 chunk_size = 10000L,
+                                 maximum = 2500L,
+                                 seed = 20260919L) {
+  set.seed(seed)
+  # The archived corpus contains legacy Windows-1252 byte sequences.
+  # Temporarily using that Windows locale prevents readLines() from stopping
+  # when it encounters a byte that is not valid UTF-8.
+  previous_ctype <- Sys.getlocale("LC_CTYPE")
+  suppressWarnings(Sys.setlocale("LC_CTYPE", "English_United States.1252"))
+  on.exit(Sys.setlocale("LC_CTYPE", previous_ctype), add = TRUE)
+
+  connection <- file(path, open = "r")
+  on.exit(close(connection), add = TRUE)
+
+  selected <- character()
+  lines_scanned <- 0L
+
+  repeat {
+    chunk <- readLines(
+      connection,
+      n = chunk_size,
+      warn = FALSE,
+      skipNul = TRUE
+    )
+
+    if (length(chunk) == 0L || length(selected) >= maximum) break
+
+    lines_scanned <- lines_scanned + length(chunk)
+    keep <- as.logical(rbinom(length(chunk), size = 1L, prob = probability))
+    selected <- c(selected, chunk[keep])
+
+    if (length(selected) > maximum) selected <- selected[seq_len(maximum)]
+  }
+
+  selected <- iconv(selected, from = "windows-1252", to = "UTF-8", sub = "byte")
+  list(lines = selected, lines_scanned = lines_scanned)
+}
+```
+
+```{r draw-sample}
+sampled <- lapply(
+  seq_along(corpus_files),
+  function(i) sample_lines_chunked(corpus_files[[i]], seed = 20260919L + i)
+)
+names(sampled) <- names(corpus_files)
+
+sample_summary <- data.frame(
+  source = names(sampled),
+  lines_scanned = vapply(sampled, function(x) x$lines_scanned, integer(1)),
+  lines_sampled = vapply(sampled, function(x) length(x$lines), integer(1)),
+  row.names = NULL
+)
+
+sample_summary
+
+sample_text <- unlist(lapply(sampled, `[[`, "lines"), use.names = FALSE)
+length(sample_text)
+```
+
+# Inspect the raw sample safely
+
+Real web text can contain foreign-language fragments, malformed characters, URLs, user names and offensive language. For that reason, the report shows structural statistics rather than printing arbitrary raw lines.
+
+```{r raw-quality}
+raw_quality <- data.frame(
+  sampled_lines = length(sample_text),
+  empty_lines = sum(!nzchar(trimws(sample_text))),
+  lines_with_url = sum(grepl("https?://|www\\.", sample_text, ignore.case = TRUE)),
+  lines_with_at_mention = sum(grepl("@[[:alnum:]_]", sample_text)),
+  median_characters = median(nchar(sample_text, type = "chars")),
+  maximum_characters = max(nchar(sample_text, type = "chars"))
+)
+
+raw_quality
+```
+
+# Tokenization
+
+The tokenizer converts text to lowercase, removes URLs and user mentions, keeps apostrophes inside words, replaces other characters with spaces, and returns individual word tokens. Numbers and punctuation are excluded because this first model focuses on word prediction.
+
+```{r tokenizer}
+tokenize_words <- function(lines) {
+  lines <- enc2utf8(lines)
+  lines <- tolower(lines)
+  lines <- gsub("https?://[^[:space:]]+|www\\.[^[:space:]]+", " ", lines)
+  lines <- gsub("@[[:alnum:]_]+", " ", lines)
+  # The target corpus is English. Restricting tokens to ASCII letters removes
+  # mojibake fragments such as a standalone U+00E2 without discarding English words.
+  lines <- gsub("[^a-z']+", " ", lines)
+  lines <- gsub("(^|[[:space:]])'+|'+([[:space:]]|$)", " ", lines)
+  lines <- trimws(gsub("[[:space:]]+", " ", lines))
+
+  tokens <- unlist(strsplit(lines[nzchar(lines)], " ", fixed = TRUE), use.names = FALSE)
+  tokens[nzchar(tokens)]
+}
+
+tokens_raw <- tokenize_words(sample_text)
+
+data.frame(
+  sampled_lines = length(sample_text),
+  word_tokens = length(tokens_raw),
+  unique_tokens = length(unique(tokens_raw))
+)
+```
+
+# Profanity and unwanted-term filtering
+
+The filter is deliberately stored in one editable vector. In a real product, the list should be reviewed with stakeholders and tested for context, false positives, spelling variants and bias. The report displays only the number removed, not the blocked terms themselves.
+
+```{r filter-function}
+blocked_terms <- c(
+  "damn", "hell", "shit", "fuck",
+  "example_unwanted_term"
+)
+
+filter_tokens <- function(tokens, blocked) {
+  tokens[!(tokens %in% tolower(blocked))]
+}
+
+tokens_clean <- filter_tokens(tokens_raw, blocked_terms)
+
+data.frame(
+  tokens_before = length(tokens_raw),
+  tokens_removed = length(tokens_raw) - length(tokens_clean),
+  tokens_after = length(tokens_clean)
+)
+```
+
+# Exploratory token frequencies
+
+Common function words are removed only for this descriptive chart. They should not automatically be removed from a next-word prediction model because words such as *the*, *to* and *of* carry important sequence information.
+
+```{r frequency-table}
+chart_stopwords <- c(
+  "the", "a", "an", "and", "or", "but", "to", "of", "in", "on",
+  "for", "with", "is", "are", "was", "were", "be", "been", "it",
+  "this", "that", "i", "you", "he", "she", "we", "they", "my",
+  "your", "our", "their", "at", "as", "from", "by"
+)
+
+frequency_tokens <- tokens_clean[!(tokens_clean %in% chart_stopwords)]
+token_counts <- sort(table(frequency_tokens), decreasing = TRUE)
+top_tokens <- head(token_counts, 15)
+
+data.frame(
+  token = names(top_tokens),
+  frequency = as.integer(top_tokens),
+  row.names = NULL
+)
+```
+
+```{r frequency-chart}
+old_par <- par(no.readonly = TRUE)
+par(mar = c(5, 9, 2, 1), family = "sans")
+
+barplot(
+  rev(as.integer(top_tokens)),
+  names.arg = rev(names(top_tokens)),
+  horiz = TRUE,
+  las = 1,
+  col = "#2C78B8",
+  border = NA,
+  xlab = "Frequency in the sampled corpus",
+  main = "Most frequent content tokens"
+)
+
+par(old_par)
+```
+
+# Analytical choices and limitations
+
+- **Chunked reading:** limits memory use and mirrors work with large production corpora.
+- **Sampling:** speeds up initial exploration, but rare words and rare language patterns may be missed.
+- **Token definition:** this first version retains alphabetic words and internal apostrophes. Emoji, numbers and punctuation are excluded and may need separate handling later.
+- **Profanity filtering:** a short rule-based list is transparent but incomplete. Context-aware moderation and stakeholder review would improve it.
+- **Model implications:** stopwords remain available for future n-gram modelling even though they are suppressed in the descriptive frequency chart.
+- **Sensitivity:** results should later be compared across larger samples and alternative tokenization rules to test whether conclusions remain stable.
+
+# Next step
+
+The cleaned tokens can next be converted into unigram, bigram and trigram frequency tables. Those candidate models can be compared using held-out text, prediction coverage, accuracy and memory use before building the final Shiny application.

@@ -1,0 +1,206 @@
+---
+title: "Practice: File and Text Operations in R"
+author: "Author: Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    code_folding: show
+---
+
+<style>
+body { font-family: "Segoe UI", Calibri, sans-serif; color: #111111; }
+h1, h2, h3 { color: #174a7e; }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+```
+
+# Purpose
+
+This notebook teaches the R operations needed to inspect text files. It uses a small practice corpus and does not contain answers to the monitored Coursera quiz.
+
+# Practice text
+
+```{r practice-data}
+practice_lines <- c(
+  "Data products turn analysis into useful tools.",
+  "A clear model can support a decision.",
+  "Good data needs careful cleaning.",
+  "A model is useful when its errors are understood.",
+  "This exact practice sentence appears once."
+)
+
+practice_lines
+```
+
+# Inspect a file size
+
+R reports file sizes in bytes. Dividing by `1024^2` converts bytes to mebibytes, which are commonly displayed as MB.
+
+```{r file-size}
+practice_file <- tempfile(fileext = ".txt")
+writeLines(practice_lines, practice_file)
+
+size_bytes <- file.info(practice_file)$size
+size_mb <- size_bytes / 1024^2
+
+data.frame(size_bytes = size_bytes, size_mb = size_mb)
+```
+
+# Count lines
+
+```{r count-lines}
+length(practice_lines)
+```
+
+For a large file, process chunks so the complete corpus is not retained in memory.
+
+```{r chunked-line-count}
+count_lines_chunked <- function(path, chunk_size = 10000L) {
+  connection <- file(path, open = "r", encoding = "UTF-8")
+  on.exit(close(connection))
+
+  total <- 0L
+  repeat {
+    chunk <- readLines(connection, n = chunk_size, warn = FALSE, skipNul = TRUE)
+    if (length(chunk) == 0L) break
+    total <- total + length(chunk)
+  }
+  total
+}
+```
+
+# Find the longest line
+
+```{r longest-line}
+line_lengths <- nchar(practice_lines, type = "chars")
+longest_index <- which.max(line_lengths)
+
+data.frame(
+  line_number = longest_index,
+  length = line_lengths[longest_index],
+  text = practice_lines[longest_index]
+)
+```
+
+# Find a lowercase word
+
+Word boundaries ensure that a search term is treated as a complete word. The search below is case-sensitive.
+
+```{r find-word}
+contains_data <- grepl("\\bdata\\b", practice_lines, perl = TRUE)
+practice_lines[contains_data]
+sum(contains_data)
+```
+
+# Compare two search counts
+
+```{r compare-counts}
+model_count <- sum(grepl("\\bmodel\\b", practice_lines, perl = TRUE))
+error_count <- sum(grepl("\\berrors?\\b", practice_lines, perl = TRUE))
+
+if (error_count > 0L) model_count / error_count else NA_real_
+```
+
+# Search for an exact complete line
+
+```{r exact-match}
+target_line <- "This exact practice sentence appears once."
+sum(practice_lines == target_line)
+```
+
+# Your independent practice
+
+Use the same ideas on a text file of your choice:
+
+1. Inspect its size and state the unit used.
+2. Count its lines without retaining the complete file.
+3. Find the longest line and identify its position.
+4. Count lines containing two different lowercase words.
+5. Calculate a ratio only after checking that the denominator is nonzero.
+6. Search for one complete line using exact equality.
+
+Explain each result in your own words before starting the monitored quiz.
+
+
+# Your turn: count the official Twitter file
+
+Run this chunk yourself in RStudio. It checks that the official file exists and then counts its lines without keeping the complete file in memory.
+
+```{r official-twitter-line-count, eval=FALSE}
+twitter_file <- file.path("data", "final", "en_US", "en_US.twitter.txt")
+file.exists(twitter_file)
+count_lines_chunked(twitter_file)
+```
+
+# Six-step self-study worksheet
+
+Use this worksheet to practise each required operation. Replace only the quoted placeholders with a file path, search word, or sentence chosen for your own work. Run each chunk yourself and explain the output in your own words.
+
+## Task 1 — Inspect a file size
+
+```{r worksheet-file-size, eval=TRUE}
+file_path <- practice_file
+size_bytes <- file.info(file_path)$size
+size_mib <- size_bytes / 1024^2
+data.frame(size_bytes, size_mib)
+```
+
+## Task 2 — Count lines
+
+```{r worksheet-line-count, eval=TRUE}
+file_path <- practice_file
+count_lines_chunked(file_path)
+```
+
+
+## Task 3 — Find the longest line
+
+```{r worksheet-longest-line, eval=TRUE}
+practice_files <- c(
+  source_a = tempfile(fileext = ".txt"),
+  source_b = tempfile(fileext = ".txt"),
+  source_c = tempfile(fileext = ".txt")
+)
+
+writeLines(c("Short line.", "A somewhat longer practice line."), practice_files[1])
+writeLines(c("Tiny.", "This neutral example is the longest practice line in the three files."), practice_files[2])
+writeLines(c("Another line.", "A medium practice sentence."), practice_files[3])
+
+longest_per_file <- vapply(practice_files, function(path) {
+  lines <- readLines(path, warn = FALSE, skipNul = TRUE)
+  max(nchar(lines, type = "chars"))
+}, integer(1))
+
+data.frame(file = names(longest_per_file), longest_line = longest_per_file)
+```
+
+## Task 4 — Compare two lowercase word counts
+
+```{r worksheet-word-ratio, eval=TRUE}
+text_lines <- practice_lines
+word_a <- "data"
+word_b <- "model"
+count_a <- sum(grepl(paste0("\\b", word_a, "\\b"), text_lines, perl = TRUE))
+count_b <- sum(grepl(paste0("\\b", word_b, "\\b"), text_lines, perl = TRUE))
+if (count_b > 0L) count_a / count_b else NA_real_
+```
+
+## Task 5 — Find a line containing one word
+
+```{r worksheet-find-word, eval=TRUE}
+search_word <- "cleaning"
+matches <- grepl(paste0("\\b", search_word, "\\b"), text_lines, perl = TRUE)
+text_lines[matches]
+```
+
+## Task 6 — Count an exact complete line
+
+```{r worksheet-exact-line, eval=TRUE}
+target_line <- "This exact practice sentence appears once."
+sum(text_lines == target_line)
+```

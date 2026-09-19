@@ -1,0 +1,24 @@
+# RStudio project state
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+
+# Generated caches and support folders
+*_cache/
+*_files/
+
+# Official corpus: download from Coursera instead of committing it
+data/
+*.zip
+
+# Operating-system files
+.DS_Store
+Thumbs.db
+
+# Earlier draft variants retained locally
+03_tokenization_cleaning_case.Rmd
+03_tokenization_cleaning_case_v2.Rmd
+03_tokenization_cleaning_case_v3.Rmd
+03_tokenization_cleaning_case_v3.html
+README.original.md

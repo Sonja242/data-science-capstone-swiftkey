@@ -1,0 +1,67 @@
+---
+title: "Data Science Capstone: Getting Started with the SwiftKey Corpus"
+author: "Author: Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    code_folding: hide
+---
+
+<style>
+body { font-family: "Segoe UI", Calibri, sans-serif; color: #111111; }
+h1, h2, h3 { color: #174a7e; }
+</style>
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+data_dir <- file.path("data", "final", "en_US")
+corpus_files <- c(
+  blogs = file.path(data_dir, "en_US.blogs.txt"),
+  news = file.path(data_dir, "en_US.news.txt"),
+  twitter = file.path(data_dir, "en_US.twitter.txt")
+)
+```
+
+# Purpose
+
+This notebook introduces the official English SwiftKey corpus without loading the complete dataset into memory. It supports independent preparation for the monitored Coursera quiz and creates a reproducible starting point for the later exploratory analysis.
+
+# Verify the files
+
+```{r verify-files}
+stopifnot(all(file.exists(corpus_files)))
+data.frame(
+  source = names(corpus_files),
+  file = basename(corpus_files),
+  available = file.exists(corpus_files),
+  row.names = NULL
+)
+```
+
+# Preview a few lines
+
+```{r preview-lines}
+preview_text <- lapply(corpus_files, function(path) {
+  readLines(path, n = 5, encoding = "UTF-8", skipNul = TRUE, warn = FALSE)
+})
+
+preview_text
+```
+
+# What to inspect yourself
+
+For each source, investigate the following in R and record what the result means:
+
+1. How can R count lines without keeping the complete file in memory?
+2. How can you distinguish characters, tokens, and words?
+3. How should blank lines and unusual encodings be handled?
+4. Why is a representative sample useful for a corpus this large?
+5. Which cleaning choices are appropriate for a next-word prediction model?
+
+# Initial NLP considerations
+
+Tokenization converts text into units such as words or punctuation. Cleaning decisions should preserve information needed for prediction while handling URLs, numbers, punctuation, casing, contractions, profanity, and encoding consistently. The same preprocessing must later be applied to both the training corpus and user input.
+

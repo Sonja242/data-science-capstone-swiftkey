@@ -1,0 +1,164 @@
+---
+title: "Capstone Quiz 1: Reproducible Verification"
+subtitle: "Official SwiftKey corpus calculations completed in R"
+author: "Author: Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 9,
+  fig.height = 5
+)
+source(file.path("R", "quiz1_verification.R"))
+```
+
+# Purpose
+
+This report documents the calculations used to verify the completed Capstone Quiz 1 after achieving a score of 100%. It uses only the official Coursera SwiftKey corpus and performs all calculations in R, making the results reproducible on Windows without requiring Git Bash or Unix command-line tools.
+
+# Official source files
+
+```{r official-files}
+corpus_files <- official_corpus_paths()
+
+file_inventory <- data.frame(
+  source = names(corpus_files),
+  file = basename(corpus_files),
+  size_bytes = unname(file.info(corpus_files)$size),
+  size_mib = round(unname(file.info(corpus_files)$size) / 1024^2, 1),
+  stringsAsFactors = FALSE
+)
+
+knitr::kable(
+  file_inventory,
+  caption = "Official English SwiftKey files",
+  align = c("l", "l", "r", "r")
+)
+```
+
+# One-pass corpus scan
+
+The three large files are read in chunks. Each file is scanned once to count lines and find its longest line. The Twitter scan simultaneously performs the additional text searches needed for the completed verification.
+
+```{r scan-corpus, cache=TRUE}
+scan_results <- scan_official_corpus(corpus_files)
+scan_table <- corpus_scan_table(scan_results)
+
+knitr::kable(
+  scan_table,
+  caption = "Complete-corpus line counts and maximum line lengths",
+  align = c("l", "r", "r")
+)
+```
+
+# Question 1 — Blogs file size
+
+```{r question-1}
+question_1_result <- file_inventory[file_inventory$source == "blogs", ]
+question_1_result
+```
+
+The blogs file is **`r question_1_result$size_mib` MiB**, so the nearest offered answer is **200 MB**.
+
+# Question 2 — Number of Twitter lines
+
+```{r question-2}
+question_2_result <- scan_table$line_count[scan_table$source == "twitter"]
+question_2_result
+```
+
+The Twitter file contains **`r format(question_2_result, big.mark = ",", scientific = FALSE)` lines**, corresponding to **Over 2 million**.
+
+# Question 3 — Longest line across the three files
+
+```{r question-3}
+question_3_results <- scan_table[, c("source", "longest_line")]
+question_3_results
+
+question_3_winner <- question_3_results[
+  which.max(question_3_results$longest_line),
+]
+question_3_winner
+```
+
+The maximum is **`r format(question_3_winner$longest_line, big.mark = ",")` characters** in the **`r question_3_winner$source`** file, corresponding to **Over 40 thousand in the blogs data set**.
+
+# Question 4 — Ratio of Twitter lines containing two lowercase substrings
+
+The course solution uses `grep`, which counts case-sensitive substring matches. This differs from complete-word matching because it can also match a search string inside a longer word.
+
+```{r question-4}
+twitter_scan <- scan_results$twitter
+
+question_4_result <- data.frame(
+  love_lines = twitter_scan$love_count,
+  hate_lines = twitter_scan$hate_count,
+  ratio = twitter_scan$love_count / twitter_scan$hate_count
+)
+
+question_4_result
+```
+
+The calculated ratio is approximately **`r round(question_4_result$ratio, 2)`**. Among the offered choices, this corresponds to **4**.
+
+# Question 5 — Twitter line containing “biostats”
+
+```{r question-5}
+question_5_result <- twitter_scan$biostat_matches
+question_5_result
+```
+
+The matching tweet says the writer has biostatistics on Tuesday and has not yet studied. This corresponds to **They haven't studied for their biostats exam**.
+
+# Question 6 — Exact complete-line match
+
+```{r question-6}
+question_6_result <- twitter_scan$exact_sentence_count
+question_6_result
+```
+
+The exact sentence occurs **`r question_6_result` times**, so the verified answer is **3**.
+
+# Verified answer summary
+
+```{r answer-summary}
+answer_summary <- data.frame(
+  question = 1:6,
+  verified_answer = c(
+    "200",
+    "Over 2 million",
+    "Over 40 thousand in the blogs data set",
+    "4",
+    "They haven't studied for their biostats exam",
+    "3"
+  ),
+  stringsAsFactors = FALSE
+)
+
+knitr::kable(answer_summary, caption = "Verified answers after quiz completion")
+```
+
+# Methodological notes
+
+- File size is reported in mebibytes (`bytes / 1024^2`), conventionally displayed as MB in the quiz.
+- Line counts and maximum lengths use the complete files rather than a sample.
+- Question 4 intentionally follows the course's case-sensitive substring interpretation.
+- Question 5 uses a case-insensitive search because the course explanation notes that case does not affect the single match.
+- Question 6 uses exact string equality, so punctuation, capitalization and spacing must match completely.
+- Chunked reading keeps memory use controlled while preserving exact full-corpus results.
+
+# Reproducibility information
+
+```{r session-information}
+sessionInfo()
+```

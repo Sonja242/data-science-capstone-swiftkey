@@ -1,0 +1,94 @@
+---
+title: "Independent Text-File Verification Toolkit"
+author: "Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, message = FALSE, warning = FALSE)
+source(file.path("R", "text_query_utils.R"))
+```
+
+# Purpose
+
+This toolkit demonstrates general, memory-safe methods for independently checking large text files. It contains no assessment-specific search terms or answers. Replace the example inputs yourself when practising with another text file.
+
+# Create a neutral practice file
+
+```{r practice-file}
+practice_lines <- c(
+  "A clear model supports a decision.",
+  "Good data requires careful cleaning.",
+  "A model is useful when its errors are understood.",
+  "This exact practice sentence appears once.",
+  "Reliable data supports a reliable model."
+)
+
+practice_path <- tempfile(fileext = ".txt")
+writeLines(practice_lines, practice_path)
+```
+
+# Maximum line length
+
+```{r maximum-length}
+maximum_line_length(practice_path)
+```
+
+# Count lines containing complete words
+
+```{r word-counts}
+first_count <- count_lines_with_word(
+  practice_path,
+  word = "data",
+  case_sensitive = TRUE
+)
+
+second_count <- count_lines_with_word(
+  practice_path,
+  word = "model",
+  case_sensitive = TRUE
+)
+
+data.frame(first_count, second_count)
+```
+
+# Calculate a ratio safely
+
+```{r safe-ratio}
+safe_count_ratio(first_count, second_count)
+```
+
+# Return matching lines
+
+```{r matching-lines}
+find_lines_with_word(
+  practice_path,
+  word = "errors",
+  case_sensitive = TRUE
+)
+```
+
+# Count exact complete lines
+
+```{r exact-line-count}
+count_exact_lines(
+  practice_path,
+  target = "This exact practice sentence appears once."
+)
+```
+
+# Independent workflow
+
+1. Select the required source file yourself.
+2. Supply the requested search word or complete line yourself.
+3. Run the appropriate function in the RStudio console.
+4. Record the printed result in your own notes.
+5. Check whether case sensitivity, complete-word matching and exact equality match the wording of the task.
+
+The functions process files in chunks, so they can be used without loading an entire large corpus into memory.

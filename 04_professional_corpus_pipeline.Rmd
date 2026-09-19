@@ -1,0 +1,178 @@
+---
+title: "Professional SwiftKey Corpus Pipeline"
+subtitle: "Reproducible sampling, cleaning and tokenization"
+author: "Sonja Sahebzad"
+date: "2026-09-19"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    theme: flatly
+    highlight: tango
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = TRUE,
+  message = FALSE,
+  warning = FALSE,
+  fig.width = 9,
+  fig.height = 5,
+  out.width = "100%"
+)
+source(file.path("R", "corpus_pipeline.R"))
+```
+
+# Executive overview
+
+This report implements a modular text-processing pipeline for the official English SwiftKey corpus. The design separates reusable functions from analysis code, validates every input, reads large files in chunks, records diagnostics, and applies deterministic sampling. It supports exploratory analysis and prepares clean tokens for later n-gram modelling.
+
+# Configuration
+
+All parameters are defined in one place. Re-running the report with the same files and seed produces the same sample.
+
+```{r configuration}
+config <- list(
+  sampling_probability = 0.0005,
+  chunk_size = 10000L,
+  maximum_per_source = 2500L,
+  seed = 20260919L,
+  number_of_top_terms = 15L
+)
+
+config
+```
+
+# Input validation
+
+```{r input-inventory}
+corpus_files <- locate_corpus_files()
+file_inventory <- build_file_inventory(corpus_files)
+
+knitr::kable(
+  file_inventory,
+  caption = "Official English SwiftKey source files",
+  align = c("l", "l", "r", "l")
+)
+```
+
+# Memory-safe sampling
+
+Each file is processed through a connection in fixed-size chunks. Only selected lines are retained in memory.
+
+```{r sampling}
+samples <- sample_corpus(corpus_files, config)
+sample_diagnostics <- summarise_samples(samples)
+sample_text <- combine_sample_text(samples)
+
+knitr::kable(
+  sample_diagnostics,
+  digits = 4,
+  caption = "Sampling diagnostics by source"
+)
+```
+
+# Data-quality profile
+
+Arbitrary raw lines are not printed because web text can contain personal names or offensive language. Aggregate diagnostics provide a safer view of the corpus structure.
+
+```{r quality-profile}
+quality_metrics <- calculate_quality_metrics(sample_text)
+
+knitr::kable(
+  quality_metrics,
+  caption = "Structural quality indicators for the sample"
+)
+```
+
+# Tokenization and filtering
+
+The English tokenizer removes URLs, user mentions, HTML entities, numbers and punctuation. Apostrophes inside English words are retained. Restricting tokens to `a-z` also removes malformed encoding fragments.
+
+```{r tokenize-and-filter}
+blocked_terms <- c(
+  "damn", "hell", "shit", "fuck",
+  "example_unwanted_term"
+)
+
+raw_tokens <- tokenize_english(sample_text)
+clean_tokens <- filter_blocked_terms(raw_tokens, blocked_terms)
+
+token_metrics <- data.frame(
+  sampled_lines = length(sample_text),
+  raw_tokens = length(raw_tokens),
+  blocked_tokens_removed = length(raw_tokens) - length(clean_tokens),
+  clean_tokens = length(clean_tokens),
+  unique_clean_tokens = length(unique(clean_tokens))
+)
+
+knitr::kable(token_metrics, caption = "Tokenization and filtering results")
+```
+
+# Exploratory frequencies
+
+Stopwords are excluded only from this descriptive view. They remain in `clean_tokens` because function words contain essential information for a next-word prediction model.
+
+```{r top-terms}
+chart_stopwords <- c(
+  "the", "a", "an", "and", "or", "but", "to", "of", "in", "on",
+  "for", "with", "is", "are", "was", "were", "be", "been", "it",
+  "this", "that", "i", "you", "he", "she", "we", "they", "my",
+  "your", "our", "their", "at", "as", "from", "by"
+)
+
+top_terms <- count_top_terms(
+  clean_tokens,
+  stopwords = chart_stopwords,
+  n = config$number_of_top_terms
+)
+
+knitr::kable(top_terms, caption = "Most frequent content tokens")
+```
+
+```{r top-terms-chart}
+old_par <- par(no.readonly = TRUE)
+on.exit(par(old_par), add = TRUE)
+par(mar = c(5, 9, 2, 1), family = "sans")
+
+barplot(
+  rev(top_terms$frequency),
+  names.arg = rev(top_terms$token),
+  horiz = TRUE,
+  las = 1,
+  col = "#2C78B8",
+  border = NA,
+  xlab = "Frequency in the sampled corpus",
+  main = "Most frequent content tokens"
+)
+```
+
+# Automated validation
+
+These checks make failures visible during knitting instead of allowing incorrect output to pass silently.
+
+```{r validation}
+validation_results <- validate_pipeline_output(
+  sample_text = sample_text,
+  raw_tokens = raw_tokens,
+  clean_tokens = clean_tokens,
+  top_terms = top_terms
+)
+
+knitr::kable(validation_results, caption = "Pipeline validation checks")
+```
+
+# Analytical decisions
+
+- **Modular design:** reusable functions live in `R/corpus_pipeline.R`; the report focuses on analysis and interpretation.
+- **Chunked input:** limits memory use while recording how many lines were inspected.
+- **Deterministic sampling:** supports reproducibility but cannot guarantee representation of rare phrases.
+- **English token rules:** remove encoding noise and suit this target corpus, while excluding emoji and non-English scripts.
+- **Filtering:** the transparent blocked-term vector is easy to audit but should be expanded and tested with stakeholders.
+- **Model sensitivity:** future unigram, bigram and trigram models should be compared on the same held-out set using accuracy, coverage, speed and memory use.
+
+# Reproducibility information
+
+```{r session-information}
+sessionInfo()
+```
