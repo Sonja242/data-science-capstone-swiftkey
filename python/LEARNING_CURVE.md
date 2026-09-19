@@ -115,6 +115,14 @@ scoring, followed by identical-output checks on all 60 fixed timing cases at
 each checkpoint. Numerical differences that change these checked predictions
 stop the experiment before selection.
 
+Before freezing, an initial neutral tolerance of 0.0001 log-score units
+rejected a maximum difference of 0.000774 on one candidate. All three neutral
+contexts retained identical top-three and choice rankings. The diagnostic is
+preserved in `models/learning_curve_neutral_precision_diagnostic.json`. After
+independent review, the absolute neutral tolerance was fixed at 0.001 before
+any development measurement. This accommodates the observed FP16 batch-shape
+rounding; exact prediction checks remain mandatory and are not relaxed.
+
 Development latency uses separate full calls for each width on the first 20
 cases per source, alternating width order. Final latency uses all 900 cases.
 Both exclude model loading, warm-up and generation of the precomputed R lists;

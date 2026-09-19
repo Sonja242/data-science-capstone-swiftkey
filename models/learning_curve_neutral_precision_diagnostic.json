@@ -1,0 +1,136 @@
+{
+  "passed_strict_1e_minus4": false,
+  "prior_code_commit": "70e9558",
+  "neutral_cases_only": true,
+  "cases": [
+    {
+      "context_tokens": 6,
+      "max_log_score_difference": [
+        [
+          0.000774383544921875,
+          "can't"
+        ],
+        [
+          6.4849853515625e-05,
+          "there"
+        ],
+        [
+          0.0,
+          "your"
+        ],
+        [
+          0.0,
+          "years"
+        ]
+      ],
+      "shared_words": [
+        "dinner",
+        "lunch",
+        "a"
+      ],
+      "direct_words": [
+        "dinner",
+        "lunch",
+        "a"
+      ],
+      "shared_choices": [
+        "dinner",
+        "lunch",
+        "can't",
+        "uncharacteristically"
+      ],
+      "direct_choices": [
+        "dinner",
+        "lunch",
+        "can't",
+        "uncharacteristically"
+      ]
+    },
+    {
+      "context_tokens": 6,
+      "max_log_score_difference": [
+        [
+          0.0,
+          "you"
+        ],
+        [
+          0.0,
+          "write"
+        ],
+        [
+          0.0,
+          "work"
+        ],
+        [
+          0.0,
+          "wear"
+        ]
+      ],
+      "shared_words": [
+        "be",
+        "have",
+        "die"
+      ],
+      "direct_words": [
+        "be",
+        "have",
+        "die"
+      ],
+      "shared_choices": [
+        "dinner",
+        "lunch",
+        "can't",
+        "uncharacteristically"
+      ],
+      "direct_choices": [
+        "dinner",
+        "lunch",
+        "can't",
+        "uncharacteristically"
+      ]
+    },
+    {
+      "context_tokens": 128,
+      "max_log_score_difference": [
+        [
+          0.0,
+          "your"
+        ],
+        [
+          0.0,
+          "you"
+        ],
+        [
+          0.0,
+          "world"
+        ],
+        [
+          0.0,
+          "winning"
+        ]
+      ],
+      "shared_words": [
+        "a",
+        "the",
+        "an"
+      ],
+      "direct_words": [
+        "a",
+        "the",
+        "an"
+      ],
+      "shared_choices": [
+        "lunch",
+        "dinner",
+        "can't",
+        "uncharacteristically"
+      ],
+      "direct_choices": [
+        "lunch",
+        "dinner",
+        "can't",
+        "uncharacteristically"
+      ]
+    }
+  ]
+}
