@@ -83,6 +83,8 @@ knitr::kable(display_summary, caption = "Table 1. Basic summaries of the three o
 
 The three sources are similar in file size but not in structure. Twitter contains many more, shorter records; blogs contain fewer, longer records. This matters because a model trained without source balancing could learn platform-specific writing habits rather than general English patterns.
 
+*Interactive tip: Hover over any bar to see its exact value.*
+
 # Scale of the corpus
 
 ```{r corpus-scale-plot}
