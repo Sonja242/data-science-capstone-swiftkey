@@ -1,0 +1,170 @@
+---
+title: "Does Longer Training Improve Next-Word Prediction?"
+subtitle: "Three reproducible learning curves, candidate ranking and a reserved final test"
+author: "Sonja Sahebzad"
+date: "2026-09-20"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+    theme: flatly
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+knitr::opts_chunk$set(echo=TRUE, message=FALSE, warning=FALSE,
+                     fig.width=8, fig.height=4.4)
+audit <- jsonlite::fromJSON("models/learning_curve_summary.json")
+development <- fread("models/learning_curve_development.csv")
+groups <- fread("models/learning_curve_development_groups.csv")
+cost <- fread("models/learning_curve_training_cost.csv")
+test <- fread("models/learning_curve_test.csv")
+chosen <- audit$selection$selected
+representative_seed <- as.integer(audit$selection$representative_seed)
+selected <- test[name == sprintf("seed_%d", representative_seed)]
+reference <- test[name == "prior_operational"]
+primary <- audit$comparison$primary_top3
+secondary <- audit$comparison$secondary_seed_mean_top3
+ci <- function(x) {
+  values <- as.numeric(unlist(x))
+  stopifnot(length(values) == 2L, all(is.finite(values)), values[1] <= values[2])
+  values
+}
+primary_interval <- ci(primary$interval)
+secondary_interval <- ci(secondary$interval)
+stopifnot(nrow(selected) == 1L, nrow(reference) == 1L,
+          all(development$cases == 600L), all(test$cases == 900L),
+          selected$steps == chosen$steps, selected$shortlist == chosen$shortlist,
+          all(c(20261410L, 20261411L, 20261412L) %in% development$seed))
+pct <- function(x) sprintf("%.1f%%", 100*x)
+points <- function(x) sprintf("%+.1f", 100*x)
+p_value <- function(x) ifelse(x < .001, "<0.001", sprintf("%.3f", x))
+count <- function(x) format(x, big.mark=",", scientific=FALSE, trim=TRUE)
+selected_dev <- groups[steps == chosen$steps & shortlist == chosen$shortlist]
+stopifnot(nrow(selected_dev) == 1L)
+```
+
+<style>
+body {font-family:"Segoe UI",Calibri,Arial,sans-serif;color:#171717;}
+h1,h2,h3 {color:#174d76;} .main-container {max-width:1100px;}
+table {font-size:.93em;} .decision {background:#eef4f8;border-left:4px solid #236294;padding:15px;}
+</style>
+
+**Management summary.** We tested whether longer training on the same official English texts improves the next-word predictor. Three random seeds separate a repeatable trend from a fortunate run. Development data selected **`r chosen$steps` updates and a `r chosen$shortlist`-word neural shortlist**. On a newly reserved **900-case final test**, its representative model achieved **`r pct(selected$top3)`** exact top-three accuracy, versus **`r pct(reference$top3)`** for the prior operational model. Artificial four-choice accuracy was **`r pct(selected$synthetic_choice_accuracy)`**; this is a different task.
+
+<div class="decision">
+
+**Decision:** `r if (audit$promote) "The predeclared paired test supports adopting the selected model." else "The predeclared paired test does not support promotion; retain the prior operational model."` The 85% free-text target is **`r if (audit$free_text_85_met) "met in this test sample" else "not met"`**. These results do not justify a 99.8% guarantee.
+
+</div>
+
+# What the ranking audit found
+
+On the fixed 600 development cases, the earlier adapted model placed the observed word below rank three in **245 cases (40.8%)**, despite including it among the candidates. It missed the word entirely in **133 cases (22.2%)**. Both generation and ranking therefore matter.
+
+Among **51 target words requiring multiple model tokens**, only **6** entered the candidate list and **2** reached the first three positions; **33** were structurally unreachable under the audited candidate-generation rule. Model tokens can represent word fragments, so token prediction and complete-word prediction are different operations. This audit found no proven scoring bug. Candidate coverage limits the maximum exact-match accuracy attainable with that candidate list, even with perfect ranking.
+
+# Controlled experiment
+
+The unchanged training pool contains **48,000 normalized official-corpus lines**: 24,000 Twitter, 12,000 blogs and 12,000 news [1]. No additional dialogues are introduced. Qwen3-1.7B-Base remains frozen except for **1,605,632 LoRA adapter parameters**, using rank 8, alpha 16 and dropout 0.05 [2,3]. Each of three seeds trains one trajectory, saved at **256, 512 and 1,024 updates**.
+
+The effective batch is eight 128-token blocks. A training-only memory and speed pilot selected microbatch eight before development evaluation. Seeds control initialization, dropout and block order; blocks do not repeat within a trajectory. The learning rate peaks after 16 warmup updates and follows one cosine schedule ending at update 1,024. Consequently, the 256-update checkpoint is an intermediate stage, **not a replication of the earlier complete 256-update schedule**.
+
+```{r training-budget, echo=FALSE}
+budget <- cost[, .(`Input tokens`=unique(input_tokens),
+                  `Mean training seconds`=round(mean(training_seconds)),
+                  `Largest peak GPU MiB`=round(max(peak_gpu_mib))), by=.(Updates=steps)]
+knitr::kable(budget[order(Updates)])
+```
+
+These are cumulative costs from the start of each trajectory. Input tokens include the first token of each block, which has no preceding token inside that block and is therefore not a supervised target. Packing uses end-of-text separators, but attention can cross them.
+
+# Development results and selection
+
+All variants use the **same 600 development examples**. Neural shortlists of 64 and 256 candidates are nested and use the same whole-word scoring calculation; each also receives the existing local n-gram candidates. Supplied multiple-choice alternatives cannot change the free-text list. Latency is measured independently on **60 development cases**, the first 20 per source, to compare speed without conflating reused scores with measured execution time.
+
+```{r development-table, echo=FALSE}
+knitr::kable(groups[order(steps, shortlist),
+  .(Updates=steps, `Neural shortlist`=shortlist,
+    `Mean first word`=pct(top1), `Mean first three`=pct(top3),
+    `Seed range, first three`=paste(pct(top3_min), "to", pct(top3_max)),
+    `Mean candidate coverage`=pct(shortlist_recall),
+    `Milliseconds per case`=round(milliseconds))])
+```
+
+*Hover over a point for exact values. Bars show the minimum and maximum across three seeds, not confidence intervals.*
+
+```{r learning-curves, echo=FALSE}
+chart <- copy(groups)
+chart[, Width := factor(shortlist, levels=c(64,256),
+                         labels=c("64 neural candidates", "256 neural candidates"))]
+chart[, Tooltip := paste0(Width, "<br>Updates: ", steps,
+                         "<br>Mean top-three: ", pct(top3),
+                         "<br>Seed range: ", pct(top3_min), " to ", pct(top3_max),
+                         "<br>Candidate coverage: ", pct(shortlist_recall),
+                         "<br>Time: ", round(milliseconds), " ms")]
+plot <- ggplot(chart, aes(steps, top3, colour=Width, shape=Width,
+                          linetype=Width, group=Width, text=Tooltip)) +
+  geom_hline(yintercept=.85, linetype="dotted", colour="#757f87") +
+  geom_line(linewidth=.6) + geom_point(size=2.8) +
+  geom_errorbar(aes(ymin=top3_min, ymax=top3_max), width=22) +
+  scale_x_continuous(breaks=c(256,512,1024)) +
+  scale_y_continuous(labels=scales::percent, limits=c(0,1)) +
+  scale_colour_manual(values=c("#236394", "#59666f")) +
+  labs(x="Training updates", y="Development top-three accuracy",
+       colour=NULL, shape=NULL, linetype=NULL,
+       caption="Dotted reference: requested 85% free-text accuracy") +
+  theme_minimal(base_family="Segoe UI") + theme(legend.position="bottom")
+plotly::ggplotly(plot, tooltip="text")
+```
+
+The selected setting has mean development top-three accuracy **`r pct(selected_dev$top3)`**, ranging from **`r pct(selected_dev$top3_min)` to `r pct(selected_dev$top3_max)`** across seeds. For the primary final comparison, seed **`r representative_seed`** was selected on development data because its score was nearest the group mean. This avoids choosing the most fortunate seed. A mean across seeds describes repeated training; it is **not an ensemble predictor**.
+
+# Reserved final test
+
+The selected setting and representative seed were frozen before inspecting this new test. Every row below uses the **same 900 cases**. Earlier published percentages from other samples are not direct comparators. Exact top-one and top-three scores require the observed next word, although other continuations may also be reasonable.
+
+```{r final-results, echo=FALSE}
+results <- copy(test)
+results[, Model := fifelse(name=="prior_operational", "Prior operational model",
+                   fifelse(name==sprintf("seed_%d", representative_seed),
+                           paste0("Seed ", seed, " (primary)"), paste0("Seed ", seed)))]
+knitr::kable(results[, .(Model, `First word`=pct(top1),
+  `First three`=pct(top3), `Candidate coverage`=pct(shortlist_recall),
+  `Synthetic four-choice`=pct(synthetic_choice_accuracy),
+  `MRR at 3`=sprintf("%.3f", mrr_at3), `Milliseconds per case`=round(milliseconds))])
+```
+
+The primary paired improvement is **`r points(primary$difference)` percentage points**, with a 95% interval from **`r points(primary_interval[1])` to `r points(primary_interval[2])`** and exact paired **p `r if (primary$exact_paired_p < .001) "<" else "="` `r if (primary$exact_paired_p < .001) "0.001" else sprintf("%.3f", primary$exact_paired_p)`**. Promotion requires both a positive interval lower bound and p below 0.05. The interval quantifies sampling uncertainty in the improvement; the p-value assesses paired disagreement under equal predictive performance, not the probability that a model is correct.
+
+The secondary mean across the three trained seeds changes top-three accuracy by **`r points(secondary$difference)` points**, with interval **`r points(secondary_interval[1])` to `r points(secondary_interval[2])`**. This is descriptive support, not an additional selection step. Four-choice results use synthetic distractors and must not be presented as real quiz scores. MRR at 3 awards 1, 1/2 or 1/3 for success at those ranks and zero otherwise.
+
+# Discussion and conclusion
+
+The selected model reaches **`r pct(selected$shortlist_recall)`** candidate coverage and **`r pct(selected$top3)`** top-three accuracy on the final sample. Missing candidates and poor ranking remain distinct limitations. Increasing training duration cannot by itself remove a structural candidate-generation restriction.
+
+Three seeds provide a limited sensitivity check, not a complete estimate of all training variability. The analysis uses normalized English text and line-level holdouts. Near duplicates and unknown overlap with the base model's external pretraining may remain. The final interval reflects sampled cases, not every future user or domain. Candidate-list width and training duration are compared jointly on development data; no broad causal claim about their interaction is implied.
+
+**Conclusion:** `r if (audit$promote) "adopt the development-selected configuration because it passes the predeclared final comparison." else "keep the prior operational predictor because the new configuration does not pass the predeclared promotion rule."` Further work should address the observed candidate and ranking limitations, preserve a new final holdout, and report free-text and multiple-choice outcomes separately.
+
+# Reproducibility
+
+This HTML report is knitted from `23_learning_curve_report.Rmd`. The project retains its RStudio project file, source, report, fixed case identifiers, seed schedules, training histories and adapter/data/code hashes. `python/LEARNING_CURVE_TRAINING.md` documents the common schedule, token accounting and refusal to overwrite runs. Model weights and raw text remain outside Git. Pinned software and model revisions improve reproducibility, but GPU kernels and platforms can prevent bitwise-identical runs.
+
+```{r reproducible-report, eval=FALSE}
+# Run the documented training and evaluation workflow first, then:
+rmarkdown::render("23_learning_curve_report.Rmd")
+```
+
+```{r session}
+sessionInfo()
+```
+
+# References
+
+1. Johns Hopkins University and SwiftKey. [Official Coursera capstone corpus](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip).
+2. Qwen team. [Qwen3-1.7B-Base model card](https://huggingface.co/Qwen/Qwen3-1.7B-Base). Immutable revision: `ea980cb0a6c2ae4b936e82123acc929f1cec04c1`.
+3. Hu et al. (2021). [LoRA: Low-Rank Adaptation of Large Language Models](https://arxiv.org/abs/2106.09685).
