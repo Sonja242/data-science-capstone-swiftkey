@@ -2,3 +2,4 @@
 python/neural_predictor.py -text
 python/train_adaptation.py -text
 models/learning_curve_*.json -text
+models/learning_curve_*.csv -text

@@ -160,3 +160,17 @@ The saved promotion decision determines the default. Explicit older-model
 arguments remain available for reproducible comparisons. The lightweight R
 model remains in `13_try_predictor.R`. Suggestions are rankings, not calibrated
 percentages of correctness.
+
+
+To explicitly try the development-selected experiment without changing the
+default, run the following in RStudio after the study is complete:
+
+```r
+try_neural_predictor("we went to the restaurant for", choices=character(),
+                     candidate="learning_curve")
+```
+
+If the promotion test failed, the Console labels this option experimental.
+`python/try_learning_curve_candidate.py` verifies the frozen selection and uses
+its representative seed; it cannot substitute the seed with the best final score.
+The standard Source interaction continues to use the documented default.

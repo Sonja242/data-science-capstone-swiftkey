@@ -1,0 +1,156 @@
+{
+  "selection": {
+    "selected": {
+      "steps": 256,
+      "shortlist": 64,
+      "top3": 0.36666666666666664,
+      "top1": 0.2427777777777778,
+      "milliseconds": 172.0385938886062
+    },
+    "representative_seed": 20261411,
+    "development_groups": [
+      {
+        "steps": 256,
+        "shortlist": 64,
+        "top3": 0.36666666666666664,
+        "top1": 0.2427777777777778,
+        "milliseconds": 172.0385938886062
+      },
+      {
+        "steps": 256,
+        "shortlist": 256,
+        "top3": 0.36666666666666664,
+        "top1": 0.2427777777777778,
+        "milliseconds": 297.30905111048037
+      },
+      {
+        "steps": 512,
+        "shortlist": 64,
+        "top3": 0.3655555555555556,
+        "top1": 0.2461111111111111,
+        "milliseconds": 175.362828333487
+      },
+      {
+        "steps": 512,
+        "shortlist": 256,
+        "top3": 0.3655555555555556,
+        "top1": 0.2461111111111111,
+        "milliseconds": 303.8881655559332
+      },
+      {
+        "steps": 1024,
+        "shortlist": 64,
+        "top3": 0.3638888888888889,
+        "top1": 0.25,
+        "milliseconds": 176.52697278018522
+      },
+      {
+        "steps": 1024,
+        "shortlist": 256,
+        "top3": 0.3638888888888889,
+        "top1": 0.25,
+        "milliseconds": 303.24380611079204
+      }
+    ],
+    "rule": "Mean top-3, mean top-1, mean latency; representative nearest mean top-3, then mean top-1, then fixed seed order",
+    "implementation": {
+      "code_sha256": "47d06b09664c6f1b33fde01f9e86aa5031ae00df0fcd21d7d509cd6ea72a0de8",
+      "audit_sha256": "5b842f7ad47fe1ad354f6a69d0d4d3af9df7683f40da216175864ac13e398185",
+      "base_code_sha256": "5a4280640c49e427daaef398597492dc229af8ebc7b9ef7241bcdb012cf5b528",
+      "vectorized_code_sha256": "223dde1c690a3baa7e9fdf3c2407f6c0620ab610f9548fc935a3cb35e6a7e456",
+      "protocol_sha256": "0df3affc8df7bad32793df52abba51f2ebcc3080c0a76220fdfe949a17c1cbb1",
+      "inference_inputs_sha256": {
+        "models/neural/Qwen3-1.7B-Base/config.json": "1bb33a92c3548fbc68b889b490e810440435253598835bd71dff0396060c12db",
+        "models/neural/Qwen3-1.7B-Base/download_manifest.json": "88eb0f4954bb374c79a4db06bb37963bf52fba1427a173eac75cb1cf8c1cf65a",
+        "models/neural/Qwen3-1.7B-Base/generation_config.json": "8c970692323e3ea0e9b8b0a4dca79388d31226e41f83c9fd6014804280ebf6e8",
+        "models/neural/Qwen3-1.7B-Base/tokenizer.json": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+        "models/neural/Qwen3-1.7B-Base/tokenizer_config.json": "3c04ed3ca964ea2f6b2b5faf0dc4d31aec1cb1e8b4bcf63f402d295046b422b5",
+        "models/neural/Qwen3-1.7B-Base/vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+        "models/neural/Qwen3-1.7B-Base/model.safetensors": "6df85b39330e5a425ee36253d0f894e4387e4f0a15b9c53cb467d668e6b3a841",
+        "models/neural/Qwen3-1.7B-Base/merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+        "data/neural_evaluation/vocabulary.csv": "ba5741e030f9f8c24386ef07e16a44f96804edeb27374c5243b271a32fcb5288",
+        "models/selected_predictor_v3.rds": "72ea198f887e46fcbddf7038dc09584382a884684acab57d420dcf751ed579ec",
+        "models/neural/adaptation_local/adapter_config.json": "2f3f975bbdddc408bd68feca57535a785ad7e65afdda342796079054bdf9c0c6",
+        "models/neural/adaptation_local/adapter_model.safetensors": "3afd6c544bd4a366bc8d4a2f28c25b14b4c97832a495f95ca1c983ccecfa2c8f"
+      }
+    },
+    "artifact_sha256": {
+      "20261410_256_64": "5fe35739f1cb2f8d62f8ee8f7ea8aeae52fb8d5bfab1892b25a62c44497be7bd",
+      "20261410_256_256": "e0a6b9011fff4025ddfa4d3c8a1e85284cba81f53e24145df9dacb080a9683c1",
+      "20261410_512_64": "e6ad6b9650b56b07880bab1ab2dc40953dd0ba0a0045ecf36cbe0fd9ec3d6cee",
+      "20261410_512_256": "5de07b8db70352f5fb282d8e091ec3c010a3de4acd2ffd3b96d04c9c5955cae8",
+      "20261410_1024_64": "e997a5ec0b5a711cc2a11c0a3e07808e7ee41df34f2df0326941c7a46881e48f",
+      "20261410_1024_256": "80502a62985817fa8e744596fb0997bd7b55065e26c250596f54be5d0ed83810",
+      "20261411_256_64": "7715e2ed1d654fd5e8397704bb416a00fa8700fa90b1f7b62813a792e4e8777a",
+      "20261411_256_256": "27c742513693b23f6fb2c01774cfcf90ff5ea693549ed8ad146ffada57abc9fb",
+      "20261411_512_64": "60062184b947aa3e98a85e7d3800c05f020480ce3f8da129f375ed34adb2cfe6",
+      "20261411_512_256": "d118c0aef3a47df7daa847ae13d4a36c9b33ab012c02fe4fbed79209299ef91d",
+      "20261411_1024_64": "d99914f43171c2647aeb23221627be0a82539d8477194aa9024b029917e76b7f",
+      "20261411_1024_256": "8c8cae6c7390fd995fbb492f533078e79920d1a908870360b5a41b543823cc8e",
+      "20261412_256_64": "99b53c8ce4d1c9f60118d7dd6e54fa6246318527a180cb0ab385fee736b7b481",
+      "20261412_256_256": "97db59f58c41229f86d9d2ce40351c5e10f2083ec52fdfcb768fbfab37c65bec",
+      "20261412_512_64": "e6131f05cb8e7307d3a6ee56c03bbfa10af7f32a13a13130194594d334c6d550",
+      "20261412_512_256": "b0b9aab20848bf86bebea9aeda94f67eafa23f7b10bd78d2cb9441e64189e97b",
+      "20261412_1024_64": "f1a1af39562edd206bdab20952d1276eabf1415ea885fd8bc37f6dec6dcdeb82",
+      "20261412_1024_256": "c32c3e1719df708b0b6223645f01b89788d76b1fc40ea64215dcf7e1c6ea014d"
+    }
+  },
+  "comparison": {
+    "primary_top3": {
+      "difference": 0.0,
+      "confidence": 0.95,
+      "interval": [
+        -0.007777777777777778,
+        0.007777777777777779
+      ],
+      "replicates": 10000,
+      "bootstrap_seed": 20261490,
+      "estimand": "Equal-source mean difference across unique normalized lines; fixed model seeds",
+      "exact_paired_p": 1.0,
+      "promote": false
+    },
+    "rule": "One development-selected representative versus prior operational model; positive 95% lower bound and exact paired p below 0.05",
+    "secondary_seed_mean_top3": {
+      "difference": 0.0029629629629629624,
+      "confidence": 0.95,
+      "interval": [
+        -0.0037037037037037047,
+        0.009259259259259259
+      ],
+      "replicates": 10000,
+      "bootstrap_seed": 20261491,
+      "estimand": "Equal-source mean difference across unique normalized lines; fixed model seeds",
+      "limitation": "Descriptive conditional interval for the evaluated seeds; not uncertainty over future random seeds or an ensemble score"
+    }
+  },
+  "promote": false,
+  "default_spec": {
+    "kind": "operational",
+    "seed": 20261310,
+    "steps": 256,
+    "shortlist": 256
+  },
+  "free_text_85_met": false,
+  "synthetic_choice_85_met": true,
+  "implementation": {
+    "code_sha256": "47d06b09664c6f1b33fde01f9e86aa5031ae00df0fcd21d7d509cd6ea72a0de8",
+    "audit_sha256": "5b842f7ad47fe1ad354f6a69d0d4d3af9df7683f40da216175864ac13e398185",
+    "base_code_sha256": "5a4280640c49e427daaef398597492dc229af8ebc7b9ef7241bcdb012cf5b528",
+    "vectorized_code_sha256": "223dde1c690a3baa7e9fdf3c2407f6c0620ab610f9548fc935a3cb35e6a7e456",
+    "protocol_sha256": "0df3affc8df7bad32793df52abba51f2ebcc3080c0a76220fdfe949a17c1cbb1",
+    "inference_inputs_sha256": {
+      "models/neural/Qwen3-1.7B-Base/config.json": "1bb33a92c3548fbc68b889b490e810440435253598835bd71dff0396060c12db",
+      "models/neural/Qwen3-1.7B-Base/download_manifest.json": "88eb0f4954bb374c79a4db06bb37963bf52fba1427a173eac75cb1cf8c1cf65a",
+      "models/neural/Qwen3-1.7B-Base/generation_config.json": "8c970692323e3ea0e9b8b0a4dca79388d31226e41f83c9fd6014804280ebf6e8",
+      "models/neural/Qwen3-1.7B-Base/tokenizer.json": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+      "models/neural/Qwen3-1.7B-Base/tokenizer_config.json": "3c04ed3ca964ea2f6b2b5faf0dc4d31aec1cb1e8b4bcf63f402d295046b422b5",
+      "models/neural/Qwen3-1.7B-Base/vocab.json": "ca10d7e9fb3ed18575dd1e277a2579c16d108e32f27439684afa0e10b1440910",
+      "models/neural/Qwen3-1.7B-Base/model.safetensors": "6df85b39330e5a425ee36253d0f894e4387e4f0a15b9c53cb467d668e6b3a841",
+      "models/neural/Qwen3-1.7B-Base/merges.txt": "8831e4f1a044471340f7c0a83d7bd71306a5b867e95fd870f74d0c5308a904d5",
+      "data/neural_evaluation/vocabulary.csv": "ba5741e030f9f8c24386ef07e16a44f96804edeb27374c5243b271a32fcb5288",
+      "models/selected_predictor_v3.rds": "72ea198f887e46fcbddf7038dc09584382a884684acab57d420dcf751ed579ec",
+      "models/neural/adaptation_local/adapter_config.json": "2f3f975bbdddc408bd68feca57535a785ad7e65afdda342796079054bdf9c0c6",
+      "models/neural/adaptation_local/adapter_model.safetensors": "3afd6c544bd4a366bc8d4a2f28c25b14b4c97832a495f95ca1c983ccecfa2c8f"
+    }
+  }
+}

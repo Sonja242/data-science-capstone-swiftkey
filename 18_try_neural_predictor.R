@@ -8,13 +8,14 @@ tryCatch(source("R/predictive_model_v3.R"),finally=setwd(.neural_wd))
 
 try_neural_predictor <- function(phrase=NULL,choices=NULL,size=NULL,candidate=NULL) {
   learning_curve <- file.path(.neural_root,"models","learning_curve_summary.json")
+  use_curve_experiment <- identical(candidate,"learning_curve")
   use_curve <- is.null(candidate) && is.null(size) && file.exists(learning_curve)
   adaptation <- file.path(.neural_root,"models","adaptation_summary.json")
-  use_adaptation <- !use_curve && (!is.null(candidate) || (is.null(size) && file.exists(adaptation)))
+  use_adaptation <- !use_curve && !use_curve_experiment && (!is.null(candidate) || (is.null(size) && file.exists(adaptation)))
   if(use_adaptation) {
     if(is.null(candidate)) candidate <- jsonlite::read_json(adaptation)$default_candidate
     if(!candidate %in% c("base64","base256","local256","augmented256")) stop("Unknown model candidate.")
-  } else if(!use_curve && is.null(size)) {
+  } else if(!use_curve && !use_curve_experiment && is.null(size)) {
     selected <- file.path(.neural_root,"models","neural_selection.json")
     size <- if(file.exists(selected)) jsonlite::read_json(selected)$size else "1.7B"
   }
@@ -34,7 +35,10 @@ try_neural_predictor <- function(phrase=NULL,choices=NULL,size=NULL,candidate=NU
   jsonlite::write_json(list(phrase=model_phrase,choices=as.list(choices),ngram_candidates=as.list(candidates)),
                       request,auto_unbox=TRUE)
   python <- file.path(.neural_root,".venv-neural","Scripts","python.exe")
-  if(use_curve) {
+  if(use_curve_experiment) {
+    script <- file.path(.neural_root,"python","try_learning_curve_candidate.py")
+    arguments <- shQuote(script)
+  } else if(use_curve) {
     script <- file.path(.neural_root,"python","learning_curve_experiment.py")
     arguments <- shQuote(script)
   } else if(use_adaptation) {
@@ -49,7 +53,8 @@ try_neural_predictor <- function(phrase=NULL,choices=NULL,size=NULL,candidate=NU
   status <- system2(python,arguments)
   if(status!=0 || !file.exists(output)) stop("The predictor did not complete; see the error above.",call.=FALSE)
   result <- jsonlite::read_json(output,simplifyVector=TRUE)
-  if(use_curve) {
+  if(use_curve || use_curve_experiment) {
+    if(isTRUE(result$experimental)) cat("\nExperimental option: improvement was not established by the final comparison.\n")
     spec <- result$selected_spec
     if(identical(spec$kind,"curve")) {
       cat("\nModel: Official-text adapter,",spec$steps,"updates; seed",spec$seed,

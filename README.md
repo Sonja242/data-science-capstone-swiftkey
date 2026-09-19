@@ -39,6 +39,8 @@ Open the published [Data Science Capstone report website](https://sonja242.githu
 | `19_neural_predictor_evaluation.Rmd` | Initial neural comparison, uncertainty intervals and the 85% target assessment |
 | `20_prepare_adaptation.R` | Prepare matched training pools and fresh holdout examples |
 | `21_data_adaptation_report.Rmd` | Error analysis, two LoRA training recipes and a controlled extra-data comparison |
+| `22_prepare_learning_curve.R` | Reserve a new final sample with no exact-line overlap against training or earlier evaluation cases |
+| `23_learning_curve_report.Rmd` | Three-seed learning curves, independent ranking audit and one prespecified final comparison |
 
 The knitted `.html` files preserve the corresponding code and printed results.
 
@@ -75,3 +77,14 @@ The [data-adaptation report](https://sonja242.github.io/data-science-capstone-sw
 On 900 fresh test cases, local adaptation raises free-text top-three accuracy from **34.1% to 36.2%** (paired 95% interval for the gain: **0.7 to 3.6 percentage points**). Synthetic four-choice accuracy is **85.7%**. The extra dialogue mixture does not establish a further benefit, and the 85% free-text target remains unmet.
 
 The existing `18_try_neural_predictor.R` remains the entry point. It uses the candidate admitted by the documented final-test promotion rule, with an explicit option to try experimental candidates. Earlier evaluation reports and source files remain available.
+
+
+## Longer training and independent audits
+
+The [learning-curve report](https://sonja242.github.io/data-science-capstone-swiftkey/learning-curves.html) compares 256, 512 and 1,024 updates, two candidate-list widths and three random seeds. It reuses a fixed development set for selection and reserves a fresh 900-case test. The ranking audit distinguishes missing candidates from words ranked below the first three, including the limitation on words represented by several model tokens.
+
+See [the complete reproduction guide](python/LEARNING_CURVE.md), [ranking findings](research/ranking-audit.md), [training specification](python/LEARNING_CURVE_TRAINING.md) and [independent validation review](python/LEARNING_CURVE_VALIDATION.md). Selection, case identifiers, adapter hashes and paired test outcomes remain auditable. The default RStudio entry point stays `18_try_neural_predictor.R`; `23_learning_curve_report.Rmd` knits from saved tables without retraining.
+
+On the same new 900-case test, the development-selected representative and the prior operational model both achieved **329/900 = 36.6% top-three accuracy**. The paired difference was **0.0 percentage points**, with 95% interval **-0.8 to +0.8** and exact McNemar **p = 1.00**. The new variant used about **38% less inference time** (176 versus 283 ms), but did not pass the prespecified accuracy-improvement rule. The prior operational model therefore remains the default. An explicitly labeled experimental option is available with `candidate="learning_curve"`.
+
+The selected representative scored **87.3% on synthetic four-choice cases**. This is not a quiz score, and the 85% free-text target remains unmet. The learning curves show no top-three gain from increasing this fixed-pool training schedule from 256 to 1,024 updates. Generating complete candidate words made of several model tokens is the next targeted research question.
