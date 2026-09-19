@@ -1,0 +1,82 @@
+{
+  "author": "Sonja Sahebzad",
+  "recorded_utc": "2026-09-19T23:23:56.983830+00:00",
+  "audit_scope": "Independent recomputation of the frozen primary comparison only; no raw final prefixes/targets, GPU, tuning or frozen-code changes.",
+  "passed": true,
+  "selected_identity": {
+    "seed": 20261411,
+    "steps": 256,
+    "shortlist": 64
+  },
+  "input_sha256": {
+    "learning_curve_final_prior_operational.json": "d88ebe5ad4961247311fa6fcf6371b2687f029456bc835a63675e347d936f368",
+    "learning_curve_final_seed_20261411.json": "b7f073ac02b715455ad8ee7c01421699b929aba0325ece50e0671dd8dbaa5d7c",
+    "learning_curve_selection.json": "6445287e00df9dad43ca6b59886b6a660fd7c440ce3bc45ec37558409c78cd01",
+    "learning_curve_protocol.json": "0df3affc8df7bad32793df52abba51f2ebcc3080c0a76220fdfe949a17c1cbb1",
+    "learning_curve_reserved_case_hashes.csv": "9e4824335e6163f9d03fcccd368bfbe5f374dd782f7b662b97c9031de547b443"
+  },
+  "same_ordered_reserved_cases": 900,
+  "distinct_normalized_line_hashes": 900,
+  "selected_adapter_hash_verified": true,
+  "frozen_implementation_identity_verified": true,
+  "primary_top3": {
+    "operational_correct": 329,
+    "selected_correct": 329,
+    "operational_accuracy": 0.3655555555555556,
+    "selected_accuracy": 0.3655555555555556,
+    "both_correct": 322,
+    "both_incorrect": 564,
+    "paired_gains": 7,
+    "paired_losses": 7,
+    "difference": 0.0,
+    "confidence": 0.95,
+    "interval": [
+      -0.007777777777777778,
+      0.007777777777777779
+    ],
+    "exact_two_sided_mcnemar_p": 1.0,
+    "promotion_rule_passed": false
+  },
+  "top1_correct": {
+    "operational": 211,
+    "selected": 211
+  },
+  "source_checks": [
+    {
+      "source": "blogs",
+      "cases": 300,
+      "operational_top3_correct": 120,
+      "selected_top3_correct": 117,
+      "paired_gains": 0,
+      "paired_losses": 3
+    },
+    {
+      "source": "news",
+      "cases": 300,
+      "operational_top3_correct": 110,
+      "selected_top3_correct": 113,
+      "paired_gains": 5,
+      "paired_losses": 2
+    },
+    {
+      "source": "twitter",
+      "cases": 300,
+      "operational_top3_correct": 99,
+      "selected_top3_correct": 99,
+      "paired_gains": 2,
+      "paired_losses": 2
+    }
+  ],
+  "bootstrap": {
+    "replicates": 10000,
+    "seed": 20261490,
+    "batch": 500,
+    "source_order": [
+      "blogs",
+      "news",
+      "twitter"
+    ],
+    "method": "Percentile interval of equal-source means; sample paired per-line differences within each source with replacement."
+  },
+  "limitations": "Conditional on the frozen model identities and sampled normalized lines. A non-significant difference does not establish equivalence. Unknown pretraining overlap and related documents remain possible."
+}
