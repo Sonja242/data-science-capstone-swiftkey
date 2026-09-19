@@ -1933,49 +1933,60 @@ user flow.</p>
 </div>
 <div id="discussion" class="section level1">
 <h1>Discussion</h1>
-<p>The exploratory results show that source type is a material modelling
-choice. Twitter contributes the largest number of lines, but those lines
-are much shorter than blog and news entries. Training only on pooled
-counts could therefore favour Twitter-style language. The modelling
-pipeline will preserve the source labels, use balanced training samples
-where appropriate and report validation results both overall and by
-source.</p>
-<p>The n-gram profile also confirms a trade-off between context and
-coverage. Longer phrases can produce more relevant predictions, but many
-occur only once. A back-off model is therefore preferable to relying on
-a single n-gram order: it can use detailed context when evidence is
-strong and shorter context when a phrase is rare or unseen. Candidate
-models will include unigram, bigram, trigram and four-gram variants with
-alternative pruning thresholds. The final selection will test whether
-the main performance conclusion changes across these reasonable
-choices.</p>
-<p>The analysis has limitations. Exploratory language-pattern plots use
-a deterministic sample to keep processing reproducible and
-memory-conscious, while the file-level counts use the complete corpus.
-The corpus also mixes dates and writing styles and includes spelling
-variation, foreign-language fragments and unsuitable terms. Performance
-on held-out corpus data will therefore not be presented as performance
-on all English writing.</p>
+<p>The complete corpus contains 4,269,642 lines and 102,404,647 word
+tokens (Table 1), but the three sources contribute different types of
+evidence. Twitter provides 2,360,148 lines, or 55.3% of all records,
+while contributing 30,096,690 words, or 29.4% of all tokens. Its average
+of 12.8 words per line is substantially below the 34.4 words in news and
+41.8 words in blogs. The line-length distributions show the same
+pattern: in the deterministic sample, the median line contains 64
+characters for Twitter, compared with 167 for blogs and 185.5 for news.
+A model based only on pooled frequencies could therefore overrepresent
+short, conversational Twitter contexts. Source-aware sampling and
+separate validation results by source will make that risk visible.</p>
+<p>Table 2 quantifies the sparsity problem that drives the modelling
+strategy. In the sample, 54.2% of unique unigrams occur once; this rises
+to 84.3% for bigrams and 95.9% for trigrams. Longer word sequences
+contain more context but have much poorer coverage. These results
+support a back-off approach: use the longest context with sufficient
+evidence, then fall back to shorter sequences when the input is rare or
+unseen. Pruning very rare sequences should also reduce model size with
+limited loss of reliable information. This interpretation is a modelling
+hypothesis rather than a performance claim; held-out accuracy and
+coverage must establish whether the proposed choices work.</p>
+<p>The analysis has several limitations. File-level counts use the
+complete official corpus, whereas the distribution and n-gram analyses
+use a deterministic sample of 6,313 lines to control memory and ensure
+reproducibility. The corpus also mixes sources, dates and writing styles
+and contains spelling variation, foreign-language fragments and
+unsuitable terms. Consequently, future performance estimates will
+describe held-out data from this corpus and will not be generalized to
+all English writing without external validation.</p>
 <div id="risks-and-next-steps" class="section level2">
 <h2>Risks and next steps</h2>
-<p>Before release, I will complete the train-validation split, compare
-back-off and pruning rules, validate the profanity filter, measure
-response time and model size, and test the app with phrases from outside
-the training sample. These checks will determine whether the improvement
-from additional context justifies the added complexity and memory
-use.</p>
+<p>The next stage will compare unigram, bigram, trigram and four-gram
+candidates with alternative pruning and back-off rules. A fixed
+train-validation split will be used to report top-1 accuracy, top-3
+accuracy, mean reciprocal rank, coverage, response time and model size,
+both overall and by source. Profanity filtering and tests with phrases
+from outside the training sample will address product risk. The selected
+model must improve predictive usefulness enough to justify any added
+memory and latency.</p>
 </div>
 </div>
 <div id="conclusion" class="section level1">
 <h1>Conclusion</h1>
-<p>The official English SwiftKey files were downloaded, loaded and
-summarized successfully. The corpus contains more than four million
-lines and shows clear differences between blogs, news and Twitter,
-together with the expected sparsity of longer word sequences. These
-findings support a compact, source-aware back-off n-gram model that
-returns three next-word suggestions. The project is ready to proceed
-from exploratory analysis to model validation and development of the
-Shiny prediction app.</p>
+<p>The exploratory analysis confirms that the official SwiftKey corpus
+was downloaded and processed successfully: it contains 4.27 million
+lines and 102.40 million word tokens. Two findings are decisive for the
+product design. First, Twitter accounts for most records but has much
+shorter text than blogs and news. Second, 95.9% of sampled trigram types
+occur only once, showing that a fixed long-context model would have poor
+coverage. The evidence therefore supports testing a compact,
+source-aware back-off n-gram model with pruning and three next-word
+suggestions. Predictive performance has not yet been established; the
+next milestone is to validate candidate models before implementing the
+final Shiny app.</p>
 </div>
 <div id="reproducibility" class="section level1">
 <h1>Reproducibility</h1>
