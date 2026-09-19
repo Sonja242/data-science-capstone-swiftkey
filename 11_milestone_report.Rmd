@@ -24,6 +24,7 @@ knitr::opts_chunk$set(
   out.width = "100%"
 )
 library(ggplot2)
+library(plotly)
 source(file.path("R", "quiz1_verification.R"))
 source(file.path("R", "corpus_pipeline.R"))
 source(file.path("R", "milestone_analysis.R"))
@@ -46,7 +47,7 @@ The analysis uses the three unmodified English files supplied through the Course
 - **Complete-file summaries:** every line in all three files is scanned in chunks of 20,000 lines. File size is reported in mebibytes (`bytes / 1024^2`). A word token is counted with the Unicode-aware `stringi::stri_count_words()` function. These complete scans produce the file sizes, line counts, word counts and average words per line in Table 1.
 - **Reproducible exploratory sample:** each line has a 0.15% selection probability, with a fixed seed and a maximum of 4,500 lines per source. This produced 6,313 lines: 1,327 blogs, 1,484 news and 3,502 Twitter. Sampling reduces the memory and processing cost of distribution, term-frequency and n-gram analyses while retaining observations from every source. The fixed seed makes the selected sample reproducible.
 - **Text preparation:** sampled text is converted from Windows-1252 to UTF-8. For term and n-gram summaries it is lowercased; URLs, user mentions, HTML entities and non-letter characters are removed; meaningful internal apostrophes are retained; and repeated whitespace is collapsed. The frequent-term plot additionally removes a documented list of common English stopwords so that more informative content words remain visible.
-- **Visual treatment:** the line-length histogram omits observations above the sample's 99th percentile from the display only. This prevents a few extreme lines from compressing the main distribution; no observations are removed from the complete-file counts in Table 1.
+- **Visual treatment:** the line-length histogram omits observations above the sample's 99th percentile from the display only. This prevents a few extreme lines from compressing the main distribution; no observations are removed from the complete-file counts in Table 1. The three exploratory charts are interactive, and their hover labels expose the exact values behind each mark.
 
 ```{r build-artifacts}
 paths <- official_corpus_paths()
@@ -86,17 +87,25 @@ The three sources are similar in file size but not in structure. Twitter contain
 
 ```{r corpus-scale-plot}
 plot_scale <- rbind(
-  data.frame(source = corpus_summary$source, measure = "Lines", millions = corpus_summary$lines / 1e6),
-  data.frame(source = corpus_summary$source, measure = "Word tokens", millions = corpus_summary$words / 1e6)
+  data.frame(source = corpus_summary$source, measure = "Lines", exact_count = corpus_summary$lines),
+  data.frame(source = corpus_summary$source, measure = "Word tokens", exact_count = corpus_summary$words)
+)
+plot_scale$millions <- plot_scale$exact_count / 1e6
+plot_scale$hover <- paste0(
+  "Source: ", tools::toTitleCase(plot_scale$source),
+  "<br>Measure: ", plot_scale$measure,
+  "<br>Exact count: ", format(plot_scale$exact_count, big.mark = ",", scientific = FALSE)
 )
 
-ggplot(plot_scale, aes(source, millions, fill = measure)) +
+p_scale <- ggplot(plot_scale, aes(source, millions, fill = measure, text = hover)) +
   geom_col(position = "dodge", width = 0.68) +
   geom_text(aes(label = sprintf("%.1f", millions)), position = position_dodge(width = 0.68), vjust = -0.35, size = 3.8) +
   scale_fill_manual(values = c("Lines" = light_blue, "Word tokens" = dark_blue)) +
-  labs(title = "Corpus scale by source", subtitle = "Counts shown in millions", x = NULL, y = "Millions", fill = NULL) +
+  labs(title = "Corpus scale by source", subtitle = "Hover over a bar for the exact count", x = NULL, y = "Millions", fill = NULL) +
   theme_minimal(base_size = 13) +
   theme(legend.position = "top", panel.grid.major.x = element_blank())
+
+plotly::config(plotly::ggplotly(p_scale, tooltip = "text"), displaylogo = FALSE, responsive = TRUE)
 ```
 
 The two measures tell different stories. Twitter contributes 2.36 million short records, whereas blogs contain fewer than 0.90 million lines but the largest word total at 37.55 million. Showing both line and word counts prevents the largest record count from being mistaken for the largest amount of text.
@@ -106,19 +115,41 @@ The two measures tell different stories. Twitter contributes 2.36 million short 
 ```{r line-length-plot}
 line_limit <- unname(quantile(line_sample$characters, 0.99, na.rm = TRUE))
 line_plot_data <- line_sample[line_sample$characters <= line_limit, ]
+breaks <- seq(min(line_plot_data$characters), max(line_plot_data$characters), length.out = 36L)
 
-ggplot(line_plot_data, aes(characters, fill = source)) +
-  geom_histogram(bins = 35, alpha = 0.85, color = "white") +
+histogram_rows <- lapply(unique(line_plot_data$source), function(source_name) {
+  values <- line_plot_data$characters[line_plot_data$source == source_name]
+  h <- hist(values, breaks = breaks, plot = FALSE, include.lowest = TRUE, right = TRUE)
+  data.frame(
+    source = source_name,
+    midpoint = h$mids,
+    lower = head(h$breaks, -1L),
+    upper = tail(h$breaks, -1L),
+    count = h$counts
+  )
+})
+histogram_data <- do.call(rbind, histogram_rows)
+histogram_data$hover <- paste0(
+  "Source: ", tools::toTitleCase(histogram_data$source),
+  "<br>Character range: ", round(histogram_data$lower), "-", round(histogram_data$upper),
+  "<br>Sampled lines: ", format(histogram_data$count, big.mark = ",")
+)
+bar_width <- diff(breaks)[1] * 0.96
+
+p_length <- ggplot(histogram_data, aes(midpoint, count, fill = source, text = hover)) +
+  geom_col(width = bar_width, alpha = 0.85, color = "white") +
   facet_wrap(~ source, ncol = 1, scales = "free_y") +
   scale_fill_manual(values = c(blogs = "#275f8e", news = "#568fb5", twitter = "#8ebbd2")) +
   labs(
     title = "Sampled line-length distributions",
-    subtitle = "The upper 1% is omitted so the typical range remains readable",
+    subtitle = "Hover for bin counts; the upper 1% is omitted from this display",
     x = "Characters per line",
     y = "Sampled lines"
   ) +
   theme_minimal(base_size = 13) +
   theme(legend.position = "none", panel.grid.minor = element_blank())
+
+plotly::config(plotly::ggplotly(p_length, tooltip = "text"), displaylogo = FALSE, responsive = TRUE)
 ```
 
 Twitter is concentrated in short lines, while blogs and news include longer passages. The prediction engine should be tested on held-out examples from every source so that one style does not dominate the performance estimate.
@@ -127,17 +158,23 @@ Twitter is concentrated in short lines, while blogs and news include longer pass
 
 ```{r top-terms-table-plot}
 top_terms <- sample_top_terms(line_sample$text, n = 15L)
+top_terms$hover <- paste0(
+  "Term: ", as.character(top_terms$term),
+  "<br>Occurrences: ", format(top_terms$frequency, big.mark = ",")
+)
 
-ggplot(top_terms, aes(frequency, term)) +
+p_terms <- ggplot(top_terms, aes(frequency, term, text = hover)) +
   geom_col(fill = blue, width = 0.72) +
   labs(
     title = "Most frequent informative terms in the sample",
-    subtitle = "Common function words were removed for this exploratory view",
+    subtitle = "Hover for exact counts; common function words were removed",
     x = "Occurrences",
     y = NULL
   ) +
   theme_minimal(base_size = 13) +
   theme(panel.grid.major.y = element_blank())
+
+plotly::config(plotly::ggplotly(p_terms, tooltip = "text"), displaylogo = FALSE, responsive = TRUE)
 ```
 
 The distribution is strongly uneven: a small group of terms occurs often, while many terms and phrases occur only once. This is a standard sparse-language problem. It supports pruning very rare sequences and using shorter contexts whenever a longer phrase has not been seen often enough.
