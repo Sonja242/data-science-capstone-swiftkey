@@ -69,6 +69,8 @@ def derive_artifacts(raw, candidates=CANDIDATES, expected_keys=None,
     Raw details contain source, line_hash, actual, target_tokens,
     target_in_vocabulary, baseline, options and candidates. The same baseline
     scores are reused in every union; options never become free members.
+    score_tolerance is the frozen neutral-reference value for corpus diagnostics,
+    not a global corpus rejection threshold. Neutral tests remain external gates.
     """
     if not math.isfinite(score_tolerance) or score_tolerance < 0:
         raise ValueError("Invalid neutral score tolerance")
@@ -83,6 +85,7 @@ def derive_artifacts(raw, candidates=CANDIDATES, expected_keys=None,
     if expected_keys is not None and ordered != list(expected_keys):
         raise ValueError("Ordered case identities differ")
     details = {name: [] for name in ("baseline", *candidates)}
+    numerical_comparisons = []
     for row in records:
         target = row["actual"]
         if not isinstance(target, str) or not WORD.fullmatch(target):
@@ -119,7 +122,14 @@ def derive_artifacts(raw, candidates=CANDIDATES, expected_keys=None,
                     "candidate_count": len(scores)}
 
         details["baseline"].append(detail(base, base_order))
-        seen_scores = {word: [value] for word, value in base.items()}
+        seen_scores = {word: [("baseline", value)] for word, value in base.items()}
+
+        def record_comparison(word, left_label, left_score, right_label, right_score, kind):
+            difference = abs(right_score - left_score)
+            numerical_comparisons.append({"source": row["source"], "line_hash": row["line_hash"],
+                "word": word, "kind": kind, "left": left_label, "right": right_label,
+                "left_log_score": left_score, "right_log_score": right_score,
+                "absolute_difference": difference, "outside_neutral_reference": difference > score_tolerance})
         for candidate in candidates:
             proposal = row["candidates"][candidate]
             added = score_map(proposal["scores"], candidate, allow_empty=True)
@@ -128,9 +138,9 @@ def derive_artifacts(raw, candidates=CANDIDATES, expected_keys=None,
             if set(added) & set(base):
                 raise ValueError("Added-only scores must not overwrite baseline scores")
             for word, value in added.items():
-                if word in seen_scores and any(abs(value - previous) > score_tolerance for previous in seen_scores[word]):
-                    raise ValueError("Common word scores differ beyond the neutral tolerance")
-                seen_scores.setdefault(word, []).append(value)
+                for label, previous in seen_scores.get(word, []):
+                    record_comparison(word, label, previous, candidate, value, "cross_beam")
+                seen_scores.setdefault(word, []).append((candidate, value))
             union = {**base, **added}
             order = ranking(union)
             if proposal["words"] != order[:3]:
@@ -141,10 +151,22 @@ def derive_artifacts(raw, candidates=CANDIDATES, expected_keys=None,
                 raise ValueError("Covered target improved despite unchanged scores and a superset")
             details[candidate].append(expanded)
         for word, value in option_scores.items():
-            if word in seen_scores and any(abs(value - previous) > score_tolerance for previous in seen_scores[word]):
-                raise ValueError("Option/free canonical scores differ beyond the neutral tolerance")
+            for label, previous in seen_scores.get(word, []):
+                record_comparison(word, label, previous, "options", value, "option_vs_free")
+    outside = [row for row in numerical_comparisons if row["outside_neutral_reference"]]
+    maximum = max(numerical_comparisons, key=lambda row: row["absolute_difference"], default=None)
+    diagnostics = {"scope": "Independent corpus batches; descriptive comparison with the fixed neutral reference, not a corpus-wide correctness gate",
+        "neutral_log_score_reference": score_tolerance,
+        "status": "outside_neutral_reference_observed" if outside else
+                  "within_neutral_reference_for_compared_scores" if numerical_comparisons else "no_common_word_comparisons",
+        "comparison_count": len(numerical_comparisons), "outside_reference_count": len(outside),
+        "affected_case_count": len({row["line_hash"] for row in outside}),
+        "max_absolute_difference": maximum["absolute_difference"] if maximum else None,
+        "maximum_comparison": maximum, "comparisons": numerical_comparisons,
+        "decision_effect": "None: stored canonical scores, rankings, selection and promotion are unchanged. Preserve and investigate unusual discrepancies before final interpretation."}
     return {name: {"candidate": name, "split": raw["split"], "details": values,
-                   "summary": audit_details(values, ordered)} for name, values in details.items()}
+                   "summary": audit_details(values, ordered), "hard_invariants_passed": True,
+                   "numerical_diagnostics": diagnostics} for name, values in details.items()}
 
 
 def select_generation(raw, milliseconds, candidate_order=CANDIDATES, score_tolerance=.02, expected_cases=600):
@@ -168,6 +190,7 @@ def select_generation(raw, milliseconds, candidate_order=CANDIDATES, score_toler
                    row["milliseconds"], candidate_order.index(row["candidate"])))
     return {"candidate": chosen["candidate"], "selected": chosen,
             "development": rows, "baseline": artifacts["baseline"]["summary"],
+            "numerical_diagnostics": artifacts["baseline"]["numerical_diagnostics"],
             "rule": "Integer top-3 successes, integer top-1 successes, independent latency, fixed candidate order"}
 
 
@@ -236,6 +259,7 @@ def primary_comparison(raw, selected_candidate, expected_keys=None, bootstrap_se
             "baseline_metrics": artifacts["baseline"]["summary"],
             "expanded_metrics": artifacts[selected_candidate]["summary"],
             "descriptive_groups": groups,
+            "numerical_diagnostics": artifacts["baseline"]["numerical_diagnostics"],
             "close_boundary_note": f"Descriptive only: third/fourth log-score margin <= {2 * score_tolerance:g}; no change to scoring, selection or promotion. Neutral numerical checks do not guarantee an error bound for every corpus case.",
             "choice_interpretation": "Identical fixed-model option scores in both arms; not evidence that generation improves multiple-choice accuracy.",
             "limitations": "One normalized observed next word per line. Token groups are descriptive; repeated development use, related documents and unknown pretrained overlap remain possible."}

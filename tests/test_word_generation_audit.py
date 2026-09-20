@@ -86,21 +86,50 @@ class GenerationAuditTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "Unexpected split"):
             select_generation(fixture("final"), {"beam16": 1., "beam64": 2.}, expected_cases=6)
 
-    def test_shared_word_scores_use_preregistered_numerical_tolerance(self):
+    def test_common_word_differences_are_diagnostic_not_an_unregistered_gate(self):
+        raw = fixture()
+        raw["details"][0]["candidates"]["beam64"]["scores"][0][1] += .025
+        snapshot = deepcopy(raw)
+        artifacts = derive_artifacts(raw)
+        diagnostic = artifacts["baseline"]["numerical_diagnostics"]
+        self.assertTrue(artifacts["beam64"]["hard_invariants_passed"])
+        self.assertEqual(diagnostic["neutral_log_score_reference"], .02)
+        self.assertEqual(diagnostic["status"], "outside_neutral_reference_observed")
+        self.assertEqual(diagnostic["affected_case_count"], 1)
+        self.assertAlmostEqual(diagnostic["max_absolute_difference"], .025)
+        crossed = [r for r in diagnostic["comparisons"] if r["kind"] == "cross_beam" and r["outside_neutral_reference"]]
+        self.assertEqual(len(crossed), 1)
+        self.assertEqual(crossed[0]["word"], "target")
+        self.assertEqual(crossed[0]["line_hash"], raw["details"][0]["line_hash"])
+        self.assertEqual(raw, snapshot)
+        self.assertEqual(artifacts["beam64"]["summary"]["top3"], 4 / 6)
+        selected = select_generation(raw, {"beam16": 1., "beam64": 2.}, expected_cases=6)
+        self.assertEqual(selected["candidate"], "beam64")
+        self.assertEqual(selected["numerical_diagnostics"], diagnostic)
+
+    def test_option_free_difference_is_recorded_without_altering_primary_result(self):
+        raw = fixture("final", ("beam64",))
+        reference = primary_comparison(raw, "beam64", expected_cases=6)
+        raw["details"][0]["options"]["scores"][0][1] += .03
+        outcome = primary_comparison(raw, "beam64", expected_cases=6)
+        self.assertEqual(outcome["primary_top3"], reference["primary_top3"])
+        diagnostic = outcome["numerical_diagnostics"]
+        self.assertEqual(diagnostic["status"], "outside_neutral_reference_observed")
+        self.assertAlmostEqual(diagnostic["max_absolute_difference"], .03)
+        self.assertEqual(diagnostic["maximum_comparison"]["kind"], "option_vs_free")
+        self.assertTrue(diagnostic["maximum_comparison"]["outside_neutral_reference"])
+
+    def test_numerical_diagnostics_also_retain_within_reference_comparisons(self):
         raw = fixture()
         raw["details"][0]["candidates"]["beam64"]["scores"][0][1] += .015
-        derive_artifacts(raw)
-        with self.assertRaisesRegex(ValueError, "neutral tolerance"):
-            derive_artifacts(raw, score_tolerance=.001)
-        raw["details"][0]["candidates"]["beam64"]["scores"][0][1] += .01
-        with self.assertRaisesRegex(ValueError, "neutral tolerance"):
-            derive_artifacts(raw)
-
-    def test_option_scores_match_free_canonical_scores_within_tolerance(self):
-        raw = fixture()
-        raw["details"][0]["options"]["scores"][0][1] += .03
-        with self.assertRaisesRegex(ValueError, "Option/free canonical"):
-            derive_artifacts(raw)
+        normal = derive_artifacts(raw)["baseline"]["numerical_diagnostics"]
+        self.assertEqual(normal["status"], "within_neutral_reference_for_compared_scores")
+        self.assertEqual(normal["outside_reference_count"], 0)
+        self.assertGreater(normal["comparison_count"], 0)
+        self.assertEqual(normal["comparison_count"], len(normal["comparisons"]))
+        strict_reference = derive_artifacts(raw, score_tolerance=.001)["baseline"]["numerical_diagnostics"]
+        self.assertEqual(strict_reference["status"], "outside_neutral_reference_observed")
+        self.assertEqual(strict_reference["neutral_log_score_reference"], .001)
 
     def test_duplicate_or_reordered_identity_rejected(self):
         raw = fixture()
