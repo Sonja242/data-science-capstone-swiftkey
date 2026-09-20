@@ -84,7 +84,7 @@ class GenerationAuditTests(unittest.TestCase):
         with self.assertRaisesRegex(ValueError, "configuration grid"):
             derive_artifacts(raw)
         with self.assertRaisesRegex(ValueError, "Unexpected split"):
-            select_generation(fixture("test"), {"beam16": 1., "beam64": 2.}, expected_cases=6)
+            select_generation(fixture("final"), {"beam16": 1., "beam64": 2.}, expected_cases=6)
 
     def test_shared_word_scores_use_preregistered_numerical_tolerance(self):
         raw = fixture()
@@ -142,7 +142,7 @@ class GenerationAuditTests(unittest.TestCase):
                 select_generation(fixture(), times, expected_cases=6)
 
     def test_paired_transition_table_reconciles_and_groups_are_descriptive(self):
-        result = primary_comparison(fixture("test", ("beam64",)), "beam64", expected_cases=6)
+        result = primary_comparison(fixture("final", ("beam64",)), "beam64", expected_cases=6)
         primary = result["primary_top3"]
         self.assertEqual((primary["gains"], primary["losses"]), (2, 1))
         self.assertEqual(primary["gains_from_previously_missing_target"], 2)
@@ -169,7 +169,7 @@ class GenerationAuditTests(unittest.TestCase):
             paired_counts(base, changed)
 
     def test_close_boundary_diagnostic_does_not_change_primary_rule(self):
-        raw = fixture("test", ("beam16",))
+        raw = fixture("final", ("beam16",))
         row = raw["details"][0]
         row["candidates"]["beam16"]["scores"] = [["target", -2.99]]
         row["candidates"]["beam16"]["words"] = ["alpha", "beta", "target"]
@@ -181,11 +181,19 @@ class GenerationAuditTests(unittest.TestCase):
         self.assertEqual(result["primary_top3"]["losses"], 1)
         self.assertFalse(result["primary_top3"]["promote"])
 
+    def test_final_split_matches_the_frozen_evaluator_schema(self):
+        raw = fixture("final", ("beam16",))
+        self.assertEqual(derive_artifacts(raw, ("beam16",))["beam16"]["split"], "final")
+        primary_comparison(raw, "beam16", expected_cases=6)
+        raw["split"] = "test"
+        with self.assertRaisesRegex(ValueError, "development or final"):
+            derive_artifacts(raw, ("beam16",))
+
     def test_partial_artifacts_cannot_pass_protocol_case_counts(self):
         with self.assertRaisesRegex(ValueError, "Development case count"):
             select_generation(fixture(), {"beam16": 1., "beam64": 2.})
         with self.assertRaisesRegex(ValueError, "Final case count"):
-            primary_comparison(fixture("test", ("beam16",)), "beam16")
+            primary_comparison(fixture("final", ("beam16",)), "beam16")
 
     def test_fresh_hash_audit_requires_all_previous_sets_and_no_overlap(self):
         dev = fixture()["details"]

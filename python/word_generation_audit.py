@@ -72,8 +72,8 @@ def derive_artifacts(raw, candidates=CANDIDATES, expected_keys=None,
     """
     if not math.isfinite(score_tolerance) or score_tolerance < 0:
         raise ValueError("Invalid neutral score tolerance")
-    if raw.get("split") not in ("development", "test"):
-        raise ValueError("Artifact split must be development or test")
+    if raw.get("split") not in ("development", "final"):
+        raise ValueError("Artifact split must be development or final")
     if expected_split is not None and raw["split"] != expected_split:
         raise ValueError("Unexpected split")
     if not candidates or len(set(candidates)) != len(candidates):
@@ -211,7 +211,7 @@ def primary_comparison(raw, selected_candidate, expected_keys=None, bootstrap_se
     """One frozen primary contrast; token/source groups are descriptive only."""
     if len(raw["details"]) != expected_cases:
         raise ValueError("Final case count differs from protocol")
-    artifacts = derive_artifacts(raw, (selected_candidate,), expected_keys, expected_split="test", score_tolerance=score_tolerance)
+    artifacts = derive_artifacts(raw, (selected_candidate,), expected_keys, expected_split="final", score_tolerance=score_tolerance)
     baseline = artifacts["baseline"]["details"]
     expanded = artifacts[selected_candidate]["details"]
     source_counts = Counter(r["source"] for r in baseline)

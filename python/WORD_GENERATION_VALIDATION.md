@@ -24,11 +24,11 @@ The audit also counts cases with a third-to-fourth free-word log-score margin at
 
 ## CPU audit interfaces
 
-`python/word_generation_audit.py` does not load weights, run a GPU, or automatically discover final files. It reads explicitly supplied artifacts containing canonical score lists and recomputes results, rather than trusting stored percentages.
+`python/word_generation_audit.py` does not load weights, run a GPU, or automatically discover final files. It reads explicitly supplied artifacts containing canonical score lists and recomputes results, rather than trusting stored percentages. The frozen evaluator labels splits `development` and `final`; this study does not use the archived experiments' `test` label.
 
 - `derive_artifacts(raw, candidates=("beam16", "beam64"), ...)` validates the raw canonical scores, reconstructs free rankings and supplies aligned metric artifacts.
 - `select_generation(raw, milliseconds)` accepts development data only and requires latency for both declared configurations.
-- `primary_comparison(raw, selected_candidate, ...)` accepts a final artifact containing only the frozen selected arm and returns the paired primary result plus descriptive groups.
+- `primary_comparison(raw, selected_candidate, ...)` accepts a `split="final"` artifact containing only the frozen selected arm and returns the paired primary result plus descriptive groups.
 - `audit_reserved_hashes(...)` checks hash manifests for all previous final sets, development exclusions and normalized training separation.
 
 All functions accept explicit case identities and, where relevant, the declared numerical tolerance. Default bootstrap seed is 20261590 and default independent FP16 score tolerance is 0.02. Tests cover score tampering, canonical ranking, option separation, missing previous holdouts, duplicates, exact selection ties, paired counts and small-boundary diagnostics. No archived learning-curve code is edited.
