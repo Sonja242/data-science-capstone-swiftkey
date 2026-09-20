@@ -1,0 +1,16 @@
+{
+  "author": "Sonja Sahebzad",
+  "scope": "CPU source and training vocabulary only; no GPU weights or held-out data opened",
+  "implementation_sha256_canonical_utf8": "f72d8438c74651943696419e9d76aa8d5fb820ca47f629f29339ad7b1230863f",
+  "tokenizer_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+  "vocabulary_sha256": "ba5741e030f9f8c24386ef07e16a44f96804edeb27374c5243b271a32fcb5288",
+  "trie_statistics": {
+    "vocabulary_words": 503523,
+    "single_token_words": 22055,
+    "eligible_multiple_token_words": 476776,
+    "over_depth_words": 4692,
+    "nodes": 655490,
+    "terminal_with_children": 60188
+  },
+  "cpu_semantic_tests_passed": 12
+}
