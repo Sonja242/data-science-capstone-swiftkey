@@ -44,6 +44,8 @@ Open the published [Data Science Capstone report website](https://sonja242.githu
 | `24_prepare_word_generation.R` | Reserve and audit a new 900-case final test |
 | `25_word_generation_report.Rmd` | Controlled complete-word generation, paired outcomes and independent verification |
 | `26_try_complete_words.R` | Compare original and experimental complete-word suggestions in RStudio |
+| `27_target_rank_diagnostic.R` | Verify the development-only known-target diagnosis and knit its report |
+| `28_target_rank_diagnostic.Rmd` | Target-aware ranks, FP32 sensitivity, interpretation and reproducibility |
 
 The knitted `.html` files preserve the corresponding code and printed results.
 
@@ -99,3 +101,11 @@ The [complete-word report](https://sonja242.github.io/data-science-capstone-swif
 The paired difference is **+0.22 percentage points**, with a source-stratified 95% bootstrap interval of **0.00 to +0.56** and exact McNemar **p = 0.50**. Mean measured runtime increases from **326 to 780 ms**. The accuracy promotion rule fails, so the existing default remains unchanged. Both arms score **89.6% on synthetic four-choice cases**, a separate task that is not a quiz score or free-word accuracy.
 
 The [reproduction guide](python/WORD_GENERATION.md), [compact final predictions](models/word_generation_final_cases.csv), [complete scores](models/word_generation_final.json) and [independent audit](models/word_generation_independent_audit.json) make the conclusion inspectable. Open `25_word_generation_report.Rmd` to knit the saved results, or source `26_try_complete_words.R` to try the research comparison. The standard interface remains `18_try_neural_predictor.R`. The 85% free-text target is not reached.
+
+## Target-aware diagnosis: retrieval or ranking?
+
+The [new diagnostic report](https://sonja242.github.io/data-science-capstone-swiftkey/target-rank-diagnostic.html) deliberately supplies the known target on the existing 600 development examples. It is not a production-performance estimate or new final test. In the existing pool, 222 targets already rank in the first three, 245 are available but rank lower, and 133 are missing. Adding all missing targets yields **zero additional top-three successes** under the current score rule. The complete-word pool also gains none.
+
+FP32 checks cover all 16 cases within the predeclared boundary rule. The existing pool has one top-three exit and one entry; these concern already available words. No missing target was near enough to meet that check rule. The model and ranking criterion are therefore the next research priority for this setting, while the production default remains unchanged.
+
+See the [reproduction guide](python/TARGET_RANK_DIAGNOSTIC.md), [case-level rank table](models/target_rank_cases.csv), [FP32 candidate scores](models/target_rank_fp32.json) and [independent audit](models/target_rank_independent_audit.json). The RStudio report is `28_target_rank_diagnostic.Rmd`; source `27_target_rank_diagnostic.R` to verify the saved evidence and rebuild its HTML.

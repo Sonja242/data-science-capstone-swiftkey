@@ -1,0 +1,25 @@
+{
+  "author": "Sonja Sahebzad",
+  "registered_utc": "2026-09-20T05:28:22.699404+00:00",
+  "scope": "Exploratory development-only target insertion; no production performance, training or final evaluation",
+  "cases": 600,
+  "arms": [
+    "baseline",
+    "beam16"
+  ],
+  "input_sha256": {
+    "data/adaptation/development.csv": "fede576d6e22aa8553aec5c2b6c05314b78b29426ee95bf72d80fc79bd9571ab",
+    "models/word_generation_development.json": "287a7f64e3f50d3384ef8d28b96ce35e6fdc1c9184c4d8d98fe467b931e31f6d",
+    "models/word_generation_implementation.json": "6c7f87ba44dc0b7a393df301949cee9227ecd6161c88ecfd57afdf0fa2729767"
+  },
+  "analysis_canonical_sha256": "23c4cac9c68a15782eb8eabf9f5657e58880a941fb00689d0ff01d3fd3b6a593",
+  "scoring": "Keep all saved candidate scores. Score an absent target once as a singleton with the same operational FP16 scorer. Existing target scores are never replaced.",
+  "precision_selection": "All cases where either arm has abs(target score minus third best other score)<=0.10, plus every missing target reaching top3. No subsampling or outcome cap.",
+  "near_top3_log_margin": 0.1,
+  "fp32_batch_size": 4,
+  "fp32": "Promote the identical FP16 merged weights to FP32, TF32 disabled. Rescore the full baseline/beam16/target union. Restrict that common score map to each original pool plus target. Do not regenerate candidates.",
+  "formula_check": "FP32 target and third-other word in every checked arm: cached versus direct full sequence, tolerance1e-4; preserve all observations if exceeded.",
+  "interpretation": "Target-aware hypothetical ceiling within the fixed pool only. New competing words could lower rank. Finite precision outside the selected subset is not certified.",
+  "no_final_files_opened": true,
+  "production_unchanged": true
+}

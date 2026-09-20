@@ -1,0 +1,155 @@
+---
+title: "What Limits Next-Word Prediction?"
+subtitle: "A target-aware diagnosis on development data, not a performance test"
+author: "Sonja Sahebzad"
+date: "2026-09-20"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: hide
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+knitr::opts_chunk$set(echo=TRUE,message=FALSE,warning=FALSE)
+results <- jsonlite::fromJSON("models/target_rank_summary.json")
+audit <- jsonlite::fromJSON("models/target_rank_independent_audit.json")
+protocol <- jsonlite::fromJSON("models/target_rank_protocol.json")
+stopifnot(isTRUE(audit$passed),isTRUE(results$diagnostic_not_predictive_performance))
+stopifnot(digest::digest(file="models/target_rank_summary.json",algo="sha256") ==
+          audit$input_sha256$target_rank_summary.json)
+groups <- as.data.table(results$groups)
+cases <- fread("models/target_rank_cases.csv",na.strings="")
+overall <- groups[group=="All"]
+old <- overall[arm=="baseline"]
+new <- overall[arm=="beam16"]
+stopifnot(old$cases==600L,new$cases==600L,
+          sum(old[,.(already_top3,covered_below_top3,missing_reaches_top3,missing_still_below_top3)])==600L)
+labels <- c(baseline="Existing candidates",beam16="Complete-word candidates")
+percent <- function(x) sprintf("%.1f%%",100*x)
+```
+
+<style>
+body{font-family:"Segoe UI",Calibri,Arial,sans-serif;color:#171717;}
+h1,h2,h3{color:#184f79;}.main-container{max-width:1100px;}
+.diagnosis{background:#edf4f9;border-left:4px solid #28658e;padding:15px;margin:18px 0;}
+details{margin:18px 0;padding:12px;background:#f6f7f8;border:1px solid #dce1e5;}
+summary{cursor:pointer;font-weight:600;color:#184f79;}table{font-size:.94em;}
+</style>
+
+<div class="diagnosis">
+
+**This analysis supplies the known next word.** Its results are hypothetical diagnostic counts, not deployable accuracy, quiz results or a new final test. The production predictor is unchanged.
+
+</div>
+
+**Management summary.** On the same **600 development examples**, the existing generator misses **`r old$missing_reaches_top3+old$missing_still_below_top3`** recorded target words. Supplying those words to the unchanged scoring rule would put **`r old$missing_reaches_top3`** in the top three; **`r old$missing_still_below_top3`** still rank lower. A further **`r old$covered_below_top3`** targets were already available but ranked below third place. This distinguishes retrieval opportunities from limitations of the model and scoring rule.
+
+# Question and controlled method
+
+The preceding complete-word experiment found little benefit relative to its extra runtime [1]. This diagnosis asks whether missing words would rank well **if the search found them**. It reuses the original candidate pools and numerical scores for both the existing generator and the previously selected 16-path word search.
+
+1. Keep every original candidate score, including scores of targets already present.
+2. Add an absent observed word and score it once with the same model, 128-token context, canonical token sequence and word-boundary rule.
+3. Record its exact rank and its score difference from the third-highest **other** candidate.
+4. Recheck all potential missing-word recoveries and all cases within **0.10 log-score point** of that cutoff using FP32. The cutoff rule was recorded before this diagnosis ran.
+
+No training, answer-option ranking, candidate regeneration or new final-test evaluation occurs. Both candidate pools are analyzed because an added competitor can lower the target's rank. No interaction terms are fitted: this is a fixed-model intervention; token-length and source differences are descriptive sensitivity checks.
+
+# Where the 600 examples fall
+
+```{r diagnostic-categories}
+knitr::kable(overall[,.(
+  Pool=unname(labels[arm]),
+  `Already top three`=already_top3,
+  `Available but ranked lower`=covered_below_top3,
+  `Missing; would reach top three`=missing_reaches_top3,
+  `Missing; still ranked lower`=missing_still_below_top3)])
+```
+
+The existing pool's target-aware count is **`r old$diagnostic_top3`/600**, compared with **`r old$already_top3`/600** before insertion. For the complete-word pool it is **`r new$diagnostic_top3`/600**, compared with **`r new$already_top3`/600**. These are optimistic counts within fixed competing pools. Actual search must discover useful words without knowing the answer and could also introduce higher-scoring competitors. They are not attainable-performance promises or global vocabulary ceilings.
+
+The closest missing target in the existing pool ranks **`r audit$closest_missing_target$rank`**, still **`r sprintf("%.3f",abs(audit$closest_missing_target$margin))` log-score point below** the top-three cutoff. Thus none of the missing words meets the 0.10 precision-check rule; their FP16 scores should not be described as individually FP32-verified.
+
+*Hover over a segment to see its exact number of examples.*
+
+```{r diagnosis-chart, fig.width=9, fig.height=4.4}
+categories <- c("already_top3","covered_below_top3","missing_reaches_top3","missing_still_below_top3")
+category_labels <- c("Already top three","Available but lower","Missing, would reach top three","Missing, still lower")
+chart <- melt(overall,id.vars="arm",measure.vars=categories,
+              variable.name="Category",value.name="Count")
+chart[,Category:=factor(Category,levels=categories,labels=category_labels)]
+chart[,Pool:=factor(unname(labels[arm]),levels=unname(labels))]
+chart[,Tooltip:=paste0(Pool,"<br>",Category,"<br>",Count," / 600 development examples")]
+p <- ggplot(chart,aes(Pool,Count,fill=Category,text=Tooltip))+
+  geom_col(width=.6)+coord_flip()+
+  scale_fill_manual(values=c("#236795","#88959f","#71a9cb","#d2d8de"))+
+  labs(x=NULL,y="Number of development examples",fill=NULL)+
+  theme_minimal(base_family="Segoe UI")+
+  theme(legend.position="bottom",legend.text=element_text(size=9))+
+  guides(fill=guide_legend(nrow=2))
+plotly::ggplotly(p,tooltip="text")
+```
+
+# Does numerical precision change the diagnosis?
+
+**`r results$fp32_cases` distinct examples** met the predeclared check rule. Their entire candidate union was rescored using the same merged parameter values promoted to FP32, with TF32 disabled and batches of four. No shortlist was regenerated. This tests numerical sensitivity, not whether a newly trained FP32 model would be better. Batched floating-point operations need not produce identical values [2].
+
+```{r precision-results}
+knitr::kable(overall[,.(
+  Pool=unname(labels[arm]),`Examples checked`=fp32_checked,
+  `Target top-three membership changed`=membership_changes_in_checked_subset,
+  `Missing-word recoveries confirmed`=recoveries_confirmed_fp32)])
+```
+
+For the target and the third-highest other word in each checked pool, cached scores were also compared with a direct full-sequence calculation. The largest absolute log-score discrepancy was **`r sprintf("%.3g",results$fp32_max_formula_error)`**; the registered 0.0001 check **`r if(results$fp32_all_formula_checks_passed) "passed for every comparison" else "did not pass for every comparison; see the retained audit"`**. This subset check cannot certify all unexamined prompts or eliminate every numerical effect.
+
+In the existing pool, **“have” moves from third to fourth** and **“here” from fourth to third** under FP32. In the complete-word pool, only “here” crosses the cutoff. All these words were already present. The diagnosis identifies precision-sensitive individual rankings without establishing an overall FP32 accuracy gain.
+
+# Discussion and conclusion
+
+Supplying the correct missing word addresses only retrieval. Under the current score rule, **`r old$covered_below_top3+old$missing_still_below_top3` of 600** examples still put at least three competing words ahead of the recorded target. Some alternatives may be linguistically reasonable; exact matching has only one observed continuation. Therefore these findings locate a limitation of this model, score rule and evaluation target, rather than proving that every lower-ranked word is linguistically wrong.
+
+**The next priority is the model and ranking criterion.** In this diagnostic sample, even supplying every missing answer does not add a top-three success. Merely expanding retrieval therefore has no demonstrated upside under the current score rule. This is an inference for this fixed setting, not proof that search improvements can never help. A different model or scoring method needs its own controlled development comparison and a newly reserved test before promotion. The current diagnosis supplies no evidence for 85% or 99.8% free-word accuracy.
+
+Repeated use of development data makes this exploratory. The known target is deliberately introduced, some targets may fall outside the training vocabulary, and results depend on the fixed competing pools. Word-boundary scoring and canonical tokenization remain modeling assumptions. **The production default and all previous test results are retained.**
+
+# Reproducibility and sensitivity checks
+
+This HTML report is knitted from `28_target_rank_diagnostic.Rmd`. Expand **Code** to see the table and figure calculations. Source `27_target_rank_diagnostic.R` in the same RStudio project to verify saved evidence and knit this report; GPU calculation is needed only for a fresh diagnosis. The [Python analysis](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/python/target_rank_diagnostic.py), [case table](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/models/target_rank_cases.csv), [registered procedure](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/models/target_rank_protocol.json) and [independent audit](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/models/target_rank_independent_audit.json) retain ranks, score differences, candidate evidence and input fingerprints. Full text prefixes and model weights are not republished.
+
+<details>
+<summary>Token-length, source and rank details</summary>
+
+```{r group-details}
+knitr::kable(groups[group!="All",.(Pool=unname(labels[arm]),Group=group,Cases=cases,
+  `Already top three`=already_top3,`Available but lower`=covered_below_top3,
+  `Missing; would reach top three`=missing_reaches_top3,
+  `Missing; still lower`=missing_still_below_top3)])
+```
+
+```{r rank-details}
+cases[,Rank:=cut(diagnostic_rank,breaks=c(0,1,2,3,10,50,Inf),
+                 labels=c("1","2","3","4-10","11-50","51+"))]
+distribution <- dcast(cases[,.(Examples=.N),by=.(arm,Rank)],Rank~arm,value.var="Examples",fill=0)
+knitr::kable(distribution)
+```
+
+Target membership in the training vocabulary is recorded for every example. Among the existing generator's hypothetical recoveries, **`r cases[arm=="baseline" & category=="missing_reaches_top3" & !target_in_training_vocabulary,.N]`** targets are outside that vocabulary. Such words require a vocabulary change as well as a retrieval change.
+
+```{r session-information}
+sessionInfo()
+```
+
+</details>
+
+# References
+
+1. Sahebzad, S. (2026). [Controlled complete-word generation experiment](https://sonja242.github.io/data-science-capstone-swiftkey/word-generation.html).
+2. PyTorch 2.8 documentation. [Numerical accuracy and batched computation](https://docs.pytorch.org/docs/2.8/notes/numerical_accuracy.html).
+3. Johns Hopkins University and SwiftKey. [Official English training corpus](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip).
+4. Qwen team. [Qwen3-1.7B-Base model card](https://huggingface.co/Qwen/Qwen3-1.7B-Base), pinned revision `ea980cb0a6c2ae4b936e82123acc929f1cec04c1`.

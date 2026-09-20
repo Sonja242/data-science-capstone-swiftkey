@@ -6,3 +6,5 @@ models/learning_curve_*.csv -text
 
 models/word_generation_*.json -text
 models/word_generation_*.csv -text
+models/target_rank_*.json -text
+models/target_rank_*.csv -text
