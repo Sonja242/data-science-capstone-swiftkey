@@ -1,0 +1,26 @@
+{
+  "author": "Sonja Sahebzad",
+  "passed": true,
+  "partition_normalized_lines": 4016699,
+  "global_normalized_line_uniqueness": true,
+  "prior_final_counts": {
+    "v3": 3000,
+    "neural": 900,
+    "adaptation": 900,
+    "learning_curve": 900
+  },
+  "prior_final_unique_lines": 5700,
+  "all_prior_evaluation_unique_lines": 8400,
+  "reserved_cases": 900,
+  "reserved_per_source": 300,
+  "reserved_hashes_confirmed_in_official_test_partition": 900,
+  "reserved_source_labels_verified": true,
+  "prior_evaluation_overlap": 0,
+  "official_training_partition_overlap": 0,
+  "local_and_external_adaptation_training_overlap": 0,
+  "reserved_hash_manifest_sha256": "b1906195bee79f5d2ffd5e6e1b5d45255ba9a5c293e53cddc5cc93a85e9715dd",
+  "partition_rds_sha256": "6d5237a3da51054efa8bfe9c86f540561143fff8bc55b84fddc3776672871b64",
+  "new_final_case_file_or_model_outcomes_read": false,
+  "method": "Reconstruct prior sampled rows; compare reserved hashes; hash old test-partition pool to verify membership/source. Global normalized-text uniqueness establishes official training separation.",
+  "limitations": "Exact normalized-line checks do not exclude near duplicates, related documents, or unknown pretrained-model overlap."
+}
