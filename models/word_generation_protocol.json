@@ -1,0 +1,31 @@
+{
+  "author": "Sonja Sahebzad",
+  "recorded_utc": "2026-09-20T04:28:24.244873+00:00",
+  "purpose": "Isolate complete-word candidate generation; no additional training",
+  "model": "Unchanged operational local256 adapter on pinned Qwen3-1.7B-Base",
+  "context_tokens": 128,
+  "baseline_token_cutoff": 256,
+  "ngram_candidates": 20,
+  "beams": [
+    16,
+    64
+  ],
+  "maximum_word_tokens": 6,
+  "terminal_proposal_cap": 128,
+  "word_rule": "lowercase ASCII letters with internal apostrophes; training vocabulary only",
+  "search": "Canonical-token trie. Beam by cumulative token log-probability; terminate only at vocabulary word nodes. Terminal nodes may continue. Rank at most128 completed words by token path score; rescore additions with unchanged canonical likelihood plus boundary mass. Preserve old free set and every old score.",
+  "score_layout": "Original free batches first; new words in separate batches; all options separately after free predictions, identical for both arms. Baseline control equals operational free inference without options.",
+  "development_cases": 600,
+  "final_cases": 900,
+  "selection": "Among beam16/beam64: integer top3 successes, then top1 successes, then mean latency on first20 development cases per source; then smaller beam",
+  "primary": "Paired final exact free top3; promote only if stratified paired bootstrap95% lower bound>0 and exact two-sided McNemar p<0.05",
+  "bootstrap_repetitions": 10000,
+  "bootstrap_seed": 20261590,
+  "secondary": "Top1, coverage, gains/losses, gains previously uncovered, losses, canonical single/multiple-token groups, source groups, synthetic four-choice accuracy and speed are descriptive; no posthoc speed promotion rule",
+  "timing": "CUDA synchronized per-case end-to-end GPU inference excluding model/trie loading and R shortlist construction; alternating baseline/configuration order, first20 dev per source then all900 final. Measured predictions must equal joint evaluation outputs.",
+  "final_only_after_selection": true,
+  "numerics": "Shared original scores and option-free invariance exact. Separate FP16 cached/full checks use absolute log-score tolerance0.02 after a preserved neutral diagnostic; identical merged weights inFP32 agree within1e-4. No model accuracy outcomes used to set this bound.",
+  "holdout_manifest_sha256": "f7f67155c56cae722b348f7d9b5c816cbab569b469dd43740a2156abc75186e9",
+  "development_sha256": "fede576d6e22aa8553aec5c2b6c05314b78b29426ee95bf72d80fc79bd9571ab",
+  "final_sha256": "3b5425bbae20a3b8fa00b7580aaf30bd3187f2ab92c44c9fd6f64e935f9d62d0"
+}

@@ -58,3 +58,5 @@ $env:CAPSTONE_REVIEW_SOURCE = "$project\python\word_generation_experiment.py"
 ```
 
 The test evidence is **12 tests passed**. References are the reviewed [implementation](../python/word_generation_experiment.py), the [independent CPU tests](../tests/test_word_generation_review.py), and the earlier [ranking audit](ranking-audit.md). There is no new performance claim in this review.
+
+Follow-up: the fixed neutral numerical diagnostic was updated before development evaluation. The generator and candidate-union logic remained unchanged, and the 12 CPU semantic tests passed again against the frozen implementation. Its exact fingerprint is recorded in the JSON review addendum and the experiment implementation manifest.

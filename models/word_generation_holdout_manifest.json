@@ -1,0 +1,31 @@
+{
+  "recorded_utc": "2026-09-20T04:24:14Z",
+  "cases": 900,
+  "cases_per_source": 300,
+  "selection_seed": 20261502,
+  "position_seed": 20261503,
+  "choice_seed": 20261504,
+  "excluded_prior_v3_test_lines": 3000,
+  "excluded_prior_neural_test_lines": 900,
+  "excluded_prior_adaptation_test_lines": 900,
+  "excluded_prior_learning_curve_test_lines": 900,
+  "normalized_training_line_overlap": 0,
+  "previous_case_overlap": 0,
+  "development": "Unchanged data/adaptation/development.csv; reused for model selection",
+  "sources": [
+    {
+      "source": "blogs",
+      "N": 300
+    },
+    {
+      "source": "news",
+      "N": 300
+    },
+    {
+      "source": "twitter",
+      "N": 300
+    }
+  ],
+  "final_csv_sha256": "3b5425bbae20a3b8fa00b7580aaf30bd3187f2ab92c44c9fd6f64e935f9d62d0",
+  "development_csv_sha256": "fede576d6e22aa8553aec5c2b6c05314b78b29426ee95bf72d80fc79bd9571ab"
+}

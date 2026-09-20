@@ -1,0 +1,115 @@
+{
+  "initial_fp16_tolerance": 0.001,
+  "initial_failure": 0.0020313262939453125,
+  "no_development_or_final_outcomes_used": true,
+  "results": [
+    {
+      "precision": "float16",
+      "phrase": "we are talking about",
+      "cached": {
+        "the": -1.6242141723632812,
+        "science": -7.035728454589844,
+        "uncharacteristically": -16.230785369873047,
+        "can't": -12.258567810058594
+      },
+      "direct": {
+        "the": -1.622182846069336,
+        "science": -7.049365997314453,
+        "uncharacteristically": -16.235931396484375,
+        "can't": -12.258455276489258
+      },
+      "max_absolute_error": 0.013637542724609375,
+      "rank_identical": true
+    },
+    {
+      "precision": "float16",
+      "phrase": "the scientific explanation is",
+      "cached": {
+        "the": -3.129291534423828,
+        "science": -9.013008117675781,
+        "uncharacteristically": -15.592193603515625,
+        "can't": -11.523269653320312
+      },
+      "direct": {
+        "the": -3.1279351711273193,
+        "science": -9.011579513549805,
+        "uncharacteristically": -15.600528717041016,
+        "can't": -11.520796775817871
+      },
+      "max_absolute_error": 0.008335113525390625,
+      "rank_identical": true
+    },
+    {
+      "precision": "float16",
+      "phrase": "i will see you",
+      "cached": {
+        "the": -5.718297958374023,
+        "science": -12.918405532836914,
+        "uncharacteristically": -18.244300842285156,
+        "can't": -8.682493209838867
+      },
+      "direct": {
+        "the": -5.719425201416016,
+        "science": -12.919471740722656,
+        "uncharacteristically": -18.260011672973633,
+        "can't": -8.695178985595703
+      },
+      "max_absolute_error": 0.015710830688476562,
+      "rank_identical": true
+    },
+    {
+      "precision": "float32",
+      "phrase": "we are talking about",
+      "cached": {
+        "the": -1.6343441009521484,
+        "science": -7.041475296020508,
+        "uncharacteristically": -16.236312866210938,
+        "can't": -12.244647979736328
+      },
+      "direct": {
+        "the": -1.6343417167663574,
+        "science": -7.041472434997559,
+        "uncharacteristically": -16.236318588256836,
+        "can't": -12.244640350341797
+      },
+      "max_absolute_error": 7.62939453125e-06,
+      "rank_identical": true
+    },
+    {
+      "precision": "float32",
+      "phrase": "the scientific explanation is",
+      "cached": {
+        "the": -3.1271209716796875,
+        "science": -9.018220901489258,
+        "uncharacteristically": -15.607414245605469,
+        "can't": -11.524259567260742
+      },
+      "direct": {
+        "the": -3.127117395401001,
+        "science": -9.018214225769043,
+        "uncharacteristically": -15.607418060302734,
+        "can't": -11.524259567260742
+      },
+      "max_absolute_error": 6.67572021484375e-06,
+      "rank_identical": true
+    },
+    {
+      "precision": "float32",
+      "phrase": "i will see you",
+      "cached": {
+        "the": -5.717273712158203,
+        "science": -12.91909408569336,
+        "uncharacteristically": -18.25682258605957,
+        "can't": -8.688776016235352
+      },
+      "direct": {
+        "the": -5.717281818389893,
+        "science": -12.919081687927246,
+        "uncharacteristically": -18.256820678710938,
+        "can't": -8.688772201538086
+      },
+      "max_absolute_error": 1.239776611328125e-05,
+      "rank_identical": true
+    }
+  ]
+}

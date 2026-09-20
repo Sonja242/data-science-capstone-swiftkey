@@ -1,0 +1,40 @@
+{
+  "candidate": "beam16",
+  "recorded_utc": "2026-09-20T04:47:57.777587+00:00",
+  "development_artifact_sha256": "287a7f64e3f50d3384ef8d28b96ce35e6fdc1c9184c4d8d98fe467b931e31f6d",
+  "implementation_sha256": "6c7f87ba44dc0b7a393df301949cee9227ecd6161c88ecfd57afdf0fa2729767",
+  "protocol_sha256": "1bfd88cd87a7f80a56d00d350f0f227c41e340e306ed55c2aa158e146fb4523e",
+  "final_not_used": true,
+  "development_summaries": {
+    "baseline": {
+      "cases": 600,
+      "top1": 0.24833333333333332,
+      "top3": 0.37,
+      "mrr_at3": 0.2991666666666667,
+      "synthetic_choice_accuracy": 0.8666666666666667,
+      "shortlist_recall": 0.7783333333333333,
+      "milliseconds": 311.01998166608,
+      "timing_cases": 60
+    },
+    "beam16": {
+      "cases": 600,
+      "top1": 0.24833333333333332,
+      "top3": 0.36666666666666664,
+      "mrr_at3": 0.29777777777777775,
+      "synthetic_choice_accuracy": 0.8666666666666667,
+      "shortlist_recall": 0.7866666666666666,
+      "milliseconds": 765.8900033323638,
+      "timing_cases": 60
+    },
+    "beam64": {
+      "cases": 600,
+      "top1": 0.24833333333333332,
+      "top3": 0.36666666666666664,
+      "mrr_at3": 0.29777777777777775,
+      "synthetic_choice_accuracy": 0.8666666666666667,
+      "shortlist_recall": 0.795,
+      "milliseconds": 1129.278128328345,
+      "timing_cases": 60
+    }
+  }
+}

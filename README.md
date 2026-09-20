@@ -41,6 +41,9 @@ Open the published [Data Science Capstone report website](https://sonja242.githu
 | `21_data_adaptation_report.Rmd` | Error analysis, two LoRA training recipes and a controlled extra-data comparison |
 | `22_prepare_learning_curve.R` | Reserve a new final sample with no exact-line overlap against training or earlier evaluation cases |
 | `23_learning_curve_report.Rmd` | Three-seed learning curves, independent ranking audit and one prespecified final comparison |
+| `24_prepare_word_generation.R` | Reserve and audit a new 900-case final test |
+| `25_word_generation_report.Rmd` | Controlled complete-word generation, paired outcomes and independent verification |
+| `26_try_complete_words.R` | Compare original and experimental complete-word suggestions in RStudio |
 
 The knitted `.html` files preserve the corresponding code and printed results.
 
@@ -88,3 +91,11 @@ See [the complete reproduction guide](python/LEARNING_CURVE.md), [ranking findin
 On the same new 900-case test, the development-selected representative and the prior operational model both achieved **329/900 = 36.6% top-three accuracy**. The paired difference was **0.0 percentage points**, with 95% interval **-0.8 to +0.8** and exact McNemar **p = 1.00**. The new variant used about **38% less inference time** (176 versus 283 ms), but did not pass the prespecified accuracy-improvement rule. The prior operational model therefore remains the default. An explicitly labeled experimental option is available with `candidate="learning_curve"`.
 
 The selected representative scored **87.3% on synthetic four-choice cases**. This is not a quiz score, and the 85% free-text target remains unmet. The learning curves show no top-three gain from increasing this fixed-pool training schedule from 256 to 1,024 updates. Generating complete candidate words made of several model tokens is the next targeted research question.
+
+## Complete words across multiple model tokens
+
+The [complete-word report](https://sonja242.github.io/data-science-capstone-swiftkey/word-generation.html) tests bounded token-path search while preserving model weights, context and every original candidate score. Development selects between two new search widths. The separately reserved 900-case final test increases coverage from **81.0% to 82.3%**, but exact top-three accuracy only changes from **355/900 (39.4%) to 357/900 (39.7%)**: two gains, zero losses.
+
+The paired difference is **+0.22 percentage points**, with a source-stratified 95% bootstrap interval of **0.00 to +0.56** and exact McNemar **p = 0.50**. Mean measured runtime increases from **326 to 780 ms**. The accuracy promotion rule fails, so the existing default remains unchanged. Both arms score **89.6% on synthetic four-choice cases**, a separate task that is not a quiz score or free-word accuracy.
+
+The [reproduction guide](python/WORD_GENERATION.md), [compact final predictions](models/word_generation_final_cases.csv), [complete scores](models/word_generation_final.json) and [independent audit](models/word_generation_independent_audit.json) make the conclusion inspectable. Open `25_word_generation_report.Rmd` to knit the saved results, or source `26_try_complete_words.R` to try the research comparison. The standard interface remains `18_try_neural_predictor.R`. The 85% free-text target is not reached.

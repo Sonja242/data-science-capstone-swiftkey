@@ -98,12 +98,18 @@ source("24_prepare_word_generation.R")
 ```
 
 ```powershell
-# Run one GPU process at a time.
+# Run the independent partition reconstruction, then one GPU process at a time.
+& 'C:/Program Files/R/R-4.6.1/bin/x64/Rscript.exe' tests/audit_word_generation_split.R (Get-Location).Path models/word_generation_partition_audit.json
 & '.venv-neural/Scripts/python.exe' python/word_generation_precision_check.py
 & '.venv-neural/Scripts/python.exe' python/word_generation_experiment.py --freeze
 & '.venv-neural/Scripts/python.exe' python/word_generation_experiment.py --evaluate development
 & '.venv-neural/Scripts/python.exe' python/word_generation_experiment.py --select
+& '.venv-neural/Scripts/python.exe' python/verify_word_generation.py --development
+& '.venv-neural/Scripts/python.exe' python/analyze_word_generation_development.py
+& '.venv-neural/Scripts/python.exe' python/diagnose_word_generation_batches.py
 & '.venv-neural/Scripts/python.exe' python/word_generation_experiment.py --evaluate final
+& '.venv-neural/Scripts/python.exe' python/summarize_word_generation.py
+& '.venv-neural/Scripts/python.exe' python/verify_word_generation.py --final
 ```
 
 `--freeze` validates neutral behavior and saves code/model/data fingerprints.
@@ -123,6 +129,27 @@ coverage and synthetic-choice outcomes. Aggregate tables and
 `25_word_generation_report.Rmd` provide the readable report. Raw corpus files and
 model weights remain excluded from Git. The normalized lexicon, bounded search,
 canonical tokenization and unknown pretraining overlap remain limitations.
+
+## Recorded outcome and RStudio entry points
+
+The fresh final comparison adds 12 covered targets and two top-three successes,
+with no top-three losses. Accuracy is 355/900 versus 357/900; the paired 95%
+interval is 0.00 to +0.56 percentage points and exact McNemar p is 0.50.
+The existing default remains in place. Runtime rises from 326 to 780 ms,
+including independent synthetic-choice scoring after model loading.
+
+The development audit retained 371 cross-batch differences above the neutral
+0.02 log-score reference. Rechecking its largest case with identical merged
+weights in FP32 reduced the difference to 0.00000954. The final audit retains
+one separately batched comparison above the reference. These numerical
+observations did not change selection, scoring or the promotion rule.
+
+```r
+# Rebuild the report from the saved, audited results.
+rmarkdown::render("25_word_generation_report.Rmd")
+# In the RStudio Console, compare suggestions for a new English phrase.
+source("26_try_complete_words.R")
+```
 
 ## References
 

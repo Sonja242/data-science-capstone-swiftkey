@@ -1,0 +1,162 @@
+{
+  "author": "Sonja Sahebzad",
+  "promote": false,
+  "selection": {
+    "candidate": "beam16"
+  },
+  "development": [
+    {
+      "candidate": "baseline",
+      "cases": 600,
+      "top1": 0.24833333333333332,
+      "top3": 0.37,
+      "mrr_at3": 0.2991666666666667,
+      "synthetic_choice_accuracy": 0.8666666666666667,
+      "shortlist_recall": 0.7783333333333333,
+      "milliseconds": 311.01998166608,
+      "timing_cases": 60
+    },
+    {
+      "candidate": "beam16",
+      "cases": 600,
+      "top1": 0.24833333333333332,
+      "top3": 0.36666666666666664,
+      "mrr_at3": 0.29777777777777775,
+      "synthetic_choice_accuracy": 0.8666666666666667,
+      "shortlist_recall": 0.7866666666666666,
+      "milliseconds": 765.8900033323638,
+      "timing_cases": 60
+    },
+    {
+      "candidate": "beam64",
+      "cases": 600,
+      "top1": 0.24833333333333332,
+      "top3": 0.36666666666666664,
+      "mrr_at3": 0.29777777777777775,
+      "synthetic_choice_accuracy": 0.8666666666666667,
+      "shortlist_recall": 0.795,
+      "milliseconds": 1129.278128328345,
+      "timing_cases": 60
+    }
+  ],
+  "final": [
+    {
+      "candidate": "baseline",
+      "cases": 900,
+      "top1": 0.25333333333333335,
+      "top3": 0.39444444444444443,
+      "mrr_at3": 0.3151851851851852,
+      "synthetic_choice_accuracy": 0.8955555555555555,
+      "shortlist_recall": 0.81,
+      "milliseconds": 325.7186751108707,
+      "timing_cases": 900
+    },
+    {
+      "candidate": "beam16",
+      "cases": 900,
+      "top1": 0.25333333333333335,
+      "top3": 0.39666666666666667,
+      "mrr_at3": 0.3161111111111111,
+      "synthetic_choice_accuracy": 0.8955555555555555,
+      "shortlist_recall": 0.8233333333333334,
+      "milliseconds": 779.7475626667276,
+      "timing_cases": 900
+    }
+  ],
+  "primary": {
+    "difference": 0.0022222222222222222,
+    "confidence": 0.95,
+    "interval": [
+      0.0,
+      0.005555555555555556
+    ],
+    "replicates": 10000,
+    "bootstrap_seed": 20261590,
+    "estimand": "Equal-source mean difference across unique normalized lines; fixed model seeds",
+    "exact_paired_p": 0.5,
+    "promote": false
+  },
+  "mechanism": {
+    "gains": 2,
+    "losses": 0,
+    "coverage_gains": 12,
+    "coverage_losses": 0,
+    "gains_from_previously_missing": 2
+  },
+  "groups": [
+    {
+      "group": "All",
+      "cases": 900,
+      "baseline_top3": 0.39444444444444443,
+      "expanded_top3": 0.39666666666666667,
+      "baseline_coverage": 0.81,
+      "expanded_coverage": 0.8233333333333334,
+      "gains": 2,
+      "losses": 0
+    },
+    {
+      "group": "single_token",
+      "cases": 812,
+      "baseline_top3": 0.43472906403940886,
+      "expanded_top3": 0.43472906403940886,
+      "baseline_coverage": 0.8731527093596059,
+      "expanded_coverage": 0.8731527093596059,
+      "gains": 0,
+      "losses": 0
+    },
+    {
+      "group": "multiple_tokens",
+      "cases": 88,
+      "baseline_top3": 0.022727272727272728,
+      "expanded_top3": 0.045454545454545456,
+      "baseline_coverage": 0.22727272727272727,
+      "expanded_coverage": 0.36363636363636365,
+      "gains": 2,
+      "losses": 0
+    },
+    {
+      "group": "blogs",
+      "cases": 300,
+      "baseline_top3": 0.44,
+      "expanded_top3": 0.44,
+      "baseline_coverage": 0.84,
+      "expanded_coverage": 0.8533333333333334,
+      "gains": 0,
+      "losses": 0
+    },
+    {
+      "group": "news",
+      "cases": 300,
+      "baseline_top3": 0.38666666666666666,
+      "expanded_top3": 0.39,
+      "baseline_coverage": 0.8266666666666667,
+      "expanded_coverage": 0.8366666666666667,
+      "gains": 1,
+      "losses": 0
+    },
+    {
+      "group": "twitter",
+      "cases": 300,
+      "baseline_top3": 0.3566666666666667,
+      "expanded_top3": 0.36,
+      "baseline_coverage": 0.7633333333333333,
+      "expanded_coverage": 0.78,
+      "gains": 1,
+      "losses": 0
+    }
+  ],
+  "input_sha256": {
+    "word_generation_protocol.json": "1bfd88cd87a7f80a56d00d350f0f227c41e340e306ed55c2aa158e146fb4523e",
+    "word_generation_implementation.json": "6c7f87ba44dc0b7a393df301949cee9227ecd6161c88ecfd57afdf0fa2729767",
+    "word_generation_selection.json": "8d8c1db30d5d5e3fd7026f9e08dad5256f0a519fe36ac550ca3a08c3accb8a28",
+    "word_generation_development.json": "287a7f64e3f50d3384ef8d28b96ce35e6fdc1c9184c4d8d98fe467b931e31f6d",
+    "word_generation_final.json": "b056ee340224984e42e5ce163e867591f1d770216b0423ea2a1a2f1bf2fab1e1"
+  },
+  "limitations": [
+    "Repeatedly reused development data; one fresh final test.",
+    "Exact normalized-line deduplication does not exclude near duplicates or pretrained-model overlap.",
+    "Equal weighting of blogs/news/twitter; single observed next word, not every plausible continuation.",
+    "Synthetic choices are a fixed scorer diagnostic, not quiz results.",
+    "Bounded approximate vocabulary search, canonical paths and heuristic boundary mass remain limitations."
+  ]
+}

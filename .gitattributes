@@ -3,3 +3,6 @@ python/neural_predictor.py -text
 python/train_adaptation.py -text
 models/learning_curve_*.json -text
 models/learning_curve_*.csv -text
+
+models/word_generation_*.json -text
+models/word_generation_*.csv -text

@@ -1,0 +1,25 @@
+{
+  "scope": "Largest development cross-batch discrepancy; no final cases or changed predictions",
+  "same_merged_weights_promoted_to_fp32": true,
+  "maximum_saved_fp16_comparison": {
+    "source": "twitter",
+    "line_hash": "1232df9cf6c5d77f894526a90fa024f3f771b99e91d9db96b521b30b2bc5ed76",
+    "word": "swimmingly",
+    "kind": "cross_beam",
+    "left": "beam16",
+    "right": "beam64",
+    "left_log_score": -9.287471771240234,
+    "right_log_score": -9.337749481201172,
+    "absolute_difference": 0.0502777099609375,
+    "outside_neutral_reference": true
+  },
+  "fp32_scores": {
+    "beam16": -9.2833251953125,
+    "beam64": -9.283315658569336,
+    "full_sequence": -9.283384323120117
+  },
+  "fp32_cross_batch_absolute_difference": 9.5367431640625e-06,
+  "fp32_formula_check_passed": true,
+  "scoring_or_selection_changed": false,
+  "limitation": "One diagnostic case is not a guarantee for other corpus cases; published outcomes remain the frozen FP16 implementation."
+}

@@ -12,5 +12,10 @@
     "nodes": 655490,
     "terminal_with_children": 60188
   },
-  "cpu_semantic_tests_passed": 12
+  "cpu_semantic_tests_passed": 12,
+  "follow_up_check": {
+    "frozen_implementation_canonical_sha256": "35dd308b6a83b0c7e3eb15d1ac0996d5cc9254bb776ae963a5777eacb7c961b1",
+    "cpu_semantic_tests_passed": 12,
+    "scope": "The fixed-neutral numerical diagnostic was revised after initial CPU review. Generator and scoring-control logic were not changed. The12 CPU semantic tests were rerun successfully against the frozen source."
+  }
 }

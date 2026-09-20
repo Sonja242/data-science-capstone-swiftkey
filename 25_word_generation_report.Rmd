@@ -22,6 +22,9 @@ verification <- jsonlite::fromJSON("models/word_generation_independent_audit.jso
 protocol <- jsonlite::fromJSON("models/word_generation_protocol.json")
 implementation <- jsonlite::fromJSON("models/word_generation_implementation.json")
 precision <- jsonlite::fromJSON("models/word_generation_neutral_precision_diagnostic.json")
+development_mechanism <- jsonlite::fromJSON("models/word_generation_development_mechanism.json")
+development_audit <- jsonlite::fromJSON("models/word_generation_development_audit.json")
+batch_precision <- jsonlite::fromJSON("models/word_generation_batch_precision_diagnostic.json")
 development <- as.data.table(audit$development)
 final <- as.data.table(audit$final)
 groups <- as.data.table(audit$groups)
@@ -40,8 +43,8 @@ stopifnot(isTRUE(verification$passed), nrow(baseline)==1L, nrow(expanded)==1L,
 pct <- function(x) sprintf("%.1f%%",100*x)
 points <- function(x) sprintf("%+.1f",100*x)
 count <- function(x) format(x,big.mark=",",scientific=FALSE,trim=TRUE)
-labels <- c(baseline="Existing generator",beam16="Whole words: beam 16",
-            beam64="Whole words: beam 64")
+labels <- c(baseline="Existing generator",beam16="Complete words: small search",
+            beam64="Complete words: wide search")
 precision_rows <- as.data.table(precision$results)
 fp16_max <- max(precision_rows[precision=="float16",max_absolute_error])
 fp32_max <- max(precision_rows[precision=="float32",max_absolute_error])
@@ -55,7 +58,7 @@ details {margin:18px 0;padding:12px;background:#f6f7f8;border:1px solid #dce1e5;
 summary {cursor:pointer;font-weight:600;color:#184f79;}
 </style>
 
-**Management summary.** This experiment improves the pool of possible next words without retraining the model. Development data selected **`r unname(labels[selected_name])`**. On **900 newly reserved examples**, its exact top-three accuracy was **`r pct(expanded$top3)`**, compared with **`r pct(baseline$top3)`** for the existing generator. Candidate coverage changed from **`r pct(baseline$shortlist_recall)`** to **`r pct(expanded$shortlist_recall)`**.
+**Management summary.** This experiment tests a larger pool of possible next words without retraining the model. Among the two new variants, development data selected **`r unname(labels[selected_name])`**. On **900 newly reserved examples**, its exact top-three accuracy was **`r pct(expanded$top3)`**, compared with **`r pct(baseline$top3)`** for the existing generator. Candidate coverage changed from **`r pct(baseline$shortlist_recall)`** to **`r pct(expanded$shortlist_recall)`**.
 
 <div class="decision">
 
@@ -71,21 +74,23 @@ The existing generator retrieves **256 eligible token IDs**, then adds up to **2
 
 # Development comparison
 
-Both alternatives use the same **600 development cases**. Selection first maximizes exact top-three successes, then top-one successes, then measured speed; remaining ties favor the smaller beam. Timing independently reruns 60 cases, 20 per source, in alternating condition order.
+Both alternatives use the same **600 development cases**. Selection among the two new variants first maximizes exact top-three successes, then top-one successes, then measured speed; remaining ties favor the smaller beam. Timing independently reruns 60 cases, 20 per source, in alternating condition order.
 
-```{r development-results, echo=FALSE}
+```{r development-results, echo=TRUE}
 knitr::kable(development[,.(Generator=unname(labels[candidate]),
   `First word`=pct(top1), `First three`=pct(top3),
   Coverage=pct(shortlist_recall), `Milliseconds per case`=round(milliseconds))])
 ```
 
+The word tree makes **`r development_mechanism$newly_structurally_reachable` of `r development_mechanism$old_structurally_unreachable`** previously unreachable development targets theoretically reachable. Bounded search is stricter: the two beams actually add only **5 and 10** observed targets to the candidate lists, respectively. Both yield **zero top-three gains and two losses** on development. Removing a structural restriction therefore does not establish an accuracy gain.
+
 The selected generator was frozen before the new final test. Repeated development-set use can favor that sample; the fresh holdout protects this particular final comparison.
 
 # Final paired comparison
 
-Every comparison below uses the **same 900 cases**, 300 each from blogs, news and Twitter. Previous evaluation cases and exact normalized training-line overlaps were excluded. Exact matching asks whether the recorded author's word appears first or among the first three; other reasonable continuations still count as errors.
+Every comparison below uses the **same 900 cases**, 300 each from blogs, news and Twitter. Previous evaluation cases and exact normalized training-line overlaps were excluded. Sources receive equal weight; this is not traffic-weighted app performance. Exact matching asks whether the recorded author's word appears first or among the first three; other reasonable continuations still count as errors.
 
-```{r final-results, echo=FALSE}
+```{r final-results, echo=TRUE}
 knitr::kable(final[,.(Generator=unname(labels[candidate]),
   `First word`=pct(top1), `First three`=pct(top3),
   Coverage=pct(shortlist_recall),
@@ -97,7 +102,7 @@ The paired top-three change is **`r points(primary$difference)` percentage point
 
 *Hover over a bar to see the exact score and number of examples.*
 
-```{r performance-chart, echo=FALSE}
+```{r performance-chart, echo=TRUE}
 chart <- melt(final,id.vars=c("candidate","cases"),
               measure.vars=c("top3","shortlist_recall"),
               variable.name="Measure",value.name="Rate")
@@ -106,7 +111,7 @@ chart[,Measure:=factor(Measure,levels=c("top3","shortlist_recall"),
 chart[,Generator:=factor(unname(labels[candidate]),
                           levels=unname(labels[c("baseline",selected_name)]))]
 chart[,Tooltip:=paste0(Generator,"<br>",Measure,": ",pct(Rate),
-                       "<br>Examples: ",cases)]
+                       "<br>Correct/covered: ",round(Rate*cases)," / ",cases)]
 plot <- ggplot(chart,aes(Generator,Rate,fill=Measure,text=Tooltip))+
   geom_col(position=position_dodge(.75),width=.65)+
   scale_fill_manual(values=c("#236795","#7d8a94"))+
@@ -120,7 +125,7 @@ plotly::ggplotly(plot,tooltip="text")
 
 The new generator turns **`r mechanism$gains`** previous top-three failures into successes, but turns **`r mechanism$losses`** previous successes into failures. It newly covers **`r mechanism$coverage_gains`** targets and loses coverage of **`r mechanism$coverage_losses`**; **`r mechanism$gains_from_previously_missing`** accuracy gains concern previously missing targets. Additional candidates can displace an old correct suggestion even when every old score is preserved.
 
-```{r canonical-token-groups, echo=FALSE}
+```{r canonical-token-groups, echo=TRUE}
 token_groups <- groups[group %in% c("single_token","multiple_tokens")]
 knitr::kable(token_groups[,.(
   `Target encoding`=fifelse(group=="single_token","One canonical token","Multiple canonical tokens"),
@@ -134,33 +139,40 @@ These groups use the canonical encoding of each target word, not alternative tok
 
 # Discussion and conclusion
 
-This comparison isolates generation rather than additional data or training. Higher coverage alone is insufficient: the ranking must place new correct words above plausible alternatives. Runtime is measured independently over all final cases after loading; model/trie initialization and R shortlist construction add further app latency.
+This comparison isolates generation rather than additional data or training. Higher coverage alone is insufficient: the ranking must place new correct words above plausible alternatives. Runtime is measured independently over all final cases after loading, including the separate four-choice scoring task; model/trie initialization and R shortlist construction add further app latency.
 
 The training lexicon, bounded beam, six-token limit and canonical encoding constrain reach. Proposals are pruned before adding the final boundary score, so search can miss words that would rank well afterward. Near duplicates and unknown overlap with pretrained data remain possible. A single English holdout does not establish performance across all users or writing styles.
+
+On this holdout, the extra search adds **`r mechanism$coverage_gains`** covered words but only **`r mechanism$gains`** additional top-three successes, from **`r round(baseline$top3*900)`/900** to **`r round(expanded$top3*900)`/900**. First-word accuracy remains **`r pct(baseline$top1)`**. Mean measured time rises from **`r round(baseline$milliseconds)` to `r round(expanded$milliseconds)` ms**, or **`r sprintf("%.2f",expanded$milliseconds/baseline$milliseconds)` times** the original runtime. With only two discordant outcomes and p = 0.50, this is insufficient evidence of an accuracy improvement.
 
 **Conclusion:** `r if(audit$promote) "the registered test supports the selected complete-word generator as the new default." else "the registered test does not support replacing the existing generator."` Coverage, errors and computational cost should guide the next separately validated experiment.
 
 # Reproducibility and technical evidence
 
-This report is knitted from `25_word_generation_report.Rmd`. The [reproduction guide](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/python/WORD_GENERATION.md) records the pipeline. An independent audit recomputes individual ranks and comparisons from saved targets, candidates and scores, without publishing full prefixes; **its recorded status is passed**.
+This report is knitted from `25_word_generation_report.Rmd` using saved, audited results. In RStudio, Knit rebuilds the report; `26_try_complete_words.R` runs a new phrase comparison. The [reproduction guide](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/python/WORD_GENERATION.md) records the pipeline. An independent audit recomputes individual ranks and comparisons from saved targets, candidates and scores, without publishing full prefixes; **its recorded status is passed**.
 
 <details>
 <summary>Numerical checks, source comparisons and retained evidence</summary>
 
 The initial neutral FP16 cached/full-sequence check **failed** its absolute log-score tolerance of 0.001. Further neutral checks reached **`r sprintf("%.5f",fp16_max)`** maximum difference. Using the same merged weights in FP32 reduced the maximum to **`r sprintf("%.3g",fp32_max)`**, supporting the scoring formula while identifying finite-precision effects. Tested neutral rankings agreed. Before inspecting development outcomes, the numerical tolerance was registered as 0.02. This is not an accuracy tolerance: every original baseline score remains **exactly unchanged** in the union.
 
+Independent development batches exceeded the neutral 0.02 reference in **`r development_audit$outcome$numerical_diagnostics$outside_reference_count` of `r development_audit$outcome$numerical_diagnostics$comparison_count`** comparisons, with a maximum log-score difference of **`r sprintf("%.5f",development_audit$outcome$numerical_diagnostics$max_absolute_difference)`**. This was retained as a diagnostic, not used to alter selection. Rechecking the largest case with identical merged weights in FP32 reduced its cross-batch difference to **`r sprintf("%.3g",batch_precision$fp32_cross_batch_absolute_difference)`** and confirmed the full-sequence formula. These checks support finite-precision sensitivity; they do not guarantee identical rankings for every prompt. Published outcomes remain those of the frozen FP16 implementation.
+
+The final numerical audit flags **`r verification$outcome$numerical_diagnostics$outside_reference_count` of `r verification$outcome$numerical_diagnostics$comparison_count`** separately batched score comparisons above that reference, with maximum difference **`r sprintf("%.5f",verification$outcome$numerical_diagnostics$max_absolute_difference)`**. Neither of the two final accuracy gains lies within the audited close-boundary threshold. These diagnostics are published without retuning the frozen model.
+
 Independent CPU tests cover complete-word termination, continuing terminal paths, deterministic beam ties, candidate preservation and option isolation. The trie contains **`r count(implementation$trie_statistics$eligible_multiple_token_words)`** eligible multiple-token words. Its **`r count(implementation$trie_statistics$over_depth_words)`** over-depth entries are excluded from new proposals, not removed from the baseline. Vocabulary-type proportions do not estimate future token coverage.
 
-```{r source-groups, echo=FALSE}
+```{r source-groups, echo=TRUE}
 knitr::kable(groups[group %in% c("blogs","news","twitter"),
   .(Source=group,Cases=cases,`Old first three`=pct(baseline_top3),
     `New first three`=pct(expanded_top3),Gains=gains,Losses=losses)])
 ```
 
-The paired bootstrap uses 10,000 replicates stratified by source. The exact two-sided McNemar test uses paired gains and losses. The uncertainty interval concerns this sample, not all possible prompts. Secondary subgroup findings are not independent promotion tests.
+The paired bootstrap uses 10,000 replicates stratified by source. The exact two-sided McNemar test uses paired gains and losses. The interval describes sampling uncertainty for this source-balanced evaluation and fixed model; it is not a guarantee for all possible prompts. Secondary subgroup findings are not independent promotion tests.
 
 - [Frozen design and numerical criteria](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/models/word_generation_protocol.json).
 - [Development case-level evidence](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/models/word_generation_development.json).
+- [Compact final predictions and outcomes (CSV)](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/models/word_generation_final_cases.csv), with one paired row per case.
 - [Final case-level evidence](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/models/word_generation_final.json).
 - [Aggregate summary](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/models/word_generation_summary.json) and [independent recomputation](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/models/word_generation_independent_audit.json).
 - [Generation implementation](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/python/word_generation_experiment.py), [CPU review](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/research/word-generation-review.md) and [precision diagnostic](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/models/word_generation_neutral_precision_diagnostic.json).
