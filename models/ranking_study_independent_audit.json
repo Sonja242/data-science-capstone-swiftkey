@@ -1,0 +1,26 @@
+{
+  "author": "Sonja Sahebzad",
+  "passed": true,
+  "selected_recomputed": "baseline",
+  "development_cases": 600,
+  "all_development_candidates_and_baseline_scores_unchanged": true,
+  "final_cases": 900,
+  "calibration_cases": 900,
+  "gains": 0,
+  "losses": 0,
+  "paired_interval": [
+    0.0,
+    0.0
+  ],
+  "exact_p": 1.0,
+  "promotion_passed": false,
+  "calibration_checks": [
+    {
+      "variant": "baseline",
+      "calibrator_max_abs_gradient": 1.509903313490213e-14,
+      "final_confidence_recomputed": true
+    }
+  ],
+  "summary_sha256": "3621fb51c2b79e4f3c1d6ebe26acd5a89b31001e0388dc2cb2a645b196213acf",
+  "audit_code_canonical_sha256": "30d6b429ad02a185a4574056a72011f3859cfffd679ad2332256eb60aad6df86"
+}

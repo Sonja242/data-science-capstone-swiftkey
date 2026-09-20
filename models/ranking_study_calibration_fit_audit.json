@@ -1,0 +1,19 @@
+{
+  "author": "Sonja Sahebzad",
+  "passed": true,
+  "checks": [
+    {
+      "variant": "baseline",
+      "cases": 900,
+      "positives": 211,
+      "stored_coefficients": [-0.4148, 0.9029],
+      "independent_R_coefficients": [-0.4148, 0.9029],
+      "maximum_coefficient_difference": 3.3432e-09,
+      "stored_gradient_maximum": 9.992e-15,
+      "R_optimizer": "optim BFGS, start(0,0); independent of Python Newton implementation"
+    }
+  ],
+  "calibration_artifact_sha256": "84850135831abb76c6f313589ee497bbe453b9fb1a40d76c570d0151a6c24096",
+  "calibrators_sha256": "06ee37b4a704e892c5be237cb84e5f434197beb365d45a6eb8c8132f68f89d0a",
+  "final_outcomes_read": false
+}

@@ -46,6 +46,9 @@ Open the published [Data Science Capstone report website](https://sonja242.githu
 | `26_try_complete_words.R` | Compare original and experimental complete-word suggestions in RStudio |
 | `27_target_rank_diagnostic.R` | Verify the development-only known-target diagnosis and knit its report |
 | `28_target_rank_diagnostic.Rmd` | Target-aware ranks, FP32 sensitivity, interpretation and reproducibility |
+| `29_prepare_ranking_study.R` | Reserve separate confidence-calibration and final-test lines |
+| `30_ranking_and_calibration.Rmd` | Fixed ranking rules, first-suggestion confidence and accuracy versus coverage |
+| `31_verify_ranking_study.R` | Independently verify saved outcomes, print results and knit the report |
 
 The knitted `.html` files preserve the corresponding code and printed results.
 
@@ -109,3 +112,12 @@ The [new diagnostic report](https://sonja242.github.io/data-science-capstone-swi
 FP32 checks cover all 16 cases within the predeclared boundary rule. The existing pool has one top-three exit and one entry; these concern already available words. No missing target was near enough to meet that check rule. The model and ranking criterion are therefore the next research priority for this setting, while the production default remains unchanged.
 
 See the [reproduction guide](python/TARGET_RANK_DIAGNOSTIC.md), [case-level rank table](models/target_rank_cases.csv), [FP32 candidate scores](models/target_rank_fp32.json) and [independent audit](models/target_rank_independent_audit.json). The RStudio report is `28_target_rank_diagnostic.Rmd`; source `27_target_rank_diagnostic.R` to verify the saved evidence and rebuild its HTML.
+
+
+## Fixed ranking rules and first-suggestion confidence
+
+The [ranking and calibration report](https://sonja242.github.io/data-science-capstone-swiftkey/ranking-calibration.html) compares seven predefined scoring rules while keeping model weights and candidates fixed. None improves the registered development top-three criterion, so the original ranking is retained. A separate set of 900 examples fits confidence for **first-suggestion correctness**, with top-three performance measured separately.
+
+On **900 new final-test examples**, the retained model achieves **23.8% first-suggestion accuracy** and **37.1% top-three accuracy**. Calibration changes the test Brier score from **0.1498 to 0.1460**, without changing predictions. At an estimated-confidence threshold of 95%, only **4/900** cases are answered; their measured first-suggestion accuracy is 100.0% (4/4). The report supplies Wilson intervals and lower-threshold results, so subset accuracy is never presented as overall accuracy or a service guarantee.
+
+The [reproduction guide](python/RANKING_STUDY.md), [case-level predictions](models/ranking_study_final_cases.csv), [fixed protocol](models/ranking_study_protocol.json) and [independent final audit](models/ranking_study_independent_audit.json) document selection before calibration and final testing. An independent R optimizer also verifies the calibration fit. Open `30_ranking_and_calibration.Rmd`, or source `31_verify_ranking_study.R` in RStudio to verify and knit saved results. Confidence remains a research assessment; the operational interface `18_try_neural_predictor.R` is unchanged.

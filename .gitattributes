@@ -8,3 +8,7 @@ models/word_generation_*.json -text
 models/word_generation_*.csv -text
 models/target_rank_*.json -text
 models/target_rank_*.csv -text
+
+models/ranking_study_*.json -text
+models/ranking_study_*.csv -text
+29_prepare_ranking_study.R -text

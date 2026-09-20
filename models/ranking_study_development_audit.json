@@ -1,0 +1,8 @@
+{
+  "author": "Sonja Sahebzad",
+  "passed": true,
+  "selected_recomputed": "baseline",
+  "development_cases": 600,
+  "all_development_candidates_and_baseline_scores_unchanged": true,
+  "audit_code_canonical_sha256": "30d6b429ad02a185a4574056a72011f3859cfffd679ad2332256eb60aad6df86"
+}

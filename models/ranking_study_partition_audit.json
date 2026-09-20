@@ -1,0 +1,16 @@
+{
+  "author": "Sonja Sahebzad",
+  "passed": true,
+  "reserved_cases": 1800,
+  "calibration_validation_membership": 900,
+  "final_test_membership": 900,
+  "source_labels_confirmed": true,
+  "global_normalized_line_uniqueness": true,
+  "prior_evaluation_cases": 9300,
+  "prior_overlap": 0,
+  "training_overlap": 0,
+  "original_partition_sha256": "6d5237a3da51054efa8bfe9c86f540561143fff8bc55b84fddc3776672871b64",
+  "reserved_hashes_sha256": "4d367faeb1f3e03e1a304dab0913453c66f7f55cb6609b56f336348a5ba661d2",
+  "method": "Independent membership reconstruction from partition hashes, without prediction outcomes.",
+  "limitation": "Exact-line checks cannot exclude near duplicates or unknown pretrained-model overlap."
+}

@@ -1,0 +1,213 @@
+---
+title: "Ranking Rules and Prediction Reliability"
+subtitle: "Fixed candidates, separate calibration, and a new final test"
+author: "Sonja Sahebzad"
+date: "2026-09-20"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: hide
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+library(data.table)
+library(ggplot2)
+knitr::opts_chunk$set(echo=TRUE,message=FALSE,warning=FALSE,fig.width=9,fig.height=4.5)
+study <- jsonlite::fromJSON("models/ranking_study_summary.json",simplifyMatrix=FALSE)
+audit <- jsonlite::fromJSON("models/ranking_study_independent_audit.json")
+partition_audit <- jsonlite::fromJSON("models/ranking_study_partition_audit.json")
+fit_audit <- jsonlite::fromJSON("models/ranking_study_calibration_fit_audit.json")
+protocol <- jsonlite::fromJSON("models/ranking_study_protocol.json")
+stopifnot(isTRUE(audit$passed),isTRUE(partition_audit$passed),isTRUE(fit_audit$passed),
+  fit_audit$calibrators_sha256==digest::digest(file="models/ranking_study_calibrators.json",algo="sha256"),
+  audit$summary_sha256==digest::digest(file="models/ranking_study_summary.json",algo="sha256"))
+dev <- as.data.table(study$development)
+final <- as.data.table(study$final)
+confidence <- as.data.table(study$confidence)
+selective <- as.data.table(study$selective)
+groups <- as.data.table(study$groups)
+timing <- as.data.table(study$timings)
+paired <- as.data.table(study$development_paired)
+labels <- c(baseline="Original score",no_boundary="No word-boundary term",half_boundary="Half word-boundary term",
+            token_mean="Mean per model token",token_mean_no_boundary="Token mean without boundary",
+            char_sqrt="Character-length adjustment",two_paths="Two valid tokenizations")
+chosen <- study$selected
+original <- final[variant=="baseline"]
+selected <- final[variant==chosen]
+selected_conf <- confidence[variant==chosen & kind=="calibrated"]
+raw_conf <- confidence[variant==chosen & kind=="raw_shortlist_share"]
+at95 <- selective[variant==chosen & abs(threshold-.95)<1e-10]
+pct <- function(x) ifelse(is.na(x),"Not estimated",sprintf("%.1f%%",100*x))
+pp <- function(x) sprintf("%+.2f",100*x)
+fmt_interval <- function(x) {
+  x <- unlist(x)
+  if(length(x)!=2L || anyNA(x)) return("Not estimated")
+  paste(pct(x),collapse=" to ")
+}
+stopifnot(all(dev$cases==600L),all(final$cases==900L),nrow(selected)==1L,
+          length(unique(final$coverage))==1L)
+```
+
+<style>
+body{font-family:"Segoe UI",Calibri,Arial,sans-serif;color:#171717;}
+h1,h2,h3{color:#184f79;}.main-container{max-width:1120px;}
+.decision{background:#edf4f9;border-left:4px solid #28658e;padding:15px;margin:18px 0;}
+details{margin:18px 0;padding:12px;background:#f6f7f8;border:1px solid #dce1e5;}
+summary{cursor:pointer;font-weight:600;color:#184f79;}table{font-size:.93em;}
+</style>
+
+**Management summary.** We compared seven scoring rules using identical model weights and candidate lists. Development data selected **`r unname(labels[chosen])`**. On **900 new test examples**, it placed the observed word among its first three suggestions in **`r pct(selected$top3)`** of cases. First-suggestion correctness was **`r pct(selected$top1)`**. Confidence was fitted separately on **900 calibration examples** and assessed only afterward on the test set.
+
+<div class="decision">
+
+**Decision:** `r if(chosen=="baseline") "Keep the original ranking: none of the alternatives won the predeclared development comparison." else if(study$promote) "The selected ranking passes the registered final accuracy-improvement rule." else "Keep the original ranking: the selected alternative does not pass the registered final improvement rule."`
+
+A displayed probability is an estimated chance that the **first suggestion** matches the observed word. It is not a guarantee for an individual phrase. Top-three accuracy is reported separately.
+
+The confidence map remains a research result in this report. It has not been enabled in the standard prediction interface.
+
+</div>
+
+# Design and reasoning
+
+The preceding diagnosis found that supplying missing target words did not improve development top-three counts [1]. We therefore isolated the score rule. Candidate generation remained target-blind: it proposed eligible model tokens plus the same R n-gram shortlist. No known-answer insertion, answer options, extra training or different base model was used.
+
+Three data roles prevent a confidence map from being assessed on its own fitting examples:
+
+| Role | Examples | Purpose |
+|---|---:|---|
+| Development, previously reused | 600 | Compare seven fixed rules and select one |
+| New calibration set | 900 | Fit confidence for the fixed selected rule and original control |
+| New final test | 900 | Evaluate ranking, confidence and predeclared abstention thresholds |
+
+Each role balances blogs, news and Twitter. The new examples exclude all **9,300** earlier evaluation lines and used training lines. These checks address exact normalized duplicates, not near duplicates or unknown overlap with the model's pretraining.
+
+# Which ranking rule helped?
+
+```{r development-table}
+tab <- merge(dev,paired,by="variant",sort=FALSE)
+tab <- tab[match(names(labels),variant)]
+knitr::kable(tab[,.(Rule=unname(labels[variant]),`First correct`=pct(top1),
+  `First three correct`=pct(top3),Gains=gains,Losses=losses)])
+```
+
+All rules share **`r pct(dev$coverage[1])`** candidate coverage on development. Removing or halving the word-boundary term tests its influence. Token means and a square-root character adjustment test length sensitivity. A combined token-mean/no-boundary rule checks a prespecified interaction. The tokenization variant sums two distinct paths that decode to the same word; it does not change the tokenizer or exhaust every possible segmentation.
+
+Selection maximized the number of top-three successes, then first-suggestion successes, then a fixed simplicity order favoring the original. These are predefined rules, not a fitted reranker. A future learned reranker must use training-only, target-blind candidate generation.
+
+The combined token-mean/no-boundary rule adds one first-suggestion success (150 versus 149), but reduces top-three successes from 222 to 220. The registered top-three priority therefore retains the original rule. This small tradeoff does not establish that every alternative is uniformly worse.
+
+# New final test
+
+```{r final-table}
+knitr::kable(final[,.(Rule=unname(labels[variant]),Cases=cases,
+  `First correct`=pct(top1),`First three correct`=pct(top3),
+  `Target in candidate list`=pct(coverage))])
+```
+
+`r if(chosen=="baseline") "Because the original rule won development selection, there is no challenger in this final test. It estimates the retained predictor's performance and confidence reliability; no self-comparison is presented as evidence of improvement." else paste0("The paired top-three difference is ",pp(study$primary$difference)," percentage points, with source-stratified 95% interval ",pp(study$primary$interval[1])," to ",pp(study$primary$interval[2])," and exact paired p = ",sprintf("%.3f",study$primary$exact_paired_p),". Promotion requires a positive lower interval bound and p below 0.05.")`
+
+```{r latency-table}
+knitr::kable(timing[,.(Rule=unname(labels[variant]),`Timed examples`=cases,
+  `Mean milliseconds`=round(mean_ms,1))])
+```
+
+Timing reruns 60 balanced test cases independently after loading, with synchronized GPU work. It includes candidate generation and the applicable score calculation, but excludes model loading and the R shortlist. Earlier studies included a separate multiple-choice task, so their timing numbers are not directly comparable.
+
+# Are the confidence estimates reliable?
+
+The calibration target is **first-suggestion correctness across all cases**, including those whose answer is missing from the shortlist. A two-parameter logistic map converts the shortlist's relative score share into an estimated correctness probability [2]. Its fixed slope penalty limits extreme fits. It changes the displayed estimate, not the word ranking. Only the separate calibration set was used to fit it.
+
+```{r calibration-table}
+knitr::kable(confidence[,.(Rule=unname(labels[variant]),
+  Estimate=ifelse(kind=="calibrated","Calibrated","Uncalibrated shortlist share"),
+  `Brier score`=round(brier,4),`Log loss`=round(log_loss,4),
+  `10-bin calibration error`=round(ece_10_equal_width,4))])
+```
+
+Lower Brier score and log loss indicate better overall probability predictions; they do not, on their own, prove calibration. The reliability plot compares average estimated confidence with observed correctness. Sparse bins are less certain. The 10-bin error depends on the chosen binning [2].
+
+All three descriptive probability metrics improve on this test, but reliability is uneven. The highest calibrated bin contains only 11 cases: mean estimated correctness is 94.8%, while 9 of 11 predictions are correct (81.8%). More high-confidence observations are needed before making a service-level claim.
+
+*Hover over a point to see its confidence, observed accuracy and example count.*
+
+```{r reliability-chart}
+reliability <- rbindlist(lapply(seq_len(nrow(confidence)),function(i) {
+  x <- as.data.table(confidence$reliability[[i]])
+  x[,`:=`(variant=confidence$variant[i],kind=confidence$kind[i])]
+  x
+}))
+chart <- reliability[variant==chosen & cases>0]
+chart[,Estimate:=factor(kind,levels=c("raw_shortlist_share","calibrated"),
+                        labels=c("Uncalibrated share","Calibrated"))]
+chart[,Tooltip:=paste0(Estimate,"<br>Estimated: ",pct(mean_probability),
+  "<br>Observed: ",pct(observed_accuracy),"<br>Examples: ",cases)]
+p <- ggplot(chart,aes(mean_probability,observed_accuracy,color=Estimate,
+                     shape=Estimate,linetype=Estimate,text=Tooltip))+
+  geom_abline(slope=1,intercept=0,color="#aab2b9",linetype=3)+
+  geom_line()+geom_point(size=2.7)+
+  scale_color_manual(values=c("#7d8a94","#236795"))+
+  scale_x_continuous(labels=scales::percent,limits=c(0,1))+
+  scale_y_continuous(labels=scales::percent,limits=c(0,1))+
+  labs(x="Mean estimated first-suggestion correctness",y="Observed first-suggestion accuracy",color=NULL,shape=NULL,linetype=NULL)+
+  theme_minimal(base_family="Segoe UI")+theme(legend.position="bottom")
+plotly::ggplotly(p,tooltip="text")
+```
+
+# What happens when uncertain predictions are skipped?
+
+The following thresholds were fixed before the final test. **Answer coverage** is the proportion of all 900 cases answered. **Selective accuracy** uses only answered cases as its denominator. Raising a threshold may improve conditional accuracy while leaving many users without a suggestion.
+
+```{r selective-table}
+display <- copy(selective[variant==chosen])
+display[,Interval:=vapply(wilson95,fmt_interval,character(1))]
+knitr::kable(display[,.(
+  `Minimum estimated confidence`=pct(threshold),Answered=answered,
+  `Answer coverage`=pct(coverage),`First-suggestion accuracy`=pct(accuracy_first),
+  `95% interval for that accuracy`=Interval,`Top-three accuracy among answered`=pct(accuracy_top3))])
+```
+
+At the **95% estimated-confidence threshold**, `r if(at95$answered==0L) "no test cases receive an answer, so accuracy at that threshold cannot be estimated." else paste0(at95$answered," of 900 cases receive an answer. Observed first-suggestion accuracy is ",pct(at95$accuracy_first),", with interval ",fmt_interval(at95$wilson95[[1]]),".")` The interval concerns uncertainty in measured accuracy; it is different from the model's confidence threshold. A high point estimate from very few cases does not establish a reliable 95% service.
+
+# Discussion and conclusion
+
+The fixed candidate pool separates score changes from search improvements. Source and token-length results below indicate whether gains are concentrated in one type of text. The combined length/boundary variant tests one interaction; the comparison does not exhaust all possible scoring methods.
+
+The selected rule achieves **`r pct(selected$top3)` top-three accuracy across all 900 cases**. Calibration does not increase that accuracy; it assesses when the first suggestion is more or less trustworthy. Its test Brier score changes from **`r sprintf("%.4f",raw_conf$brier)`** to **`r sprintf("%.4f",selected_conf$brier)`**, while answer coverage exposes the cost of abstention. These results must be interpreted together, without presenting selective accuracy as overall performance.
+
+This final sample differs from earlier studies, so differences from their reported percentages do not establish model improvement or deterioration.
+
+The reused development set, one balanced English test sample, one observed continuation per phrase, finite-precision scoring and uncertain pretraining overlap limit generalization. The sigmoid map may be misspecified and can drift on different user text. A comparison with another base model belongs in a separate experiment. **Neither the 85% free-word target nor a reliable 95%-confidence claim follows automatically from these results.**
+
+# Reproducibility
+
+This report is knitted from `30_ranking_and_calibration.Rmd`, with code available through **Code** buttons. `31_verify_ranking_study.R` verifies the saved results, prints the main tables and rebuilds the HTML. Source, data fingerprints, case-level scores, calibration coefficients, prediction rows and independent audits are retained in [the GitHub project](https://github.com/Sonja242/data-science-capstone-swiftkey). The [reproduction guide](https://github.com/Sonja242/data-science-capstone-swiftkey/blob/main/python/RANKING_STUDY.md) records the order of selection, calibration and final testing.
+
+An independent R optimizer reproduced the Python calibration coefficients within 0.000000004 before final testing. Separate checks reconstruct the ranking formulas, prediction metrics, reliability bins and selective-accuracy intervals from saved case-level evidence.
+
+<details>
+<summary>Scoring formulas, subgroup results and technical checks</summary>
+
+Let L be the canonical token-sequence log likelihood, B the following boundary log mass, n the number of model tokens, and c the number of characters. The rules are L+B, L, L+0.5B, L/n+B, L/n, L/sqrt(c)+B, and a log-sum-exp over two distinct valid tokenizations with their boundary scores. The original rule preserves its archived floating-point operation order exactly. Neutral alternate-path scores were checked against full-sequence calculations before development evaluation. These heuristic variants are not all normalized word-probability distributions [3].
+
+```{r group-table}
+knitr::kable(groups[split=="final",.(Rule=unname(labels[variant]),Group=group,Cases=cases,
+  `First correct`=pct(top1),`First three correct`=pct(top3),Coverage=pct(coverage))])
+```
+
+```{r session-information}
+sessionInfo()
+```
+
+</details>
+
+# References
+
+1. Sahebzad, S. (2026). [Target-aware development diagnosis](https://sonja242.github.io/data-science-capstone-swiftkey/target-rank-diagnostic.html).
+2. scikit-learn documentation. [Probability calibration, reliability diagrams and proper scoring rules](https://scikit-learn.org/stable/modules/calibration.html).
+3. PyTorch 2.8 documentation. [Numerical accuracy](https://docs.pytorch.org/docs/2.8/notes/numerical_accuracy.html).
+4. Johns Hopkins University and SwiftKey. [Official corpus](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip).
+5. Qwen team. [Qwen3-1.7B-Base](https://huggingface.co/Qwen/Qwen3-1.7B-Base), revision `ea980cb0a6c2ae4b936e82123acc929f1cec04c1`.
