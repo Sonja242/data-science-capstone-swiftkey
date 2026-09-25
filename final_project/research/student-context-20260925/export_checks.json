@@ -1,0 +1,20 @@
+{
+  "CE_control": {
+    "max_probability_error": 2.908151530701e-08,
+    "exact_top3": true,
+    "cases": 600,
+    "passed": true
+  },
+  "Distill25": {
+    "max_probability_error": 2.828362877239e-08,
+    "exact_top3": true,
+    "cases": 600,
+    "passed": true
+  },
+  "Distill50": {
+    "max_probability_error": 2.934613319017e-08,
+    "exact_top3": true,
+    "cases": 600,
+    "passed": true
+  }
+}

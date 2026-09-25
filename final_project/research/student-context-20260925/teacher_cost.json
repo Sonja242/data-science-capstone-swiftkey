@@ -1,0 +1,8 @@
+{
+  "peak_gpu_mib": 4469.70703125,
+  "training_cases": 3000,
+  "development_cases": 600,
+  "seconds_training_scoring": 360.7161947999848,
+  "gpu": "NVIDIA RTX 2000 Ada Generation Laptop GPU",
+  "torch": "2.8.0+cu128"
+}

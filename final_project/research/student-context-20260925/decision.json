@@ -1,0 +1,11 @@
+{
+  "author": "Sonja Sahebzad",
+  "selected": "Current",
+  "development_only": true,
+  "final_test_used": false,
+  "production_changed": false,
+  "confidence_calibrated": false,
+  "qualifying_candidates": 0,
+  "model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "reason": "No CPU candidate passed the predeclared accuracy, timing, memory and export gates. Keep production; reserved test unread."
+}

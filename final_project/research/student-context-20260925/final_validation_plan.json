@@ -1,0 +1,10 @@
+{
+  "author": "Sonja Sahebzad",
+  "registered_stage": "During supervised pretraining, before any student development outcomes",
+  "condition": "Run only if a compact candidate passes every registered development gate. Otherwise no new final-test access or calibration.",
+  "calibration": "Reserve900 validation lines,300/source, excluding original v3 validation selections and all previously saved validation case hashes in the neural, adaptation and ranking studies. Sample one random next-word position. Fit a nondecreasing regularized logistic calibration of logit(top1 model probability), separately for Current and the frozen challenger. Minimize mean binary log loss plus0.0005*slope^2. This transforms scores only and never alters ranking. Record calibration hashes and frozen maps before reading final cases.",
+  "final": "Compare Current and the frozen challenger once on the900 previously reserved final_product_quality cases. Compute exact top1/top3, Wilson95 intervals, source-stratified paired bootstrap95 interval for top3 difference with10000 replicates, and exact paired discordance p-value. Report the p-value as secondary. Promotion needs positive lower bound of top3 difference and no top1 loss, as registered.",
+  "confidence": "Report Brier score,10 equal-width reliability bins with counts, ECE, and top1 accuracy/coverage at fixed confidence thresholds0,0.50,0.70,0.85,0.95. Confidence remains a research result until deployment integration is separately checked; no threshold selection on final data.",
+  "seeds": {"calibration_lines":20261010,"calibration_positions":20261011,"bootstrap":20261009},
+  "limits": "Calibration uses only one score feature. It does not guarantee correctness for each prediction or95% accuracy. Final data cannot be reused to retune candidates."
+}

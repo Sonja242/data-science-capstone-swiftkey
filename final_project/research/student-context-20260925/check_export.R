@@ -1,0 +1,15 @@
+library(data.table)
+library(jsonlite)
+source("final_project/app/predictor.R")
+source("final_project/research/student-context-20260925/student_predictor.R")
+model<-prepare_predictor(readRDS("final_project/app/model.rds"))
+path<-"data/student_context/neutral_export"
+student<-load_student(path)
+phrases<-fromJSON(file.path(path,"phrases.json"))
+con<-file(file.path(path,"probabilities.f32"),"rb")
+reference<-matrix(readBin(con,"numeric",n=length(phrases)*50000,size=4,endian="little"),nrow=50000L);close(con)
+errs<-vapply(seq_along(phrases),function(i)max(abs(student_distribution(student,model,phrases[i])-reference[,i])),numeric(1))
+stopifnot(max(errs)<1e-6)
+write_json(list(neutral_cases=length(phrases),max_error=max(errs),passed=TRUE),
+ "final_project/research/student-context-20260925/neutral_export_check.json",pretty=TRUE,auto_unbox=TRUE,digits=12)
+cat("Native R export matches Python on",length(phrases),"neutral inputs; max probability error",max(errs),"\n")

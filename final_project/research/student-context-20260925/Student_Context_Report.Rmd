@@ -1,0 +1,186 @@
+---
+title: "Sonja Next Word: Learning from Longer Context"
+subtitle: "A compact-model and knowledge-distillation pilot"
+author: "Author: Sonja Sahebzad"
+date: "2026-09-25"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: hide
+    self_contained: true
+    css: ../../../milestone-report.css
+---
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo=FALSE,warning=FALSE,message=FALSE)
+library(data.table)
+d<-fread("development_comparison.csv")
+teacher<-fread("teacher_development.csv")
+decision<-jsonlite::fromJSON("decision.json")
+sample<-jsonlite::fromJSON("training_sample.json")
+cost<-jsonlite::fromJSON("teacher_cost.json")
+context<-fread("context_diagnostic.csv")
+context_cases<-fread("context_diagnostic_cases.csv")
+parity<-jsonlite::fromJSON("export_checks.json",simplifyVector=FALSE)
+stopifnot(all(vapply(parity,function(x)isTRUE(x$passed),logical(1))),nrow(context_cases)==1800L)
+for(f in context$family) {
+ z<-context_cases[family==f];s<-context[family==f]
+ stopifnot(nrow(z)==600L,sum(z$full_rank>0)==s$full_top3,sum(z$short_rank>0)==s$last4_top3,
+  sum(z$full_rank>0 & z$short_rank==0)==s$gained,sum(z$full_rank==0 & z$short_rank>0)==s$lost)
+}
+base<-d[name=="Current"]
+ordered<-copy(d);setorder(ordered,-top3,-top1,median_ms)
+best<-ordered[family!="Current"][1]
+byfamily<-ordered[family!="Current",.SD[1],by=family]
+byfamily<-byfamily[match(c("CE_control","Distill25","Distill50"),family)]
+pct<-function(x)sprintf("%.1f%%",100*x)
+num<-function(x)format(x,big.mark=",",trim=TRUE)
+pretty<-function(x) {
+ x<-gsub("CE_control","Text-trained student",x,fixed=TRUE)
+ x<-gsub("Distill25","Student with 25% teacher loss",x,fixed=TRUE)
+ gsub("Distill50","Student with 50% teacher loss",x,fixed=TRUE)
+}
+wilson<-function(k,n) {
+ z<-qnorm(.975);p<-k/n;den<-1+z^2/n
+ mid<-(p+z^2/(2*n))/den;half<-z*sqrt(p*(1-p)/n+z^2/(4*n^2))/den
+ c(lower=mid-half,upper=mid+half)
+}
+delta_ci<-function(candidate_name) {
+ cases<-fread("development_cases.csv")
+ a<-cases[name=="Current"];b<-cases[name==candidate_name]
+ z<-merge(a,b,by=c("source","line_hash"),suffixes=c("_base","_new"))
+ set.seed(20261009)
+ delta<-as.integer(z$rank_new>0)-as.integer(z$rank_base>0)
+ groups<-split(seq_len(nrow(z)),z$source)
+ boot<-replicate(5000,mean(delta[unlist(lapply(groups,function(ii)sample(ii,length(ii),replace=TRUE)))]))
+ list(gained=sum(delta==1),lost=sum(delta== -1),difference=mean(delta),ci=quantile(boot,c(.025,.975)))
+}
+change<-delta_ci(best$name)
+```
+
+<div class="summary-box">
+**Management summary.** This pilot tested whether a small model using up to **48 previous words** could improve the fast Shiny predictor. It learned from **90,000 training lines**. Two versions also learned word scores supplied by a larger language model. On the same 600 development examples, the existing model achieved **`r base$top3`/600 (`r pct(base$top3/600)`) correct top-three predictions**. The best tested compact configuration achieved **`r best$top3`/600 (`r pct(best$top3/600)`)**. `r if(decision$selected=="Current") "No compact candidate passed every predefined improvement requirement. The live model is retained and the reserved test remains unread." else "A development candidate qualified for a separate final comparison; development results alone do not justify deployment."`
+</div>
+
+# Research question and design
+
+The [dictionary study](https://sonja242.github.io/data-science-capstone-swiftkey/dictionary-check.html) found that **424 of 436 missed words were already in the vocabulary**. This points to word selection and context as useful research targets. The deployed five-gram model uses at most four recent words. The new model reads up to 48 words and compresses them into a learned numerical memory before scoring all 50,000 available output words.
+
+The larger **Qwen3-1.7B-Base model with the existing local adapter** serves as a teacher. It scores complete words, including the probability that a word ends, using up to 128 model tokens of the supplied prefix. It proposes candidates without seeing the actual next word. *Knowledge distillation* trains a smaller model to approximate these scores. A text-only control with the same architecture and training budget makes it possible to distinguish ordinary training from the teacher's added influence.
+
+The teacher uses the local GPU. The small model runs directly in R, allowing a practical comparison within the existing CPU app's resource budget.
+
+Training used 30,000 deduplicated lines from each source: blogs, news and Twitter. This bounded sample keeps the first comparison practical while balancing sources. Up to six sampled positions per line produced **`r num(sample$supervised_positions)` supervised examples**. All three students shared two initial training epochs, followed by five equal-budget epochs on 3,000 training prefixes. The teacher supplied scores for those prefixes. The registered teacher-loss weights were **0%, 25% and 50%**. Student probabilities were also mixed with the deployed model at **10%, 25% and 50% student weight**, alongside each student alone. These mixtures test whether longer-context learning complements local word patterns.
+
+The teacher setting controls learning during training. The separate student mixture controls how much the small model influences the final suggestions alongside the existing predictor.
+
+Students learn their context representations from scratch. Their initial general word probabilities come from the existing model's training-derived base distribution; no pretrained word representations are transferred.
+
+# Results and speed
+
+Every comparison used the same **600 development examples**, 200 per source. A success means the exact recorded next word appeared first (*top-1*) or among three suggestions (*top-3*). These repeatedly used development data support model selection; they do not provide an independent estimate of future accuracy.
+
+<div class="table-responsive">
+
+```{r main-table}
+table<-rbindlist(list(
+ data.table(Method="Current Shiny model",Compute="CPU",First=base$top1,Three=base$top3,Median=base$median_ms),
+ data.table(Method="Larger teacher reference",Compute="GPU",First=sum(teacher$rank==1),Three=sum(teacher$rank>0 & teacher$rank<=3),Median=median(teacher$milliseconds)),
+ byfamily[,.(Method=paste0(pretty(family),"; ",round(weight*100),"% student mix"),Compute="CPU",First=top1,Three=top3,Median=median_ms)]))
+knitr::kable(data.frame(Method=table$Method,Compute=table$Compute,
+ `First correct`=sprintf("%d/600 (%s)",table$First,pct(table$First/600)),
+ `Within three`=sprintf("%d/600 (%s)",table$Three,pct(table$Three/600)),
+ `Median ms`=round(table$Median,2),check.names=FALSE),
+ caption="Table 1. Best observed mixture per student family. The teacher is a GPU reference, not a deployable CPU candidate.")
+```
+
+</div>
+
+```{r accuracy-chart}
+labels<-c("Current","Teacher", "Text-trained<br>student", "25% teacher<br>loss", "50% teacher<br>loss")
+ci<-t(vapply(table$Three,function(k)wilson(k,600),numeric(2)))
+plotly::plot_ly(x=labels,y=100*table$Three/600,type="bar",textposition="none",
+ marker=list(color=c("#123f68","#537b94","#6b93b1","#2878ae","#95bed6")),
+ error_y=list(type="data",symmetric=FALSE,array=100*(ci[,2]-table$Three/600),arrayminus=100*(table$Three/600-ci[,1])),
+ text=sprintf("%s<br>Top-3: %d/600 (%s)<br>Approximate 95%% interval: %.1f%% to %.1f%%",labels,table$Three,pct(table$Three/600),100*ci[,1],100*ci[,2]),hoverinfo="text") |>
+ plotly::layout(yaxis=list(title="Correct within three (%)",rangemode="tozero"),xaxis=list(title="",categoryorder="array",categoryarray=labels),
+ font=list(family="Calibri, Segoe UI, sans-serif"))
+```
+
+*Figure 1. Hover over the bars for counts and percentages. Wilson intervals describe sampling uncertainty only. They do not adjust for repeated development use or selection of the best mixture.*
+
+```{r tradeoff-chart}
+plotdata<-copy(d)
+plotdata[,Family:=factor(family,levels=c("Current","CE_control","Distill25","Distill50"),labels=c("Current","Text only","Teacher 25%","Teacher 50%"))]
+plotdata[,Description:=ifelse(family=="Current","Current Shiny model",paste0(pretty(family),"<br>",round(100*weight),"% student at prediction"))]
+plotly::plot_ly(plotdata,x=~median_ms,y=~(100*top3/600),color=~Family,
+ colors=c("#123f68","#2878ae","#6b93b1","#95bed6"),type="scatter",mode="markers",
+ marker=list(size=11),text=~paste0(Description,"<br>Top-3: ",top3,"/600<br>Median: ",round(median_ms,2)," ms<br>95th percentile: ",round(p95_ms,2)," ms<br>R objects: ",round(prepared_mib,1)," MiB"),hoverinfo="text") |>
+ plotly::layout(xaxis=list(title="Median CPU computation (ms)",rangemode="tozero"),yaxis=list(title="Correct within three (%)",rangemode="tozero"),
+ font=list(family="Calibri, Segoe UI, sans-serif"),legend=list(orientation="h",y=-.2))
+```
+
+*Figure 2. All registered CPU candidates. Hover for quality, timing and memory. Higher accuracy and lower computation time are preferable.*
+
+CPU measurements include normalization and complete prediction, with **1,800 warm calls per rule** in three interleaved rounds. They exclude model loading, the app's 150 ms typing delay, networking and display. Teacher timing uses the local GPU and is not directly comparable with CPU hosting. Teacher training-prefix scoring required **`r sprintf("%.1f",cost$seconds_training_scoring/60)` minutes**, excluding model loading and the separate development evaluation.
+
+<details><summary>Full candidate comparison</summary>
+
+```{r full-table}
+knitr::kable(d[,.(Method=name,Top1=top1,Top3=top3,Median_ms=round(median_ms,2),P95_ms=round(p95_ms,2),R_objects_MiB=round(prepared_mib,1),Qualified=qualified)])
+```
+
+</details>
+
+# Does earlier context help?
+
+Each fixed student was also tested with only the last four words of the same prefix. The following comparison changes the available context while keeping weights and vocabulary fixed. It is a diagnostic and did not add candidates to model selection.
+
+<div class="table-responsive">
+
+```{r context-table}
+knitr::kable(data.frame(Student=pretty(context$family),
+ `Top-3 with 4 words`=context$last4_top3,`Top-3 with up to 48`=context$full_top3,
+ `New successes`=context$gained,`Lost successes`=context$lost,
+ `Changed suggestion lists`=context$changed_lists,check.names=FALSE),
+ caption="Table 2. Counts among the same 600 development cases.")
+```
+
+</div>
+
+Changed suggestions demonstrate sensitivity to earlier words. They do not establish human-like understanding or common sense. The balance of gained and lost correct words shows whether that sensitivity helped this sample.
+
+Of the 600 inputs, **412 contained more than four words**. Keeping the earlier words changed **248 to 274 suggestion lists**, depending on the student. Net top-three changes were **one fewer, two more and one fewer correct words**, respectively. Earlier context influenced the models, but did not produce a consistent accuracy gain.
+
+# Discussion
+
+The best compact configuration changed top-three success by **`r sprintf("%+.2f",100*change$difference)` percentage points** compared with the current model, with **`r change$gained` gained** and **`r change$lost` lost** successes. Its paired source-stratified bootstrap 95% interval was **`r sprintf("%.2f",100*change$ci[1])` to `r sprintf("%.2f",100*change$ci[2])` percentage points**. First-choice successes changed from **`r base$top1` to `r best$top1` out of 600**. Both measures matter because the product highlights one primary suggestion. This interval describes the observed development comparison. Selection across multiple candidates and prior reuse of these cases limit its use as evidence of a general improvement.
+
+The strongest compact result came from **`r pretty(best$family)` at `r round(100*best$weight)`% student weight**. Distillation did not surpass the text-only control in this pilot. The teacher's **222/600** top-three result shows a stronger reference on these examples, but that advantage did not transfer adequately into the small model under the tested budget. This is a result about this implementation and training budget, not a general rejection of distillation.
+
+The best mixture required **`r sprintf("%.2f",best$median_ms)` ms** median computation versus **`r sprintf("%.2f",base$median_ms)` ms** for the current model in this same benchmark. Both met the 20 ms limit, but the extra computation did not buy the required accuracy improvement. The current model's earlier 0.58 ms measurement came from a different benchmark; the app itself has not changed.
+
+An interval spanning zero includes both improvement and deterioration. Here, the small observed gain should therefore not be described as a proven improvement, even before considering the loss of first-choice successes.
+
+This is a bounded pilot: one seed, 90,000 training lines, two initial epochs and 3,000 teacher examples. The existing n-gram model learned from 3.21 million lines, so its comparison with a student changes both architecture and training scope. It cannot isolate which explains the gap. The three student variants do share a training budget. Teacher scores are normalized over a limited candidate list; distillation approximates that restricted distribution. The compact architecture, training budget and teacher formulation may each limit the result. Pretrained-data overlap is unknown, and exact line separation does not remove every near duplicate.
+
+The deployed model's original independent test remains **17.0% first-choice accuracy (95% interval 14.7% to 19.6%)** and **28.6% top-three accuracy (25.7% to 31.6%)**. Its test contains different cases, so those percentages should not be subtracted from this study's development percentages. Aggregate accuracy intervals are different from confidence in one suggestion. **Individual confidence remains uncalibrated in the live app.** A displayed model probability would not automatically be a reliable percentage of correctness.
+
+# Conclusion and next step
+
+`r if(decision$selected=="Current") "**Keep the existing Shiny predictor.** No compact candidate satisfied all registered requirements: at least six additional top-three successes, no loss of first-choice successes, median CPU computation below 20 ms, 95th percentile below 50 ms, R model objects within 256 MiB, and verified Python-to-R export. The separate 900-case quality test was not opened." else "**A candidate has passed the development gate.** It must still pass the frozen independent comparison before any live replacement or new performance claim."`
+
+The experiment narrows the next decision: compare the teacher's advantage with the compact model's remaining gap, then justify any additional training budget with a fixed learning curve and repeated seeds. Confidence calibration needs separate calibration data and an independent assessment after model selection. Neither this pilot nor a successful quiz demonstrates 100% accuracy on arbitrary future sentences.
+
+# Reproducibility and references
+
+This report was knitted from R Markdown and retained with its source in the existing RStudio project. The registered protocol fixes sampling, training, candidate mixtures and promotion rules. Training-line hashes, model and data checksums, case-level ranks, timing records, and package versions accompany the analysis. Raw corpus text, model weights and quiz material stay outside the public report. GPU training uses seed **20261007**. CPU timing uses **20261008**. A neutral export check and all 600 development cases compare Python with native R inference.
+
+The portability check detected small differences in the initial GPU reference, which allowed reduced-precision recurrent computation. One top-three list changed in each of two student models when checked with CPU double precision; aggregate correctness counts stayed unchanged. The final R comparison uses the same trained weights with a matching CPU reference. `precision_correction.json` records the adjustment and preserves the original results privately. No model was retrained and no final-test data were involved.
+
+1. Hinton, Vinyals and Dean (2015). [Distilling the Knowledge in a Neural Network](https://arxiv.org/abs/1503.02531). Basis for the teacher-to-student experiment; it does not guarantee improvement in this application.
+2. PyTorch. [GRU documentation](https://docs.pytorch.org/docs/2.8/generated/torch.nn.GRU.html). The native R implementation follows the recorded PyTorch gate equations and weights.
+3. Qwen. [Qwen3-1.7B-Base model card](https://huggingface.co/Qwen/Qwen3-1.7B-Base). The experiment reuses the locally recorded revision and existing adapter.
+4. Sonja Sahebzad. [Product report and independent CPU evaluation](https://sonja242.github.io/data-science-capstone-swiftkey/final-product-report.html).

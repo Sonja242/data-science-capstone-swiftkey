@@ -1,0 +1,14 @@
+name,cases,top1,top3
+Current,600,106,164
+CE_control_0.1,600,105,165
+CE_control_0.25,600,102,167
+CE_control_0.5,600,94,166
+CE_control_1.0,600,60,109
+Distill25_0.1,600,102,166
+Distill25_0.25,600,98,164
+Distill25_0.5,600,91,155
+Distill25_1.0,600,60,108
+Distill50_0.1,600,102,165
+Distill50_0.25,600,95,162
+Distill50_0.5,600,89,152
+Distill50_1.0,600,55,101

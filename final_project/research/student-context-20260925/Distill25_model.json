@@ -1,0 +1,7 @@
+{
+  "parameters": 3302992,
+  "parameter_mib_fp32": 12.59991455078125,
+  "checkpoint_sha256": "9d4e18a12393d57f6024663ac9ff269c866434e7b13d767901616b68654a84ca",
+  "distillation_weight": 0.25,
+  "context_words": 48
+}

@@ -1,0 +1,22 @@
+[
+  {
+    "phase": "pretrain",
+    "seconds": 438.0921967999893,
+    "examples": 1002532
+  },
+  {
+    "phase": "CE_control",
+    "seconds": 0.5861220000078902,
+    "examples": 15000
+  },
+  {
+    "phase": "Distill25",
+    "seconds": 0.5581813999888254,
+    "examples": 15000
+  },
+  {
+    "phase": "Distill50",
+    "seconds": 0.5150760999968043,
+    "examples": 15000
+  }
+]

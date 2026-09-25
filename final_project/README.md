@@ -52,6 +52,12 @@ A sorted numeric lookup reduced median local computation from 1.92 to 0.58 ms (6
 
 The [dictionary trial](https://sonja242.github.io/data-science-capstone-swiftkey/dictionary-check.html) tested American and British English Hunspell dictionaries as a ranking aid. All three penalty strengths retained 164/600 top-three successes. Of 436 misses, 424 target words were already in the model vocabulary and 12 were absent. Dictionary recognition is not next-word accuracy. The dictionaries were not added to the deployed app and add no runtime dependency. The protocol, exact dictionary checksums, error diagnosis, source R Markdown and results are in `research/dictionary-check-20260925`; the new quality test remains unused.
 
+### Compact context and teacher distillation
+
+A controlled [compact context and distillation pilot](https://sonja242.github.io/data-science-capstone-swiftkey/student-context-check.html) trained three small recurrent models on **90,000 training lines** and compared them with the same current baseline on **600 development cases**. The larger GPU teacher achieved **222/600 (37.0%)** top-three successes. The best compact configuration achieved **167/600 (27.8%)**, compared with **164/600 (27.3%)** for the current model. No compact variant passed every registered quality, speed, memory and export requirement. The live app is retained and the separate quality test remains unused. These development findings do not replace the independent product accuracy above.
+
+Open `research/student-context-20260925/Student_Context_Report.Rmd` in RStudio and select Knit. The source, registered protocol, native R inference, training code, context diagnostic, timing records and audit are retained together. Local neural weights and raw training text remain in ignored `data/student_context`. No Python or GPU dependency was added to the deployed app.
+
 ## Deploy
 
 With an authorized rsconnect account, deploy exactly these files:

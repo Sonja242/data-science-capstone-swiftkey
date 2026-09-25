@@ -101,11 +101,13 @@ A further [indexed lookup and context study](https://sonja242.github.io/data-sci
 
 An additional [English dictionary trial](https://sonja242.github.io/data-science-capstone-swiftkey/dictionary-check.html) gave **164/600** top-three successes for all three dictionary rules, matching the baseline. Of **436 missed development targets, 424 were already in the vocabulary** and only **12 were missing**. Dictionary recognition of suggestions was already **1,797/1,800 (99.8%)**, which measures recognized spelling, not prediction accuracy. No dictionary rule was deployed; improving context-dependent ranking remains the main research target.
 
+A controlled [compact context and distillation pilot](https://sonja242.github.io/data-science-capstone-swiftkey/student-context-check.html) trained three small recurrent models on **90,000 training lines** and compared them with the same current baseline on **600 development cases**. The larger GPU teacher achieved **222/600 (37.0%)** top-three successes. The best compact configuration achieved **167/600 (27.8%)**, compared with **164/600 (27.3%)** for the current model. No compact variant passed every registered quality, speed, memory and export requirement. The live app is retained and the separate quality test remains unused. These development findings do not replace the independent product accuracy above.
+
 # Conclusion and next steps
 
 The product delivers an accessible, compact next-word service with **17.0% first-choice accuracy**, **28.6% top-three accuracy** and millisecond local computation on a reserved test. It meets the functional goal of accepting a phrase and returning one word, while making measured limitations visible.
 
-Separate compression and repetition-cache experiments have now failed to improve the predefined quality target. The next experiment should compare a compact model trained to use longer context under the same hosting budget. A new untouched test should assess whether sentence meaning improves ranking. Confidence calibration requires its own reserved data and reliability checks before percentages can be shown. A small user study should measure suggestion acceptance and typing effort; lower latency alone does not establish product benefit.
+Compression, repetition-cache, dictionary and compact-context pilots have not yet established a qualifying product improvement. The larger teacher provides a stronger development reference, but the small model still needs to transfer that advantage within the hosting budget. A fixed learning curve and repeated training seeds should justify any further investment before a new untouched test assesses improvement. Confidence calibration requires its own reserved data and reliability checks before percentages can be shown. A small user study should measure suggestion acceptance and typing effort; lower latency alone does not establish product benefit.
 
 # Reproducibility and references
 

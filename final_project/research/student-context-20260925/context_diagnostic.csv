@@ -1,0 +1,4 @@
+family,cases,longer_inputs,changed_lists,full_top1,full_top3,last4_top1,last4_top3,gained,lost
+CE_control,600,412,274,60,109,63,110,8,9
+Distill25,600,412,271,60,108,65,106,9,7
+Distill50,600,412,248,55,101,57,102,7,8

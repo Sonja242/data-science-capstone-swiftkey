@@ -13,7 +13,7 @@
 
 <meta name="date" content="2026-09-25" />
 
-<title>Sonja Next Word: Final Product Report</title>
+<title>Sonja Next Word: Learning from Longer Context</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -3482,9 +3482,10 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">Sonja Next Word: Final Product Report</h1>
-<h3 class="subtitle">A compact prediction service with measured
-performance</h3>
+<h1 class="title toc-ignore">Sonja Next Word: Learning from Longer
+Context</h1>
+<h3 class="subtitle">A compact-model and knowledge-distillation
+pilot</h3>
 <h4 class="author">Author: Sonja Sahebzad</h4>
 <h4 class="date">2026-09-25</h4>
 
@@ -3492,335 +3493,449 @@ performance</h3>
 
 
 <div class="summary-box">
-<p><strong>Management summary.</strong> Sonja Next Word turns an English
-phrase into one next-word suggestion and two alternatives. A compact
-model runs on a CPU without an external AI service. On 900 reserved
-examples, the first suggestion was correct in <strong>17.0%</strong> and
-the correct word appeared among three in <strong>28.6%</strong>. Every
-case received a suggestion. The updated implementation takes
-<strong>0.58 ms</strong> per prediction at the local median in a
-separate development benchmark, excluding network time. The product
-demonstrates a reproducible, responsive workflow; its short context
-still limits semantic understanding.</p>
+<p><strong>Management summary.</strong> This pilot tested whether a
+small model using up to <strong>48 previous words</strong> could improve
+the fast Shiny predictor. It learned from <strong>90,000 training
+lines</strong>. Two versions also learned word scores supplied by a
+larger language model. On the same 600 development examples, the
+existing model achieved <strong>164/600 (27.3%) correct top-three
+predictions</strong>. The best tested compact configuration achieved
+<strong>167/600 (27.8%)</strong>. No compact candidate passed every
+predefined improvement requirement. The live model is retained and the
+reserved test remains unread.</p>
 </div>
-<div id="product-and-use" class="section level1">
-<h1>Product and use</h1>
-<p><a href="https://sonjasahebzad.shinyapps.io/sonja-next-word/">Open
-the Shiny app</a>. Enter a phrase and finish a word with a space.
-Suggestions refresh after a short pause. Select a suggested word to
-append it, then continue typing or choosing words. <strong>Predict next
-word</strong> also works without a final space; automatic updates can be
-switched off. The Results and How to use tabs provide evidence and
-instructions. First visits may be slower while the hosting service
-starts the app. Automatic refresh waits at least 150 ms after a word
-boundary to avoid predicting from unfinished words. This intentional
-typing delay is separate from model computation time.</p>
-<p>The app processes text on the Shiny server for the active session.
-Application code does not persist phrases or call an external prediction
-API. A small output blocklist removes specified common profanities; it
-is not a comprehensive content filter.</p>
+<div id="research-question-and-design" class="section level1">
+<h1>Research question and design</h1>
+<p>The <a href="https://sonja242.github.io/data-science-capstone-swiftkey/dictionary-check.html">dictionary
+study</a> found that <strong>424 of 436 missed words were already in the
+vocabulary</strong>. This points to word selection and context as useful
+research targets. The deployed five-gram model uses at most four recent
+words. The new model reads up to 48 words and compresses them into a
+learned numerical memory before scoring all 50,000 available output
+words.</p>
+<p>The larger <strong>Qwen3-1.7B-Base model with the existing local
+adapter</strong> serves as a teacher. It scores complete words,
+including the probability that a word ends, using up to 128 model tokens
+of the supplied prefix. It proposes candidates without seeing the actual
+next word. <em>Knowledge distillation</em> trains a smaller model to
+approximate these scores. A text-only control with the same architecture
+and training budget makes it possible to distinguish ordinary training
+from the teacher’s added influence.</p>
+<p>The teacher uses the local GPU. The small model runs directly in R,
+allowing a practical comparison within the existing CPU app’s resource
+budget.</p>
+<p>Training used 30,000 deduplicated lines from each source: blogs, news
+and Twitter. This bounded sample keeps the first comparison practical
+while balancing sources. Up to six sampled positions per line produced
+<strong>501,266 supervised examples</strong>. All three students shared
+two initial training epochs, followed by five equal-budget epochs on
+3,000 training prefixes. The teacher supplied scores for those prefixes.
+The registered teacher-loss weights were <strong>0%, 25% and
+50%</strong>. Student probabilities were also mixed with the deployed
+model at <strong>10%, 25% and 50% student weight</strong>, alongside
+each student alone. These mixtures test whether longer-context learning
+complements local word patterns.</p>
+<p>The teacher setting controls learning during training. The separate
+student mixture controls how much the small model influences the final
+suggestions alongside the existing predictor.</p>
+<p>Students learn their context representations from scratch. Their
+initial general word probabilities come from the existing model’s
+training-derived base distribution; no pretrained word representations
+are transferred.</p>
 </div>
-<div id="data-and-algorithm" class="section level1">
-<h1>Data and algorithm</h1>
-<p>The trained model uses <strong>3,213,276 deduplicated training
-lines</strong> and <strong>78,317,747 word tokens</strong> from the
-official English SwiftKey blogs, news and Twitter files. The original
-split separates training, validation and test lines after global
-deduplication.</p>
-<p>The product derives from the project’s frozen interpolated Kneser-Ney
-model. Text is lowercased, apostrophes normalized, and numbers,
-punctuation, URLs and mentions removed. Up to four recent words supply
-the context for a five-gram prediction. Longer patterns contribute when
-available; shorter patterns and general word frequencies provide
-fallback. These context patterns capture word combinations, but there is
-no separate fitted interaction model or full-sentence semantic
-reasoning. A full sentence can be entered and extended; words earlier
-than the four-word context do not influence the prediction. The
-interface shows the actual matched words, excluding start-of-text
-padding from its word count.</p>
-<p>Pruning limits vocabulary, context support and stored followers.
-Removed probability mass returns to shorter contexts. Sparse scoring
-preserves the exact top suggestions of this compact distribution,
-verified against dense scoring. The <strong>50,000-word</strong>
-deployed model occupies <strong>19.2 MiB</strong> compressed and
-<strong>172.6 MiB</strong> as an R object before indexing. The
-equivalent indexed implementation uses <strong>215.5 MiB</strong> when
-prepared for inference. Total server memory also includes R and
-Shiny.</p>
-</div>
-<div id="selection-and-independent-evaluation" class="section level1">
-<h1>Selection and independent evaluation</h1>
-<p>Three configurations were compared on the same <strong>600
-development cases</strong>, equally divided by source. The rule was
-fixed first: maximize top-three accuracy below 200 MiB model memory and
-50 MiB compressed size; break ties by top-one accuracy, then size. The
-final test did not determine this choice.</p>
-<table>
-<caption>Table 1. Development comparison, 600 identical cases per
-variant.</caption>
+<div id="results-and-speed" class="section level1">
+<h1>Results and speed</h1>
+<p>Every comparison used the same <strong>600 development
+examples</strong>, 200 per source. A success means the exact recorded
+next word appeared first (<em>top-1</em>) or among three suggestions
+(<em>top-3</em>). These repeatedly used development data support model
+selection; they do not provide an independent estimate of future
+accuracy.</p>
+<div class="table-responsive">
+<table style="width:100%;">
+<caption>Table 1. Best observed mixture per student family. The teacher
+is a GPU reference, not a deployable CPU candidate.</caption>
 <colgroup>
+<col width="48%" />
+<col width="8%" />
+<col width="16%" />
+<col width="16%" />
 <col width="10%" />
-<col width="12%" />
-<col width="6%" />
-<col width="17%" />
-<col width="11%" />
-<col width="15%" />
-<col width="14%" />
-<col width="12%" />
 </colgroup>
 <thead>
 <tr class="header">
-<th align="left">Variant</th>
-<th align="right">Vocabulary</th>
-<th align="right">Order</th>
-<th align="right">Minimum support</th>
-<th align="right">Followers</th>
+<th align="left">Method</th>
+<th align="left">Compute</th>
 <th align="left">First correct</th>
 <th align="left">Within three</th>
-<th align="right">Size (MiB)</th>
+<th align="right">Median ms</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Light</td>
-<td align="right">20000</td>
-<td align="right">3</td>
-<td align="right">20</td>
-<td align="right">5</td>
-<td align="left">13.3%</td>
-<td align="left">22.8%</td>
-<td align="right">4.2</td>
+<td align="left">Current Shiny model</td>
+<td align="left">CPU</td>
+<td align="left">106/600 (17.7%)</td>
+<td align="left">164/600 (27.3%)</td>
+<td align="right">0.85</td>
 </tr>
 <tr class="even">
-<td align="left">Balanced</td>
-<td align="right">40000</td>
-<td align="right">5</td>
-<td align="right">10</td>
-<td align="right">5</td>
-<td align="left">16.8%</td>
-<td align="left">26.7%</td>
-<td align="right">12.8</td>
+<td align="left">Larger teacher reference</td>
+<td align="left">GPU</td>
+<td align="left">149/600 (24.8%)</td>
+<td align="left">222/600 (37.0%)</td>
+<td align="right">121.60</td>
 </tr>
 <tr class="odd">
-<td align="left">Extended</td>
-<td align="right">50000</td>
-<td align="right">5</td>
-<td align="right">5</td>
-<td align="right">8</td>
-<td align="left">17.7%</td>
-<td align="left">27.3%</td>
-<td align="right">19.2</td>
+<td align="left">Text-trained student; 25% student mix</td>
+<td align="left">CPU</td>
+<td align="left">102/600 (17.0%)</td>
+<td align="left">167/600 (27.8%)</td>
+<td align="right">17.75</td>
+</tr>
+<tr class="even">
+<td align="left">Student with 25% teacher loss; 10% student mix</td>
+<td align="left">CPU</td>
+<td align="left">102/600 (17.0%)</td>
+<td align="left">166/600 (27.7%)</td>
+<td align="right">17.85</td>
+</tr>
+<tr class="odd">
+<td align="left">Student with 50% teacher loss; 10% student mix</td>
+<td align="left">CPU</td>
+<td align="left">102/600 (17.0%)</td>
+<td align="left">165/600 (27.5%)</td>
+<td align="right">17.90</td>
 </tr>
 </tbody>
 </table>
-<p>The Extended variant was selected: <strong>164/600 (27.3%)</strong>
-correct within three, compared with <strong>160/600 (26.7%)</strong> for
-Balanced and <strong>137/600 (22.8%)</strong> for Light. The four-case
-advantage over Balanced is small and is not evidence of a statistically
-established improvement. The larger variant satisfies the predefined
-resource limits.</p>
-<p>Before comparison, <strong>900 unused test lines</strong> were
-reserved, 300 per source. Earlier evaluation lines were excluded using
-reconstructed row selections and saved hashes. No test line overlaps
-training or validation. One random word position per line was hidden,
-retaining only the preceding words. Quiz items and human answer
-corrections play no part in this evaluation.</p>
+</div>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-4383fc43b6ded5ce9a15" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-4383fc43b6ded5ce9a15">{"x":{"visdat":{"57c82cf2de5":["function () ","plotlyVisDat"]},"cur_data":"57c82cf2de5","attrs":{"57c82cf2de5":{"x":["Current","Teacher","Text-trained<br>student","25% teacher<br>loss","50% teacher<br>loss"],"y":[27.333333333333332,37,27.833333333333332,27.666666666666668,27.5],"textposition":"none","marker":{"color":["#123f68","#537b94","#6b93b1","#2878ae","#95bed6"]},"error_y":{"type":"data","symmetric":false,"array":[3.7018024055590959,3.9344503788959653,3.7184813392950709,3.7129831399361102,3.7074236094793269],"arrayminus":[3.4134052929379877,3.7690461525397403,3.4364459276876618,3.4288271613241328,3.4211470638627892]},"text":["Current<br>Top-3: 164/600 (27.3%)<br>Approximate 95% interval: 23.9% to 31.0%","Teacher<br>Top-3: 222/600 (37.0%)<br>Approximate 95% interval: 33.2% to 40.9%","Text-trained<br>student<br>Top-3: 167/600 (27.8%)<br>Approximate 95% interval: 24.4% to 31.6%","25% teacher<br>loss<br>Top-3: 166/600 (27.7%)<br>Approximate 95% interval: 24.2% to 31.4%","50% teacher<br>loss<br>Top-3: 165/600 (27.5%)<br>Approximate 95% interval: 24.1% to 31.2%"],"hoverinfo":"text","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"yaxis":{"domain":[0,1],"automargin":true,"title":"Correct within three (%)","rangemode":"tozero"},"xaxis":{"domain":[0,1],"automargin":true,"title":"","categoryorder":"array","categoryarray":["Current","Teacher","Text-trained<br>student","25% teacher<br>loss","50% teacher<br>loss"],"type":"category"},"font":{"family":"Calibri, Segoe UI, sans-serif"},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["Current","Teacher","Text-trained<br>student","25% teacher<br>loss","50% teacher<br>loss"],"y":[27.333333333333332,37,27.833333333333332,27.666666666666668,27.5],"textposition":["none","none","none","none","none"],"marker":{"color":["#123f68","#537b94","#6b93b1","#2878ae","#95bed6"],"line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)","type":"data","symmetric":false,"array":[3.7018024055590959,3.9344503788959653,3.7184813392950709,3.7129831399361102,3.7074236094793269],"arrayminus":[3.4134052929379877,3.7690461525397403,3.4364459276876618,3.4288271613241328,3.4211470638627892]},"text":["Current<br>Top-3: 164/600 (27.3%)<br>Approximate 95% interval: 23.9% to 31.0%","Teacher<br>Top-3: 222/600 (37.0%)<br>Approximate 95% interval: 33.2% to 40.9%","Text-trained<br>student<br>Top-3: 167/600 (27.8%)<br>Approximate 95% interval: 24.4% to 31.6%","25% teacher<br>loss<br>Top-3: 166/600 (27.7%)<br>Approximate 95% interval: 24.2% to 31.4%","50% teacher<br>loss<br>Top-3: 165/600 (27.5%)<br>Approximate 95% interval: 24.1% to 31.2%"],"hoverinfo":["text","text","text","text","text"],"type":"bar","error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p><em>Figure 1. Hover over the bars for counts and percentages. Wilson
+intervals describe sampling uncertainty only. They do not adjust for
+repeated development use or selection of the best mixture.</em></p>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-c346a28f3f79c4fb2e0c" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-c346a28f3f79c4fb2e0c">{"x":{"visdat":{"57c8581f3e94":["function () ","plotlyVisDat"]},"cur_data":"57c8581f3e94","attrs":{"57c8581f3e94":{"x":{},"y":{},"mode":"markers","marker":{"size":11},"text":{},"hoverinfo":"text","color":{},"colors":["#123f68","#2878ae","#6b93b1","#95bed6"],"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"scatter"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"xaxis":{"domain":[0,1],"automargin":true,"title":"Median CPU computation (ms)","rangemode":"tozero"},"yaxis":{"domain":[0,1],"automargin":true,"title":"Correct within three (%)","rangemode":"tozero"},"font":{"family":"Calibri, Segoe UI, sans-serif"},"legend":{"orientation":"h","y":-0.20000000000000001},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":[0.84805488586425803],"y":[27.333333333333332],"mode":"markers","marker":{"color":"rgba(18,63,104,1)","size":11,"line":{"color":"rgba(18,63,104,1)"}},"text":"Current Shiny model<br>Top-3: 164/600<br>Median: 0.85 ms<br>95th percentile: 1.23 ms<br>R objects: 215.5 MiB","hoverinfo":"text","type":"scatter","name":"Current","textfont":{"color":"rgba(18,63,104,1)"},"error_y":{"color":"rgba(18,63,104,1)"},"error_x":{"color":"rgba(18,63,104,1)"},"line":{"color":"rgba(18,63,104,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[17.7285671234131,17.753362655639599,17.742395401001001,9.2030763626098597],"y":[27.5,27.833333333333332,27.666666666666668,18.166666666666668],"mode":"markers","marker":{"color":"rgba(40,120,174,1)","size":11,"line":{"color":"rgba(40,120,174,1)"}},"text":["Text-trained student<br>10% student at prediction<br>Top-3: 165/600<br>Median: 17.73 ms<br>95th percentile: 22.29 ms<br>R objects: 240.7 MiB","Text-trained student<br>25% student at prediction<br>Top-3: 167/600<br>Median: 17.75 ms<br>95th percentile: 21.84 ms<br>R objects: 240.7 MiB","Text-trained student<br>50% student at prediction<br>Top-3: 166/600<br>Median: 17.74 ms<br>95th percentile: 24.09 ms<br>R objects: 240.7 MiB","Text-trained student<br>100% student at prediction<br>Top-3: 109/600<br>Median: 9.2 ms<br>95th percentile: 11.81 ms<br>R objects: 240.7 MiB"],"hoverinfo":["text","text","text","text"],"type":"scatter","name":"Text only","textfont":{"color":"rgba(40,120,174,1)"},"error_y":{"color":"rgba(40,120,174,1)"},"error_x":{"color":"rgba(40,120,174,1)"},"line":{"color":"rgba(40,120,174,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[17.846584320068398,17.844915390014599,17.706036567687999,9.2804431915283203],"y":[27.666666666666668,27.333333333333332,25.833333333333332,18],"mode":"markers","marker":{"color":"rgba(107,147,177,1)","size":11,"line":{"color":"rgba(107,147,177,1)"}},"text":["Student with 25% teacher loss<br>10% student at prediction<br>Top-3: 166/600<br>Median: 17.85 ms<br>95th percentile: 22 ms<br>R objects: 240.7 MiB","Student with 25% teacher loss<br>25% student at prediction<br>Top-3: 164/600<br>Median: 17.84 ms<br>95th percentile: 22.26 ms<br>R objects: 240.7 MiB","Student with 25% teacher loss<br>50% student at prediction<br>Top-3: 155/600<br>Median: 17.71 ms<br>95th percentile: 22.62 ms<br>R objects: 240.7 MiB","Student with 25% teacher loss<br>100% student at prediction<br>Top-3: 108/600<br>Median: 9.28 ms<br>95th percentile: 11.74 ms<br>R objects: 240.7 MiB"],"hoverinfo":["text","text","text","text"],"type":"scatter","name":"Teacher 25%","textfont":{"color":"rgba(107,147,177,1)"},"error_y":{"color":"rgba(107,147,177,1)"},"error_x":{"color":"rgba(107,147,177,1)"},"line":{"color":"rgba(107,147,177,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":[17.901420593261701,17.865538597106902,17.907500267028801,9.2970132827758807],"y":[27.5,27,25.333333333333332,16.833333333333332],"mode":"markers","marker":{"color":"rgba(149,190,214,1)","size":11,"line":{"color":"rgba(149,190,214,1)"}},"text":["Student with 50% teacher loss<br>10% student at prediction<br>Top-3: 165/600<br>Median: 17.9 ms<br>95th percentile: 22.66 ms<br>R objects: 240.7 MiB","Student with 50% teacher loss<br>25% student at prediction<br>Top-3: 162/600<br>Median: 17.87 ms<br>95th percentile: 23 ms<br>R objects: 240.7 MiB","Student with 50% teacher loss<br>50% student at prediction<br>Top-3: 152/600<br>Median: 17.91 ms<br>95th percentile: 22.23 ms<br>R objects: 240.7 MiB","Student with 50% teacher loss<br>100% student at prediction<br>Top-3: 101/600<br>Median: 9.3 ms<br>95th percentile: 11.73 ms<br>R objects: 240.7 MiB"],"hoverinfo":["text","text","text","text"],"type":"scatter","name":"Teacher 50%","textfont":{"color":"rgba(149,190,214,1)"},"error_y":{"color":"rgba(149,190,214,1)"},"error_x":{"color":"rgba(149,190,214,1)"},"line":{"color":"rgba(149,190,214,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p><em>Figure 2. All registered CPU candidates. Hover for quality,
+timing and memory. Higher accuracy and lower computation time are
+preferable.</em></p>
+<p>CPU measurements include normalization and complete prediction, with
+<strong>1,800 warm calls per rule</strong> in three interleaved rounds.
+They exclude model loading, the app’s 150 ms typing delay, networking
+and display. Teacher timing uses the local GPU and is not directly
+comparable with CPU hosting. Teacher training-prefix scoring required
+<strong>6.0 minutes</strong>, excluding model loading and the separate
+development evaluation.</p>
+<details>
+<summary>
+Full candidate comparison
+</summary>
 <table>
-<caption>Table 2. Frozen model, independent final test.</caption>
 <colgroup>
-<col width="33%" />
+<col width="23%" />
+<col width="7%" />
+<col width="7%" />
+<col width="14%" />
 <col width="10%" />
-<col width="9%" />
-<col width="45%" />
+<col width="20%" />
+<col width="14%" />
 </colgroup>
 <thead>
 <tr class="header">
-<th align="left">Measure</th>
-<th align="left">Count</th>
-<th align="left">Result</th>
-<th align="left">Approximate 95% interval</th>
+<th align="left">Method</th>
+<th align="right">Top1</th>
+<th align="right">Top3</th>
+<th align="right">Median_ms</th>
+<th align="right">P95_ms</th>
+<th align="right">R_objects_MiB</th>
+<th align="left">Qualified</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">First suggestion correct</td>
-<td align="left">153/900</td>
-<td align="left">17.0%</td>
-<td align="left">14.7% to 19.6%</td>
+<td align="left">Current</td>
+<td align="right">106</td>
+<td align="right">164</td>
+<td align="right">0.85</td>
+<td align="right">1.23</td>
+<td align="right">215.5</td>
+<td align="left">FALSE</td>
 </tr>
 <tr class="even">
-<td align="left">Correct within three</td>
-<td align="left">257/900</td>
-<td align="left">28.6%</td>
-<td align="left">25.7% to 31.6%</td>
+<td align="left">CE_control_0.1</td>
+<td align="right">105</td>
+<td align="right">165</td>
+<td align="right">17.73</td>
+<td align="right">22.29</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
 </tr>
 <tr class="odd">
-<td align="left">Suggestion returned</td>
-<td align="left">900/900</td>
-<td align="left">100.0%</td>
-<td align="left">Functional coverage, not accuracy</td>
+<td align="left">CE_control_0.25</td>
+<td align="right">102</td>
+<td align="right">167</td>
+<td align="right">17.75</td>
+<td align="right">21.84</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">CE_control_0.5</td>
+<td align="right">94</td>
+<td align="right">166</td>
+<td align="right">17.74</td>
+<td align="right">24.09</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">CE_control_1.0</td>
+<td align="right">60</td>
+<td align="right">109</td>
+<td align="right">9.20</td>
+<td align="right">11.81</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">Distill25_0.1</td>
+<td align="right">102</td>
+<td align="right">166</td>
+<td align="right">17.85</td>
+<td align="right">22.00</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">Distill25_0.25</td>
+<td align="right">98</td>
+<td align="right">164</td>
+<td align="right">17.84</td>
+<td align="right">22.26</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">Distill25_0.5</td>
+<td align="right">91</td>
+<td align="right">155</td>
+<td align="right">17.71</td>
+<td align="right">22.62</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">Distill25_1.0</td>
+<td align="right">60</td>
+<td align="right">108</td>
+<td align="right">9.28</td>
+<td align="right">11.74</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">Distill50_0.1</td>
+<td align="right">102</td>
+<td align="right">165</td>
+<td align="right">17.90</td>
+<td align="right">22.66</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">Distill50_0.25</td>
+<td align="right">95</td>
+<td align="right">162</td>
+<td align="right">17.87</td>
+<td align="right">23.00</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="even">
+<td align="left">Distill50_0.5</td>
+<td align="right">89</td>
+<td align="right">152</td>
+<td align="right">17.91</td>
+<td align="right">22.23</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
+</tr>
+<tr class="odd">
+<td align="left">Distill50_1.0</td>
+<td align="right">55</td>
+<td align="right">101</td>
+<td align="right">9.30</td>
+<td align="right">11.73</td>
+<td align="right">240.7</td>
+<td align="left">FALSE</td>
 </tr>
 </tbody>
 </table>
-<p>Wilson intervals summarize sampling uncertainty in these observed
-rates. They do not give a probability that a particular suggestion is
-correct. The equal source mix is deliberate and may not match real user
-traffic. The model’s individual scores have <strong>not been
-calibrated</strong>, so the interface displays no confidence
-percentages.</p>
-<div class="plotly html-widget html-fill-item" id="htmlwidget-14349d3357c422088417" style="width:672px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-14349d3357c422088417">{"x":{"visdat":{"3e501a8667c7":["function () ","plotlyVisDat"]},"cur_data":"3e501a8667c7","attrs":{"3e501a8667c7":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":["blogs","news","twitter"],"y":[16.666666666999998,19.666666666999998,14.666666666999999],"type":"bar","name":"First suggestion","marker":{"color":"#123f68"},"error_y":{"type":"data","symmetric":false,"array":[4.6329982940000036,4.8692101670000021,4.4495845559999996],"arrayminus":[3.7901335469999982,4.1022032469999985,3.5561479229999993]},"text":["First suggestion: 16.7%<br>95% interval 12.9% to 21.3%<br>300 cases","First suggestion: 19.7%<br>95% interval 15.6% to 24.5%<br>300 cases","First suggestion: 14.7%<br>95% interval 11.1% to 19.1%<br>300 cases"],"hoverinfo":"text","inherit":true},"3e501a8667c7.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":["blogs","news","twitter"],"y":[28.000000000000004,31.333333333000002,26.333333332999999],"type":"bar","name":"Within three","marker":{"color":"#75aacf"},"error_y":{"type":"data","symmetric":false,"array":[5.3343885209999975,5.4568978369999961,5.2606170110000008],"arrayminus":[4.7780977870000036,4.9848935770000011,4.6621830389999985]},"text":["Within three: 28.0%<br>95% interval 23.2% to 33.3%<br>300 cases","Within three: 31.3%<br>95% interval 26.3% to 36.8%<br>300 cases","Within three: 26.3%<br>95% interval 21.7% to 31.6%<br>300 cases"],"hoverinfo":"text","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"barmode":"group","yaxis":{"domain":[0,1],"automargin":true,"title":"Correct predictions (%)","range":[0,45]},"xaxis":{"domain":[0,1],"automargin":true,"title":"","type":"category","categoryorder":"array","categoryarray":["blogs","news","twitter"]},"font":{"family":"Calibri, Segoe UI, sans-serif"},"legend":{"orientation":"h","y":1.1499999999999999},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["blogs","news","twitter"],"y":[16.666666666999998,19.666666666999998,14.666666666999999],"type":"bar","name":"First suggestion","marker":{"color":"#123f68","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)","type":"data","symmetric":false,"array":[4.6329982940000036,4.8692101670000021,4.4495845559999996],"arrayminus":[3.7901335469999982,4.1022032469999985,3.5561479229999993]},"text":["First suggestion: 16.7%<br>95% interval 12.9% to 21.3%<br>300 cases","First suggestion: 19.7%<br>95% interval 15.6% to 24.5%<br>300 cases","First suggestion: 14.7%<br>95% interval 11.1% to 19.1%<br>300 cases"],"hoverinfo":["text","text","text"],"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["blogs","news","twitter"],"y":[28.000000000000004,31.333333333000002,26.333333332999999],"type":"bar","name":"Within three","marker":{"color":"#75aacf","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)","type":"data","symmetric":false,"array":[5.3343885209999975,5.4568978369999961,5.2606170110000008],"arrayminus":[4.7780977870000036,4.9848935770000011,4.6621830389999985]},"text":["Within three: 28.0%<br>95% interval 23.2% to 33.3%<br>300 cases","Within three: 31.3%<br>95% interval 26.3% to 36.8%<br>300 cases","Within three: 26.3%<br>95% interval 21.7% to 31.6%<br>300 cases"],"hoverinfo":["text","text","text"],"error_x":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-<p><em>Figure 1. Accuracy by source with approximate 95% intervals.
-Hover over a bar for its values.</em></p>
-<p>The original implementation’s median local computation across 900
-cases was <strong>1.89 ms</strong>; the 95th percentile was <strong>2.38
-ms</strong>. Model loading took <strong>0.71 seconds</strong> locally.
-These are CPU timings after a warm-up, excluding network and UI
-rendering. A separate high-resolution wall-clock pass replaced the
-coarse Windows timer for latency reporting; model selection and accuracy
-were unchanged.</p>
+</details>
+</div>
+<div id="does-earlier-context-help" class="section level1">
+<h1>Does earlier context help?</h1>
+<p>Each fixed student was also tested with only the last four words of
+the same prefix. The following comparison changes the available context
+while keeping weights and vocabulary fixed. It is a diagnostic and did
+not add candidates to model selection.</p>
+<div class="table-responsive">
+<table>
+<caption>Table 2. Counts among the same 600 development cases.</caption>
+<colgroup>
+<col width="24%" />
+<col width="15%" />
+<col width="16%" />
+<col width="11%" />
+<col width="12%" />
+<col width="20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th align="left">Student</th>
+<th align="right">Top-3 with 4 words</th>
+<th align="right">Top-3 with up to 48</th>
+<th align="right">New successes</th>
+<th align="right">Lost successes</th>
+<th align="right">Changed suggestion lists</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td align="left">Text-trained student</td>
+<td align="right">110</td>
+<td align="right">109</td>
+<td align="right">8</td>
+<td align="right">9</td>
+<td align="right">274</td>
+</tr>
+<tr class="even">
+<td align="left">Student with 25% teacher loss</td>
+<td align="right">106</td>
+<td align="right">108</td>
+<td align="right">9</td>
+<td align="right">7</td>
+<td align="right">271</td>
+</tr>
+<tr class="odd">
+<td align="left">Student with 50% teacher loss</td>
+<td align="right">102</td>
+<td align="right">101</td>
+<td align="right">7</td>
+<td align="right">8</td>
+<td align="right">248</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Changed suggestions demonstrate sensitivity to earlier words. They do
+not establish human-like understanding or common sense. The balance of
+gained and lost correct words shows whether that sensitivity helped this
+sample.</p>
+<p>Of the 600 inputs, <strong>412 contained more than four
+words</strong>. Keeping the earlier words changed <strong>248 to 274
+suggestion lists</strong>, depending on the student. Net top-three
+changes were <strong>one fewer, two more and one fewer correct
+words</strong>, respectively. Earlier context influenced the models, but
+did not produce a consistent accuracy gain.</p>
 </div>
 <div id="discussion" class="section level1">
 <h1>Discussion</h1>
-<p>The model supplies a usable suggestion in every test case, but
-availability must not be confused with correctness. <strong>643/900
-target words were absent from the first three</strong>, even though
-<strong>98.0%</strong> of target words were in the retained vocabulary.
-Thus, vocabulary coverage alone does not solve ranking and context
-errors.</p>
-<p>Top-three accuracy was <strong>31.3% for news</strong>, <strong>28.0%
-for blogs</strong>, and <strong>26.3% for Twitter</strong>. The
-intervals overlap, so these observations do not establish a reliable
-ordering of source difficulty. Short context, informal language and rare
-expressions are plausible limitations, not proven causes of these
-differences.</p>
-<p>The candidate comparison demonstrates sensitivity to compression. It
-does not isolate the effect of vocabulary, context length and pruning
-because they change together. Exact normalized duplicates were removed;
-near-duplicates may remain. Archived source text and equal source
-weighting limit generalization to current writing. Scores from previous
-GPU models or assisted quizzes cannot be transferred to this CPU product
-or used as its confidence. Informal corpus spellings, such as
-<em>mornin</em>, remain possible suggestions. Removing them would change
-the output distribution and needs a separate evaluation of readability,
-vocabulary coverage and accuracy.</p>
-<p>A subsequent <a href="https://sonja242.github.io/data-science-capstone-swiftkey/speed-quality-check.html">speed
-and quality check</a> reduced automatic waiting from <strong>400 to 150
-ms</strong> without changing predictions. Three separate compression
-relaxations produced at most <strong>166/600</strong> top-three
-successes versus <strong>164/600</strong> for the current model on
-development data. None met the predeclared six-case improvement rule.
-The model was retained and the newly reserved test remains unscored.
-These results do not replace the independent accuracy estimates
-above.</p>
-<p>A further <a href="https://sonja242.github.io/data-science-capstone-swiftkey/context-speed-check.html">indexed
-lookup and context study</a> reduced median computation from
-<strong>1.92 to 0.58 ms</strong> in 3,000 randomized, interleaved local
-calls per implementation. Predictions and scores matched exactly on
-<strong>5,510 regression phrases</strong>. Prepared model memory rose
-from <strong>172.6 to 215.5 MiB</strong>, within the separately
-predefined 256 MiB ceiling. Earlier-word cache weights of 5%, 10% and
-20% yielded <strong>164, 161 and 148/600</strong> top-three successes,
-versus <strong>164/600</strong> without the cache. None qualified. Only
-the equivalent faster lookup was adopted; the unused quality test
-remains reserved. The original accuracy estimates still apply. The 70%
-reduction concerns computation, not total browser response time.</p>
-<p>An additional <a href="https://sonja242.github.io/data-science-capstone-swiftkey/dictionary-check.html">English
-dictionary trial</a> gave <strong>164/600</strong> top-three successes
-for all three dictionary rules, matching the baseline. Of <strong>436
-missed development targets, 424 were already in the vocabulary</strong>
-and only <strong>12 were missing</strong>. Dictionary recognition of
-suggestions was already <strong>1,797/1,800 (99.8%)</strong>, which
-measures recognized spelling, not prediction accuracy. No dictionary
-rule was deployed; improving context-dependent ranking remains the main
-research target.</p>
-<p>A controlled <a href="https://sonja242.github.io/data-science-capstone-swiftkey/student-context-check.html">compact
-context and distillation pilot</a> trained three small recurrent models
-on <strong>90,000 training lines</strong> and compared them with the
-same current baseline on <strong>600 development cases</strong>. The
-larger GPU teacher achieved <strong>222/600 (37.0%)</strong> top-three
-successes. The best compact configuration achieved <strong>167/600
-(27.8%)</strong>, compared with <strong>164/600 (27.3%)</strong> for the
-current model. No compact variant passed every registered quality,
-speed, memory and export requirement. The live app is retained and the
-separate quality test remains unused. These development findings do not
-replace the independent product accuracy above.</p>
+<p>The best compact configuration changed top-three success by
+<strong>+0.50 percentage points</strong> compared with the current
+model, with <strong>4 gained</strong> and <strong>1 lost</strong>
+successes. Its paired source-stratified bootstrap 95% interval was
+<strong>-0.17 to 1.33 percentage points</strong>. First-choice successes
+changed from <strong>106 to 102 out of 600</strong>. Both measures
+matter because the product highlights one primary suggestion. This
+interval describes the observed development comparison. Selection across
+multiple candidates and prior reuse of these cases limit its use as
+evidence of a general improvement.</p>
+<p>The strongest compact result came from <strong>Text-trained student
+at 25% student weight</strong>. Distillation did not surpass the
+text-only control in this pilot. The teacher’s <strong>222/600</strong>
+top-three result shows a stronger reference on these examples, but that
+advantage did not transfer adequately into the small model under the
+tested budget. This is a result about this implementation and training
+budget, not a general rejection of distillation.</p>
+<p>The best mixture required <strong>17.75 ms</strong> median
+computation versus <strong>0.85 ms</strong> for the current model in
+this same benchmark. Both met the 20 ms limit, but the extra computation
+did not buy the required accuracy improvement. The current model’s
+earlier 0.58 ms measurement came from a different benchmark; the app
+itself has not changed.</p>
+<p>An interval spanning zero includes both improvement and
+deterioration. Here, the small observed gain should therefore not be
+described as a proven improvement, even before considering the loss of
+first-choice successes.</p>
+<p>This is a bounded pilot: one seed, 90,000 training lines, two initial
+epochs and 3,000 teacher examples. The existing n-gram model learned
+from 3.21 million lines, so its comparison with a student changes both
+architecture and training scope. It cannot isolate which explains the
+gap. The three student variants do share a training budget. Teacher
+scores are normalized over a limited candidate list; distillation
+approximates that restricted distribution. The compact architecture,
+training budget and teacher formulation may each limit the result.
+Pretrained-data overlap is unknown, and exact line separation does not
+remove every near duplicate.</p>
+<p>The deployed model’s original independent test remains <strong>17.0%
+first-choice accuracy (95% interval 14.7% to 19.6%)</strong> and
+<strong>28.6% top-three accuracy (25.7% to 31.6%)</strong>. Its test
+contains different cases, so those percentages should not be subtracted
+from this study’s development percentages. Aggregate accuracy intervals
+are different from confidence in one suggestion. <strong>Individual
+confidence remains uncalibrated in the live app.</strong> A displayed
+model probability would not automatically be a reliable percentage of
+correctness.</p>
 </div>
-<div id="conclusion-and-next-steps" class="section level1">
-<h1>Conclusion and next steps</h1>
-<p>The product delivers an accessible, compact next-word service with
-<strong>17.0% first-choice accuracy</strong>, <strong>28.6% top-three
-accuracy</strong> and millisecond local computation on a reserved test.
-It meets the functional goal of accepting a phrase and returning one
-word, while making measured limitations visible.</p>
-<p>Compression, repetition-cache, dictionary and compact-context pilots
-have not yet established a qualifying product improvement. The larger
-teacher provides a stronger development reference, but the small model
-still needs to transfer that advantage within the hosting budget. A
-fixed learning curve and repeated training seeds should justify any
-further investment before a new untouched test assesses improvement.
-Confidence calibration requires its own reserved data and reliability
-checks before percentages can be shown. A small user study should
-measure suggestion acceptance and typing effort; lower latency alone
-does not establish product benefit.</p>
+<div id="conclusion-and-next-step" class="section level1">
+<h1>Conclusion and next step</h1>
+<p><strong>Keep the existing Shiny predictor.</strong> No compact
+candidate satisfied all registered requirements: at least six additional
+top-three successes, no loss of first-choice successes, median CPU
+computation below 20 ms, 95th percentile below 50 ms, R model objects
+within 256 MiB, and verified Python-to-R export. The separate 900-case
+quality test was not opened.</p>
+<p>The experiment narrows the next decision: compare the teacher’s
+advantage with the compact model’s remaining gap, then justify any
+additional training budget with a fixed learning curve and repeated
+seeds. Confidence calibration needs separate calibration data and an
+independent assessment after model selection. Neither this pilot nor a
+successful quiz demonstrates 100% accuracy on arbitrary future
+sentences.</p>
 </div>
 <div id="reproducibility-and-references" class="section level1">
 <h1>Reproducibility and references</h1>
-<p>This report was knitted from R Markdown.
-<code>scripts/build_and_evaluate.R</code> records the protocol, seeds,
-training-derived compression, selection, reserved hashes and case
-metrics. <code>scripts/verify_app.R</code> checks sparse scoring, input
-handling and server behavior. The distributed <code>app/model.rds</code>
-is the frozen evaluated model. Full rebuilds require the original corpus
-and earlier v3 training artifacts; <code>README.md</code> separates
-running the product from retraining it. Raw corpus lines and assessment
-answers are excluded from public publication. A subsequent interface
-update added continuous writing and corrected context counts.
-<code>scripts/verify_continuous_writing.R</code> confirmed identical
-prediction words and scores on all 1,500 existing development/test
-examples and checked input updates and clearing. This is a regression
-check, not a new accuracy estimate. The model checksum and the
-independent test results above remain unchanged. The indexed follow-up
-is documented in <code>research/context-speed-20260925</code>, with a
-protocol written before comparison, exact-equivalence checks and
-randomized paired timings. <code>app/runtime-metrics.json</code> records
-the new computation benchmark separately from the original frozen
-accuracy results.</p>
-<table>
-<caption>Table 3. Reproduction identifiers.</caption>
-<thead>
-<tr class="header">
-<th align="left">Item</th>
-<th align="left">Value</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Model MD5</td>
-<td align="left">bd58c642df1759c4ce1c39b9ace8927c</td>
-</tr>
-<tr class="even">
-<td align="left">Test selection seed</td>
-<td align="left">20260925</td>
-</tr>
-<tr class="odd">
-<td align="left">Word-position seed</td>
-<td align="left">20260926</td>
-</tr>
-<tr class="even">
-<td align="left">R version</td>
-<td align="left">R version 4.6.1 (2026-06-24 ucrt)</td>
-</tr>
-</tbody>
-</table>
+<p>This report was knitted from R Markdown and retained with its source
+in the existing RStudio project. The registered protocol fixes sampling,
+training, candidate mixtures and promotion rules. Training-line hashes,
+model and data checksums, case-level ranks, timing records, and package
+versions accompany the analysis. Raw corpus text, model weights and quiz
+material stay outside the public report. GPU training uses seed
+<strong>20261007</strong>. CPU timing uses <strong>20261008</strong>. A
+neutral export check and all 600 development cases compare Python with
+native R inference.</p>
+<p>The portability check detected small differences in the initial GPU
+reference, which allowed reduced-precision recurrent computation. One
+top-three list changed in each of two student models when checked with
+CPU double precision; aggregate correctness counts stayed unchanged. The
+final R comparison uses the same trained weights with a matching CPU
+reference. <code>precision_correction.json</code> records the adjustment
+and preserves the original results privately. No model was retrained and
+no final-test data were involved.</p>
 <ol style="list-style-type: decimal">
-<li>Johns Hopkins / Coursera. <a href="https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip">Official
-SwiftKey training corpus</a>.</li>
-<li>Chen, S. F., and Goodman, J. (1996). <a href="https://aclanthology.org/P96-1041/">An Empirical Study of
-Smoothing Techniques for Language Modeling</a>. ACL, 310-318.</li>
-<li>Posit. <a href="https://shiny.posit.co/r/getstarted/shiny-basics/lesson1/">Shiny
-for R</a> and <a href="https://docs.posit.co/shinyapps.io/guide/applications/">shinyapps.io
-application hosting</a>.</li>
+<li>Hinton, Vinyals and Dean (2015). <a href="https://arxiv.org/abs/1503.02531">Distilling the Knowledge in a
+Neural Network</a>. Basis for the teacher-to-student experiment; it does
+not guarantee improvement in this application.</li>
+<li>PyTorch. <a href="https://docs.pytorch.org/docs/2.8/generated/torch.nn.GRU.html">GRU
+documentation</a>. The native R implementation follows the recorded
+PyTorch gate equations and weights.</li>
+<li>Qwen. <a href="https://huggingface.co/Qwen/Qwen3-1.7B-Base">Qwen3-1.7B-Base model
+card</a>. The experiment reuses the locally recorded revision and
+existing adapter.</li>
+<li>Sonja Sahebzad. <a href="https://sonja242.github.io/data-science-capstone-swiftkey/final-product-report.html">Product
+report and independent CPU evaluation</a>.</li>
 </ol>
 </div>
 

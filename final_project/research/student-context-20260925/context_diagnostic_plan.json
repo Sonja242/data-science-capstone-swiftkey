@@ -1,0 +1,7 @@
+{
+  "author": "Sonja Sahebzad",
+  "status": "Registered while training teacher examples, before any student fit or student development result",
+  "question": "Does retaining earlier words change the compact models' suggestions or accuracy?",
+  "method": "For each fixed student alone, compare its full prefix capped at48 words with the same prefix reduced to the last4 words. Hold all weights and output vocabulary fixed. Evaluate the same600 development cases. Report counts of changed top3 lists, newly correct and newly incorrect targets, and total top1/top3. This is a diagnostic only and adds no candidates to selection.",
+  "interpretation": "A changed prediction shows sensitivity to earlier words. It does not establish human-like understanding or common sense. A same-data accuracy difference is exploratory, not an independent improvement estimate."
+}

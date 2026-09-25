@@ -1,0 +1,21 @@
+{
+  "author": "Sonja Sahebzad",
+  "registered_utc": "2026-09-25 19:54:04 UTC",
+  "objective": "Bounded pilot of a compact longer-context word model and complete-word teacher distillation, compared with deployed CPU n-grams.",
+  "training": "90,000 normalized deduplicated training lines, 30,000/source. At most six randomly sampled next-word positions/line. Last 48 words of each prefix. No validation or test lines in gradient updates. One fixed training seed: exploratory pilot, not seed robustness evidence.",
+  "teacher": "Existing Qwen3-1.7B-Base with frozen local adapter; 128 model-token prefix; 64 leading-space single-token proposals plus compact n-gram top32, restricted to the existing 50,000-word vocabulary. Score complete canonical word token sequences plus following-word boundary probability. Never pass actual word or answer options to generation. 3,000 training examples, 1,000/source. Same teacher rule on 600 development cases.",
+  "student": "Trainable 64-dimensional word embeddings, single-layer GRU with 96 hidden units, tanh 96-to-64 projection, tied 50,000-word output embedding and output bias. Padding and unknown input IDs separate. Two supervised pretraining epochs, batch256, AdamW lr0.002, clip1. Then three equal-budget five-epoch continuations on 3,000 teacher examples: CE-only control, 25% distillation, 50% distillation. Fine-tuning lr0.0005. Distillation temperature2, complete-word shortlist distribution padded with zero probability for other output words; T-squared correction. CE ignores unknown targets; soft supervision still applies.",
+  "comparisons": "Current CPU model, teacher reference (GPU, not hosting candidate), three students alone and with current probability interpolation at student weights0.10,0.25,0.50. Same 600 development cases for every comparison. Fixed final epochs only; no adaptive hyperparameter search.",
+  "selection": "Development: at least six more top3 successes than Current, no lower top1, prepared combined R objects <=256MiB, warm local CPU median <20ms and p95<50ms. Select top3 then top1 then median latency then registered order. GPU teacher is ineligible. R export must match Python probabilities within1e-6 and exact top3 on every development case before promotion.",
+  "final": "Only a qualifying frozen winner may access the still-unused 900 cases in data/final_product_quality/reserved_test.csv. Require source-stratified paired bootstrap95% lower bound of top3 difference >0 and no lower top1. Otherwise retain current app. Do not retune on final data. If qualified, fit top1 confidence on a separately reserved validation sample and assess it on final data before displaying it.",
+  "interactions": "GRU learns dependencies between earlier words and recent context. Fixed probability mixtures explicitly test interaction with local n-gram evidence. Supervised control separates longer-context learning from the added distillation loss.",
+  "limitations": "Single seed, bounded training subset and teacher cases, shortlists truncate teacher distribution, unknown pretrained-data overlap, full-line deduplication does not exclude near duplicates. Reused development results are exploratory; no calibrated confidence or 100% accuracy is presumed.",
+  "timing": "Three interleaved warm CPU rounds, same 600 cases, normalization and complete scoring included. GPU teacher timed separately. Loading, typing delay, networking and display excluded. Resource measurements describe R objects, not process RSS.",
+  "seeds": {
+    "lines": 20261005,
+    "positions": 20261006,
+    "training": 20261007,
+    "timing": 20261008,
+    "bootstrap": 20261009
+  }
+}

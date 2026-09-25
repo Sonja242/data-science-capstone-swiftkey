@@ -1,0 +1,34 @@
+{
+  "original_gpu_flags": {
+    "matmul_allow_tf32": false,
+    "cudnn_allow_tf32": true
+  },
+  "records": [
+    {
+      "model": "CE_control",
+      "cpu32_cpu64_max_error_32cases": 4.988860669186135e-06,
+      "strict_gpu32_cpu64_max_error_32cases": 9.70877859302055e-07,
+      "previous_gpu_reference_max_error_600cases": 0.00011622905731201172,
+      "changed_top3_lists_600cases": 1,
+      "checkpoint_sha256": "dad74e3379401562719ca22da605f0a737439a841b1cc9ede296a67ff17b57d2"
+    },
+    {
+      "model": "Distill25",
+      "cpu32_cpu64_max_error_32cases": 8.191991348216465e-06,
+      "strict_gpu32_cpu64_max_error_32cases": 1.9830340199367136e-06,
+      "previous_gpu_reference_max_error_600cases": 0.00012743473052978516,
+      "changed_top3_lists_600cases": 1,
+      "checkpoint_sha256": "9d4e18a12393d57f6024663ac9ff269c866434e7b13d767901616b68654a84ca"
+    },
+    {
+      "model": "Distill50",
+      "cpu32_cpu64_max_error_32cases": 9.702318779059027e-06,
+      "strict_gpu32_cpu64_max_error_32cases": 1.9306971830446162e-06,
+      "previous_gpu_reference_max_error_600cases": 0.0002117156982421875,
+      "changed_top3_lists_600cases": 0,
+      "checkpoint_sha256": "9837ef32e0fc112d0216d20f7ea8c53a50391dd32a611491eb13ed0840701782"
+    }
+  ],
+  "correction": "Use double-precision CPU inference for the Python reference exported to native R. Weights, data, candidate grid, training budget and selection rules unchanged. Earlier GPU-reference outputs preserved privately.",
+  "final_test_accessed": false
+}

@@ -1,0 +1,14 @@
+{
+  "python": "3.13.3",
+  "torch": "2.8.0+cu128",
+  "numpy": "2.5.3",
+  "gpu": "NVIDIA RTX 2000 Ada Generation Laptop GPU",
+  "seed": 20261007,
+  "study_sha256": "17f983eebf6f07a066e7e7485f1b878e343d7547f21247b1a5704888a897effa",
+  "protocol_sha256": "fa088f7113fa7c385517edb0f960babbb21d7a53dfb50512bfc5a51a86c577e0",
+  "private_input_sha256": {
+    "supervised.npz": "b704868a73d9b26020b89eedb17254a789d5fe1ccf4a2f211d11fafd0a6474ce",
+    "teacher_teacher_training.jsonl": "cb93cd110b441e540f4d840a7056e9d997339c82670c3a1f0116bc2ceba61566",
+    "training_lines.csv": "81940af5bdc8dbe577ac5e5c43fb0e347351633fa8206e75b2acd2c52384cc34"
+  }
+}

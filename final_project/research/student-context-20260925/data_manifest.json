@@ -1,0 +1,29 @@
+{
+  "training_lines": 90000,
+  "training_by_source": [
+    {
+      "source": "blogs",
+      "N": 30000
+    },
+    {
+      "source": "news",
+      "N": 30000
+    },
+    {
+      "source": "twitter",
+      "N": 30000
+    }
+  ],
+  "development": 600,
+  "teacher_training": 3000,
+  "test_accessed": false,
+  "no_training_hash_overlap_with_development_or_reserved": true,
+  "model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "private_file_md5": {
+    "data/student_context/development.csv": "43c8de613b7400e7a592ecf11de986f0",
+    "data/student_context/ngram_dev.f32": "387899b57da95b55ab818c60371ec59c",
+    "data/student_context/teacher_training.csv": "70472c5881bc87659c65f71f9189f7c5",
+    "data/student_context/training_lines.csv": "cebc47ccbbe11d6fc06efdd4840d391a",
+    "data/student_context/vocabulary.csv": "97d9da225d710bd1cd047b2ae0182ce5"
+  }
+}
