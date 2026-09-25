@@ -1,0 +1,20 @@
+{
+  "author": "Sonja Sahebzad",
+  "brand": "Sonja Projects",
+  "date": "2026-09-25",
+  "app_bundle": "12606311",
+  "app_url": "https://sonjasahebzad.shinyapps.io/sonja-next-word/",
+  "model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "accuracy_changed": false,
+  "automatic_wait_ms": 150,
+  "server_regression": "Passed: exact outputs on 1500 existing cases; automatic refresh, partial words, punctuation, manual input, rapid edits, clearing, length limit and fallback.",
+  "full_equivalence_cases": 5510,
+  "quality_test_still_unscored": true,
+  "course_submission": "Not submitted; awaiting author review.",
+  "file_sha256": {
+    "app/predictor.R": "bd24f2c3891f455fec4b058743b2add20f04c83627de5b30cf12bb9c5beec06e",
+    "app/app.R": "9e46cda4c15dd15d01c63ec22a3be1dda317024e6d063b8017f2e261981f670f",
+    "app/runtime-metrics.json": "431d14c232663f2eb82801891158e22abed70bd37e1f64de41e9a5a56bf418d2",
+    "Next_Word_Pitch.Rpres": "d77e99a5152777d1db67337c5ce7b94cd70be71a0be54171a9ad1144a673f115"
+  }
+}

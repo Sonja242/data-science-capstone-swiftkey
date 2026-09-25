@@ -1,0 +1,18 @@
+{
+  "author": "Sonja Sahebzad",
+  "brand": "Sonja Projects",
+  "date": "2026-09-25",
+  "implementation": "Exact indexed lookup",
+  "model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "median_ms": 0.577926635742188,
+  "p95_ms": 0.825083255767821,
+  "mean_ms": 0.6421951452891033,
+  "calls": 3000,
+  "cases": 600,
+  "rounds": 5,
+  "timing_design": "Randomized interleaved warm local calls on 600 development phrases, repeated five times. Excludes loading, typing delay, network and display.",
+  "prepared_memory_mib": 215.513633728,
+  "prepare_ms": 68.4700012207,
+  "accuracy_unchanged": true,
+  "regression_phrases": 5510
+}

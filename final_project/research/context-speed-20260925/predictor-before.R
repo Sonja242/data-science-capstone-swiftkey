@@ -13,46 +13,6 @@ normalize_phrase <- function(text) {
   vapply(words, paste, character(1), collapse = " ")
 }
 
-# Build exact sorted numeric search keys once after loading. The trained model
-# and probabilities are unchanged. Keys pack at most three vocabulary IDs;
-# the fourth ID is searched within the matching three-ID range.
-prepare_predictor <- function(model) {
-  if (!is.null(model$search_index)) return(model)
-  radix <- length(model$vocabulary) + 1
-  stopifnot(radix^3 < 2^52)
-  indexes <- vector("list", model$maximum_order)
-  for (n in 2:model$maximum_order) {
-    tab <- model$tables[[n]]
-    key <- as.numeric(tab$w1)
-    if (n >= 3L) key <- key * radix + tab$w2
-    if (n >= 4L) key <- key * radix + tab$w3
-    stopifnot(!anyNA(key), !is.unsorted(key))
-    indexes[[n]] <- key
-  }
-  model$search_index <- indexes
-  model$search_radix <- radix
-  model
-}
-
-context_rows <- function(model, n, context) {
-  if (any(context < 0L)) return(integer())
-  key <- as.numeric(context[1L])
-  if (n >= 3L) key <- key * model$search_radix + context[2L]
-  if (n >= 4L) key <- key * model$search_radix + context[3L]
-  bounds <- findInterval(c(key - 0.5, key), model$search_index[[n]],
-                         checkSorted = FALSE, checkNA = FALSE)
-  if (bounds[1L] == bounds[2L]) return(integer())
-  rows <- seq.int(bounds[1L] + 1L, bounds[2L])
-  if (n == 5L) {
-    last <- context[4L]
-    bounds <- findInterval(c(last - 0.5, last), model$tables[[n]]$w4[rows],
-                           checkSorted = FALSE, checkNA = FALSE)
-    if (bounds[1L] == bounds[2L]) return(integer())
-    rows <- rows[seq.int(bounds[1L] + 1L, bounds[2L])]
-  }
-  rows
-}
-
 predict_word <- function(model, phrase, top_n = 3L, dense = FALSE) {
   stopifnot(is.character(phrase), length(phrase) == 1L, top_n >= 1L,
             top_n <= length(model$vocabulary))
@@ -64,15 +24,8 @@ predict_word <- function(model, phrase, top_n = 3L, dense = FALSE) {
   hits <- vector("list", model$maximum_order)
   used_order <- 1L
   for (n in 2:model$maximum_order) {
-    if (is.null(model$search_index)) {
-      hits[[n]] <- model$tables[[n]][as.list(tail(ids, n - 1L)), nomatch = 0L]
-    } else {
-      at <- context_rows(model, n, tail(ids, n - 1L))
-      tab <- model$tables[[n]]
-      hits[[n]] <- list(word_id = tab$word_id[at], weight = tab$weight[at],
-                        backoff = tab$backoff[at])
-    }
-    if (length(hits[[n]]$word_id)) used_order <- n
+    hits[[n]] <- model$tables[[n]][as.list(tail(ids, n - 1L)), nomatch = 0L]
+    if (nrow(hits[[n]])) used_order <- n
   }
   # Non-hit words only receive a common multiplier. The highest base words plus
   # all positive context contributions therefore contain the exact top N.
@@ -81,7 +34,7 @@ predict_word <- function(model, phrase, top_n = 3L, dense = FALSE) {
   p <- model$base_probability[candidate_ids]
   for (n in 2:model$maximum_order) {
     tab <- hits[[n]]
-    if (!length(tab$word_id)) next
+    if (!nrow(tab)) next
     p <- p * tab$backoff[1L]
     at <- match(tab$word_id, candidate_ids)
     p[at] <- p[at] + tab$weight

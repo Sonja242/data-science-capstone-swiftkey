@@ -1,8 +1,9 @@
 # Sonja Next Word | Author: Sonja Sahebzad | Sonja Projects
 library(shiny)
 source("predictor.R", local = TRUE)
-model <- readRDS("model.rds")
+model <- prepare_predictor(readRDS("model.rds"))
 metrics <- jsonlite::fromJSON("metrics.json")
+runtime <- jsonlite::fromJSON("runtime-metrics.json")
 pct <- function(x) sprintf("%.1f%%", 100*x)
 m <- metrics$overall
 
@@ -42,15 +43,15 @@ ui <- fluidPage(
           tags$div(class="metric-grid",
             tags$div(class="metric",tags$span("First suggestion correct"),tags$strong(pct(m$top1)),tags$small(sprintf("%d of 900; 95%% interval %s to %s",m$top1_count,pct(m$top1_low),pct(m$top1_high)))),
             tags$div(class="metric",tags$span("Correct within three"),tags$strong(pct(m$top3)),tags$small(sprintf("%d of 900; 95%% interval %s to %s",m$top3_count,pct(m$top3_low),pct(m$top3_high)))),
-            tags$div(class="metric",tags$span("Local computation, median"),tags$strong(sprintf("%.0f ms",m$median_ms)),tags$small(sprintf("95th percentile %.0f ms; network time excluded",m$p95_ms)))),
+            tags$div(class="metric",tags$span("Local computation, median"),tags$strong(sprintf("%.2f ms",runtime$median_ms)),tags$small(sprintf("95th percentile %.2f ms; 3,000 local calls; network time excluded",runtime$p95_ms)))),
           tags$h3("Performance by source"),
           plotOutput("source_plot",height="250px"),
           tableOutput("source_table"),
           tags$p(class="fine-print","Intervals describe sampling uncertainty, not confidence in an individual suggestion. Equal source weighting may differ from real usage. The app displays no calibrated confidence percentage."),
           tags$h3("The deployment trade-off"),
-          tags$p(sprintf("The %s configuration was selected on 600 separate development cases from three compact candidates. Its %s-word vocabulary and up-to-%d-gram context keep the trained model to %.1f MiB on disk (%.1f MiB as an R object).",
-            tolower(metrics$selected),format(metrics$vocabulary,big.mark=","),metrics$max_order,metrics$model_mib,metrics$memory_mib)),
-          tags$p("These are unrestricted next-word results, not multiple-choice quiz scores. Local timing measures prediction after loading; a first visit may take longer while the hosting service wakes the app."))),
+          tags$p(sprintf("The %s configuration was selected on 600 separate development cases from three compact candidates. Its %s-word vocabulary and up-to-%d-gram context keep the trained model to %.1f MiB on disk (%.1f MiB prepared for fast lookup).",
+            tolower(metrics$selected),format(metrics$vocabulary,big.mark=","),metrics$max_order,metrics$model_mib,runtime$prepared_memory_mib)),
+          tags$p("These are unrestricted next-word results, not multiple-choice quiz scores. Local timing uses five randomized rounds on the same 600 development inputs. Exact indexed lookup preserved all outputs on 5,510 regression phrases. Timing measures computation after loading; the 150 ms automatic typing delay, network and display add to total waiting. A first visit may take longer while the hosting service wakes the app."))),
       tabPanel("How to use",value="guide",
         tags$section(class="content-panel guide",tags$h2("Three steps to keep writing"),
           tags$ol(tags$li("Enter an English phrase, or choose a starting point."),

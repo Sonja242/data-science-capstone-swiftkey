@@ -1,0 +1,14 @@
+{
+  "author": "Sonja Sahebzad",
+  "selected_quality": "Current",
+  "quality_final_test_used": false,
+  "speed_qualified": true,
+  "regression_phrases": 5510,
+  "dense_checks": 30,
+  "model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "original_memory_mib": 172.5625839233,
+  "prepared_memory_mib": 215.513633728,
+  "prepare_ms": 68.4700012207,
+  "median_reduction": 0.69944203348,
+  "quality_reason": "No cache variant met the predeclared development threshold. Keep original scoring."
+}

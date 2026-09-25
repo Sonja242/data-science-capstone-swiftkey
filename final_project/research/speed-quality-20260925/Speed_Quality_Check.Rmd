@@ -28,9 +28,11 @@ labels <- c(Current="Current",More_contexts="More contexts",More_followers="More
 **Management summary.** Automatic suggestions now wait **150 ms instead of 400 ms** after a completed word and a pause. This removes 250 ms of intentional delay without changing any prediction. Three changes to model compression were tested separately on the same 600 development cases. The best result was **`r best`/600**, compared with **`r base$top3`/600** for the current model. No challenger met the predefined replacement rule. The deployed model and its independent **28.6% top-three accuracy** remain unchanged.
 </div>
 
+*Later update: an [exact indexed implementation](https://sonja242.github.io/data-science-capstone-swiftkey/context-speed-check.html) reduced local computation further to 0.58 ms at the median, with unchanged predictions. The compression comparison below remains the record of this earlier experiment.*
+
 # What became faster
 
-The current model's measured median local computation is **1.9 ms**. Automatic waiting, network transport, server load and browser rendering add to the time the user experiences. The delay setting fell by **62.5%**; this is not a claim that total response time fell by 62.5%. Manual prediction bypasses this typing delay. The app still waits for a word boundary, preventing automatic predictions from unfinished words.
+At the time of this experiment, median local computation was **1.9 ms**. Automatic waiting, network transport, server load and browser rendering add to the time the user experiences. The delay setting fell by **62.5%**; this is not a claim that total response time fell by 62.5%. Manual prediction bypasses this typing delay. The app still waits for a word boundary, preventing automatic predictions from unfinished words.
 
 Server tests verified that no result appears at 100 ms and a result is available after 160 ms of simulated time. Tests also covered rapid edits, clearing while a timer is pending, newlines, manual mode and input limits. All prediction words and scores remained identical on 1,500 existing development/test examples. These checks establish regression equivalence, not a new accuracy estimate or a real-network latency benchmark.
 

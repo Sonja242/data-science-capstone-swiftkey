@@ -9,7 +9,7 @@ project <- if(length(args)>1L) normalizePath(args[2],winslash="/") else normaliz
 old <- new.env()
 sys.source(reference,envir=old)
 source("app/predictor.R")
-model <- readRDS("app/model.rds")
+model <- prepare_predictor(readRDS("app/model.rds"))
 cases <- rbindlist(lapply(c("data/adaptation/development.csv","data/final_product/final_test.csv"),
   function(f) fread(file.path(project,f))[,.(prefix)]))
 stopifnot(nrow(cases)==1500L)

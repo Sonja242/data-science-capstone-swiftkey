@@ -3503,15 +3503,19 @@ current model. No challenger met the predefined replacement rule. The
 deployed model and its independent <strong>28.6% top-three
 accuracy</strong> remain unchanged.</p>
 </div>
+<p><em>Later update: an <a href="https://sonja242.github.io/data-science-capstone-swiftkey/context-speed-check.html">exact
+indexed implementation</a> reduced local computation further to 0.58 ms
+at the median, with unchanged predictions. The compression comparison
+below remains the record of this earlier experiment.</em></p>
 <div id="what-became-faster" class="section level1">
 <h1>What became faster</h1>
-<p>The current model’s measured median local computation is <strong>1.9
-ms</strong>. Automatic waiting, network transport, server load and
-browser rendering add to the time the user experiences. The delay
-setting fell by <strong>62.5%</strong>; this is not a claim that total
-response time fell by 62.5%. Manual prediction bypasses this typing
-delay. The app still waits for a word boundary, preventing automatic
-predictions from unfinished words.</p>
+<p>At the time of this experiment, median local computation was
+<strong>1.9 ms</strong>. Automatic waiting, network transport, server
+load and browser rendering add to the time the user experiences. The
+delay setting fell by <strong>62.5%</strong>; this is not a claim that
+total response time fell by 62.5%. Manual prediction bypasses this
+typing delay. The app still waits for a word boundary, preventing
+automatic predictions from unfinished words.</p>
 <p>Server tests verified that no result appears at 100 ms and a result
 is available after 160 ms of simulated time. Tests also covered rapid
 edits, clearing while a timer is pending, newlines, manual mode and
@@ -3585,8 +3589,8 @@ Timing excludes network and typing delay.</caption>
 </tr>
 </tbody>
 </table>
-<div class="plotly html-widget html-fill-item" id="htmlwidget-c6fd299fad7afcc1751c" style="width:672px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-c6fd299fad7afcc1751c">{"x":{"visdat":{"8f405b81535":["function () ","plotlyVisDat"]},"cur_data":"8f405b81535","attrs":{"8f405b81535":{"x":["Current","More contexts","More followers","Larger vocabulary"],"y":[27.333333333333332,27.666666666666668,27.333333333333332,27.333333333333332],"marker":{"color":["#123f68","#75aacf","#75aacf","#75aacf"]},"text":["Current<br>164/600: 27.3%<br>Model memory: 172.6 MiB","More contexts<br>166/600: 27.7%<br>Model memory: 237.3 MiB","More followers<br>164/600: 27.3%<br>Model memory: 202.5 MiB","Larger vocabulary<br>164/600: 27.3%<br>Model memory: 181.9 MiB"],"hoverinfo":"text","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"yaxis":{"domain":[0,1],"automargin":true,"title":"Correct within three (%)","range":[0,35]},"xaxis":{"domain":[0,1],"automargin":true,"title":"","type":"category","categoryorder":"array","categoryarray":["Current","Larger vocabulary","More contexts","More followers"]},"font":{"family":"Calibri, Segoe UI, sans-serif"},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["Current","More contexts","More followers","Larger vocabulary"],"y":[27.333333333333332,27.666666666666668,27.333333333333332,27.333333333333332],"marker":{"color":["#123f68","#75aacf","#75aacf","#75aacf"],"line":{"color":"rgba(31,119,180,1)"}},"text":["Current<br>164/600: 27.3%<br>Model memory: 172.6 MiB","More contexts<br>166/600: 27.7%<br>Model memory: 237.3 MiB","More followers<br>164/600: 27.3%<br>Model memory: 202.5 MiB","Larger vocabulary<br>164/600: 27.3%<br>Model memory: 181.9 MiB"],"hoverinfo":["text","text","text","text"],"type":"bar","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-6750e3e53ca4298b8f7e" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-6750e3e53ca4298b8f7e">{"x":{"visdat":{"58602df14ace":["function () ","plotlyVisDat"]},"cur_data":"58602df14ace","attrs":{"58602df14ace":{"x":["Current","More contexts","More followers","Larger vocabulary"],"y":[27.333333333333332,27.666666666666668,27.333333333333332,27.333333333333332],"marker":{"color":["#123f68","#75aacf","#75aacf","#75aacf"]},"text":["Current<br>164/600: 27.3%<br>Model memory: 172.6 MiB","More contexts<br>166/600: 27.7%<br>Model memory: 237.3 MiB","More followers<br>164/600: 27.3%<br>Model memory: 202.5 MiB","Larger vocabulary<br>164/600: 27.3%<br>Model memory: 181.9 MiB"],"hoverinfo":"text","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"yaxis":{"domain":[0,1],"automargin":true,"title":"Correct within three (%)","range":[0,35]},"xaxis":{"domain":[0,1],"automargin":true,"title":"","type":"category","categoryorder":"array","categoryarray":["Current","Larger vocabulary","More contexts","More followers"]},"font":{"family":"Calibri, Segoe UI, sans-serif"},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["Current","More contexts","More followers","Larger vocabulary"],"y":[27.333333333333332,27.666666666666668,27.333333333333332,27.333333333333332],"marker":{"color":["#123f68","#75aacf","#75aacf","#75aacf"],"line":{"color":"rgba(31,119,180,1)"}},"text":["Current<br>164/600: 27.3%<br>Model memory: 172.6 MiB","More contexts<br>166/600: 27.7%<br>Model memory: 237.3 MiB","More followers<br>164/600: 27.3%<br>Model memory: 202.5 MiB","Larger vocabulary<br>164/600: 27.3%<br>Model memory: 181.9 MiB"],"hoverinfo":["text","text","text","text"],"type":"bar","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
 <p><em>Figure 1. Development accuracy. Hover over a bar to see its count
 and model memory.</em></p>
 </div>

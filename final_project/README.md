@@ -11,14 +11,14 @@ A CPU Shiny product for English next-word completion. It accepts a phrase, retur
 
 ## Run the product in RStudio
 
-Open `Sonja Next Word.Rproj`. Install missing dependencies once:
+Open `Sonja Next Word.Rproj`. Use R 4.5 or later. Install missing dependencies once:
 
 ```r
 install.packages(c("shiny", "data.table", "stringi", "jsonlite"))
 shiny::runApp("app")
 ```
 
-The model is included. No GPU, raw corpus, Python runtime, API key or retraining is required. Model loading is once per R process. The compressed model is about 19.2 MiB; the R model object is about 172.6 MiB. Allow additional memory for R, dependencies and concurrent sessions.
+The model is included. No GPU, raw corpus, Python runtime, API key or retraining is required. Model loading is once per R process. The compressed model is about 19.2 MiB; the R model object is about 172.6 MiB before indexing and 215.5 MiB prepared for faster inference. Allow additional memory for R, dependencies and concurrent sessions.
 
 ## User documentation
 
@@ -44,6 +44,10 @@ Knit `Final_Product_Report.Rmd` with RStudio's Knit button. Open `Next_Word_Pitc
 
 Automatic waiting was reduced from 400 to 150 ms without changing predictions. Three one-setting compression changes were compared on the same 600 development cases. The best challenger produced 166 correct top-three results versus 164 for the current model and missed the predeclared minimum gain of six cases. Production is retained; 900 newly reserved cases remain unscored. The [follow-up report](https://sonja242.github.io/data-science-capstone-swiftkey/speed-quality-check.html), `research/speed-quality-20260925/compare_quality.R`, protocol and case-level metrics document the comparison. These development percentages are not replacement test accuracy.
 
+### Exact indexed inference
+
+A sorted numeric lookup reduced median local computation from 1.92 to 0.58 ms (69.9%) in five randomized interleaved rounds on 600 development phrases. The words, scores and metadata were identical on 5,510 checked phrases; 30 cases also matched dense scoring. Original independent accuracy remains 17.0% top-one and 28.6% top-three. The 150 ms typing delay is separate. Runtime timing and prepared memory are recorded in `app/runtime-metrics.json`; the original accuracy file is unchanged. The [study report](https://sonja242.github.io/data-science-capstone-swiftkey/context-speed-check.html) and `research/context-speed-20260925` contain the preregistered protocol, reproducible scripts, a rejected repetition-cache comparison and results. No quality challenger qualified, so the newly reserved 900-case test remains unscored.
+
 ## Deploy
 
 With an authorized rsconnect account, deploy exactly these files:
@@ -51,7 +55,7 @@ With an authorized rsconnect account, deploy exactly these files:
 ```r
 rsconnect::deployApp(
   appDir = "app",
-  appFiles = c("app.R", "predictor.R", "model.rds", "metrics.json", "www/styles.css", "www/input.js"),
+  appFiles = c("app.R", "predictor.R", "model.rds", "metrics.json", "runtime-metrics.json", "www/styles.css", "www/input.js"),
   appName = "sonja-next-word",
   account = "sonjasahebzad", server = "shinyapps.io"
 )

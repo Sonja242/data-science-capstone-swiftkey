@@ -17,13 +17,14 @@ output:
 knitr::opts_chunk$set(echo=FALSE,warning=FALSE,message=FALSE)
 m <- jsonlite::fromJSON("results/metrics.json")
 s <- m$overall
+runtime <- jsonlite::fromJSON("app/runtime-metrics.json")
 d <- read.csv("results/development_comparison.csv")
 pct <- function(x) sprintf("%.1f%%",100*x)
 ci <- function(lo,hi) paste(pct(lo),"to",pct(hi))
 ```
 
 <div class="summary-box">
-**Management summary.** Sonja Next Word turns an English phrase into one next-word suggestion and two alternatives. A compact model runs on a CPU without an external AI service. On 900 reserved examples, the first suggestion was correct in **`r pct(s$top1)`** and the correct word appeared among three in **`r pct(s$top3)`**. Every case received a suggestion. Median local computation was **`r sprintf("%.1f",s$median_ms)` ms**, excluding network time. The product demonstrates a reproducible, responsive workflow; its short context still limits semantic understanding.
+**Management summary.** Sonja Next Word turns an English phrase into one next-word suggestion and two alternatives. A compact model runs on a CPU without an external AI service. On 900 reserved examples, the first suggestion was correct in **`r pct(s$top1)`** and the correct word appeared among three in **`r pct(s$top3)`**. Every case received a suggestion. The updated implementation takes **`r sprintf("%.2f",runtime$median_ms)` ms** per prediction at the local median in a separate development benchmark, excluding network time. The product demonstrates a reproducible, responsive workflow; its short context still limits semantic understanding.
 </div>
 
 # Product and use
@@ -38,7 +39,7 @@ The trained model uses **`r format(m$training_lines,big.mark=",")` deduplicated 
 
 The product derives from the project's frozen interpolated Kneser-Ney model. Text is lowercased, apostrophes normalized, and numbers, punctuation, URLs and mentions removed. Up to four recent words supply the context for a five-gram prediction. Longer patterns contribute when available; shorter patterns and general word frequencies provide fallback. These context patterns capture word combinations, but there is no separate fitted interaction model or full-sentence semantic reasoning. A full sentence can be entered and extended; words earlier than the four-word context do not influence the prediction. The interface shows the actual matched words, excluding start-of-text padding from its word count.
 
-Pruning limits vocabulary, context support and stored followers. Removed probability mass returns to shorter contexts. Sparse scoring preserves the exact top suggestions of this compact distribution, verified against dense scoring. The **`r format(m$vocabulary,big.mark=",")`-word** deployed model occupies **`r sprintf("%.1f",m$model_mib)` MiB** compressed and **`r sprintf("%.1f",m$memory_mib)` MiB** as an R object. Total server memory also includes R and Shiny.
+Pruning limits vocabulary, context support and stored followers. Removed probability mass returns to shorter contexts. Sparse scoring preserves the exact top suggestions of this compact distribution, verified against dense scoring. The **`r format(m$vocabulary,big.mark=",")`-word** deployed model occupies **`r sprintf("%.1f",m$model_mib)` MiB** compressed and **`r sprintf("%.1f",m$memory_mib)` MiB** as an R object before indexing. The equivalent indexed implementation uses **`r sprintf("%.1f",runtime$prepared_memory_mib)` MiB** when prepared for inference. Total server memory also includes R and Shiny.
 
 # Selection and independent evaluation
 
@@ -84,7 +85,7 @@ plotly::layout(fig,barmode="group",yaxis=list(title="Correct predictions (%)",ra
 
 *Figure 1. Accuracy by source with approximate 95% intervals. Hover over a bar for its values.*
 
-Median local computation across 900 cases was **`r sprintf("%.2f",s$median_ms)` ms**; the 95th percentile was **`r sprintf("%.2f",s$p95_ms)` ms**. Model loading took **`r sprintf("%.2f",m$load_seconds)` seconds** locally. These are CPU timings after a warm-up, excluding network and UI rendering. A separate high-resolution wall-clock pass replaced the coarse Windows timer for latency reporting; model selection and accuracy were unchanged.
+The original implementation's median local computation across 900 cases was **`r sprintf("%.2f",s$median_ms)` ms**; the 95th percentile was **`r sprintf("%.2f",s$p95_ms)` ms**. Model loading took **`r sprintf("%.2f",m$load_seconds)` seconds** locally. These are CPU timings after a warm-up, excluding network and UI rendering. A separate high-resolution wall-clock pass replaced the coarse Windows timer for latency reporting; model selection and accuracy were unchanged.
 
 # Discussion
 
@@ -96,15 +97,17 @@ The candidate comparison demonstrates sensitivity to compression. It does not is
 
 A subsequent [speed and quality check](https://sonja242.github.io/data-science-capstone-swiftkey/speed-quality-check.html) reduced automatic waiting from **400 to 150 ms** without changing predictions. Three separate compression relaxations produced at most **166/600** top-three successes versus **164/600** for the current model on development data. None met the predeclared six-case improvement rule. The model was retained and the newly reserved test remains unscored. These results do not replace the independent accuracy estimates above.
 
+A further [indexed lookup and context study](https://sonja242.github.io/data-science-capstone-swiftkey/context-speed-check.html) reduced median computation from **1.92 to 0.58 ms** in 3,000 randomized, interleaved local calls per implementation. Predictions and scores matched exactly on **5,510 regression phrases**. Prepared model memory rose from **172.6 to 215.5 MiB**, within the separately predefined 256 MiB ceiling. Earlier-word cache weights of 5%, 10% and 20% yielded **164, 161 and 148/600** top-three successes, versus **164/600** without the cache. None qualified. Only the equivalent faster lookup was adopted; the unused quality test remains reserved. The original accuracy estimates still apply. The 70% reduction concerns computation, not total browser response time.
+
 # Conclusion and next steps
 
 The product delivers an accessible, compact next-word service with **17.0% first-choice accuracy**, **28.6% top-three accuracy** and millisecond local computation on a reserved test. It meets the functional goal of accepting a phrase and returning one word, while making measured limitations visible.
 
-The next experiment should vary one compression setting at a time and compare a longer-context model under the same hosting budget. A new untouched test should assess whether sentence meaning improves ranking. Confidence calibration requires its own reserved data and reliability checks before percentages can be shown. A small user study should measure suggestion acceptance and typing effort; lower latency alone does not establish product benefit.
+Separate compression and repetition-cache experiments have now failed to improve the predefined quality target. The next experiment should compare a compact model trained to use longer context under the same hosting budget. A new untouched test should assess whether sentence meaning improves ranking. Confidence calibration requires its own reserved data and reliability checks before percentages can be shown. A small user study should measure suggestion acceptance and typing effort; lower latency alone does not establish product benefit.
 
 # Reproducibility and references
 
-This report was knitted from R Markdown. `scripts/build_and_evaluate.R` records the protocol, seeds, training-derived compression, selection, reserved hashes and case metrics. `scripts/verify_app.R` checks sparse scoring, input handling and server behavior. The distributed `app/model.rds` is the frozen evaluated model. Full rebuilds require the original corpus and earlier v3 training artifacts; `README.md` separates running the product from retraining it. Raw corpus lines and assessment answers are excluded from public publication. A subsequent interface update added continuous writing and corrected context counts. `scripts/verify_continuous_writing.R` confirmed identical prediction words and scores on all 1,500 existing development/test examples and checked input updates and clearing. This is a regression check, not a new accuracy estimate. The model checksum and the independent test results above remain unchanged.
+This report was knitted from R Markdown. `scripts/build_and_evaluate.R` records the protocol, seeds, training-derived compression, selection, reserved hashes and case metrics. `scripts/verify_app.R` checks sparse scoring, input handling and server behavior. The distributed `app/model.rds` is the frozen evaluated model. Full rebuilds require the original corpus and earlier v3 training artifacts; `README.md` separates running the product from retraining it. Raw corpus lines and assessment answers are excluded from public publication. A subsequent interface update added continuous writing and corrected context counts. `scripts/verify_continuous_writing.R` confirmed identical prediction words and scores on all 1,500 existing development/test examples and checked input updates and clearing. This is a regression check, not a new accuracy estimate. The model checksum and the independent test results above remain unchanged. The indexed follow-up is documented in `research/context-speed-20260925`, with a protocol written before comparison, exact-equivalence checks and randomized paired timings. `app/runtime-metrics.json` records the new computation benchmark separately from the original frozen accuracy results.
 
 ```{r fingerprint}
 knitr::kable(data.frame(Item=c("Model MD5","Test selection seed","Word-position seed","R version"),

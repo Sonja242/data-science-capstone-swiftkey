@@ -1,0 +1,16 @@
+{
+  "author": "Sonja Sahebzad",
+  "date": "2026-09-25",
+  "question": "Can exact indexed inference reduce CPU time, and does a small content-word cache improve next-word ranking?",
+  "speed": "Precompute sorted numeric context keys. Verify identical words and scores on all 1500 existing development/test cases, edge cases, and 4000 sampled trained contexts. Compare five randomized interleaved timing rounds on 600 development cases. Promote speed alone only with exact equality, at least 30% lower median time, no higher p95, and a prepared model below 256 MiB.",
+  "quality": "Same 600 development cases; unchanged trained model. Compare cache weights 0.05, 0.10 and 0.20. Cache the last 100 normalized input words, exclude unknown words and the 100 highest base-probability words, and normalize remaining occurrence counts. Mix cache and full n-gram scores. Only the supplied prefix is used; no target or continuation is used in inference.",
+  "interactions": "Interpolation allows earlier repeated content words to interact with local n-gram context. No fitted regression interaction terms are needed. Cache weight is the only varied quality setting.",
+  "selection": "Require at least six more top-3 successes than current on development, no lower top-1, median below 20 ms and model below 256 MiB. Select highest top-3, then top-1, then smallest cache weight. Otherwise keep original scoring.",
+  "final": "Only a qualifying frozen quality challenger may use the 900 cases reserved by speed-quality-20260925, still unscored. Require a positive lower bound of the paired source-stratified bootstrap 95% top-3 difference and no lower top-1. Do not inspect these cases if no challenger qualifies. Speed equivalence uses existing test cases for regression only.",
+  "timing": "Warm local computation includes normalization and lookup, excludes loading, typing delay, networking and browser display. No artificial delay reduction is included in the computation speed claim.",
+  "seeds": {
+    "contexts": 20260930,
+    "benchmark": 20261001,
+    "bootstrap": 20261002
+  }
+}

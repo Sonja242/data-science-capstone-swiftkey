@@ -1,0 +1,99 @@
+---
+title: "Sonja Next Word: Faster Inference and Context Check"
+subtitle: "The same predictions, with less computation"
+author: "Author: Sonja Sahebzad"
+date: "2026-09-25"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: hide
+    self_contained: true
+    css: ../../../milestone-report.css
+---
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo=FALSE,warning=FALSE,message=FALSE)
+s <- jsonlite::fromJSON("decision.json")
+d <- read.csv("development_comparison.csv")
+t <- read.csv("timing_summary.csv")
+old <- t[t$method=="Original",]
+new <- t[t$method=="Indexed",]
+stopifnot(s$speed_qualified,s$selected_quality=="Current",!s$quality_final_test_used)
+pct <- function(x) sprintf("%.1f%%",100*x)
+```
+
+<div class="summary-box">
+**Management summary.** A more efficient lookup reduced median local prediction time from **`r sprintf("%.2f",old$median_ms)` to `r sprintf("%.2f",new$median_ms)` ms**, a **`r pct(s$median_reduction)` reduction**. Predictions and scores matched exactly on **`r format(s$regression_phrases,big.mark=",")` checked phrases**. Separately, giving more weight to content words already typed did not improve development accuracy. The faster lookup was selected; the original prediction rule was retained. Independent top-three accuracy remains **28.6%**, with an approximate 95% interval of **25.7% to 31.6%**.
+</div>
+
+# What changed and why
+
+The model repeatedly looks up combinations of recent words. Sorted numerical indexes now locate the same stored combinations directly, reducing repeated table-processing work. Indexes are prepared once after model loading. Training data, vocabulary, weights, text normalization and ranking are unchanged. This is an implementation improvement, not a newly trained model.
+
+A separate quality experiment tested a small *context cache*: a count of content words already typed in the phrase. The hypothesis was that earlier topic words might help rank the next word. The cache retains up to 100 preceding normalized words, excludes unknown words and the 100 most frequent base-distribution words, and mixes its word frequencies with the existing model. Excluding frequent words is only a simple proxy for identifying content words. Weights of 5%, 10% and 20% test sensitivity to this choice. No hidden next word is available to either predictor. This tests repetition, not sentence understanding.
+
+# Same predictions, faster computation
+
+The check covered 1,500 existing development/test phrases, ten input edge cases and 4,000 sampled trained contexts. All returned words, scores and metadata matched exactly. Thirty development cases also matched full-vocabulary scoring, including cache variants. The existing test was used for regression equivalence only, not model selection or a new accuracy claim.
+
+Both implementations then predicted the same 600 development phrases five times. Method order and case order were randomized and interleaved, giving **3,000 timed calls per method**. Timing includes normalization and lookup after warm-up; it excludes model loading, the 150 ms typing delay, networking and browser display.
+
+```{r speed-table}
+knitr::kable(data.frame(Implementation=t$method,Calls=t$calls,
+  `Median (ms)`=round(t$median_ms,3),`95th percentile (ms)`=round(t$p95_ms,3),check.names=FALSE),
+  caption="Table 1. Repeated local CPU timing on identical development inputs.")
+```
+
+```{r speed-plot}
+plotly::plot_ly(x=c("Original","Indexed"),y=c(old$median_ms,new$median_ms),type="bar",
+ marker=list(color=c("#75aacf","#123f68")),
+ text=sprintf("%s<br>Median %.3f ms<br>95th percentile %.3f ms<br>3,000 local calls",c("Original","Indexed"),c(old$median_ms,new$median_ms),c(old$p95_ms,new$p95_ms)),hoverinfo="text") |>
+ plotly::layout(yaxis=list(title="Median local computation (ms)",rangemode="tozero"),xaxis=list(title=""),
+  font=list(family="Calibri, Segoe UI, sans-serif"))
+```
+
+*Figure 1. Hover over a bar for timing details. These are computation timings, not total response times.*
+
+The prepared R model occupies **`r sprintf("%.1f",s$prepared_memory_mib)` MiB**, versus **`r sprintf("%.1f",s$original_memory_mib)` MiB** before indexing. Index construction took **`r sprintf("%.0f",s$prepare_ms)` ms** locally. The compressed trained model remains **19.2 MiB**. This trades approximately **`r sprintf("%.1f",s$prepared_memory_mib-s$original_memory_mib)` MiB** of additional memory for faster lookup and meets this study's predefined 256 MiB prepared-model ceiling. Total service memory also includes R and Shiny.
+
+# Did earlier words improve accuracy?
+
+All quality variants used the same 600 development cases, 200 per source. The rule was fixed before comparison: require at least six extra top-three successes, no loss in first-choice successes, and the stated speed and memory limits. Qualifying challengers would then face the previously reserved, still-unscored 900-case test.
+
+```{r cache-table}
+knitr::kable(data.frame(`Cache weight`=pct(d$lambda),
+  `First correct`=sprintf("%d/600 (%s)",d$top1,pct(d$top1/600)),
+  `Within three`=sprintf("%d/600 (%s)",d$top3,pct(d$top3/600)),check.names=FALSE),
+  caption="Table 2. Development results. Zero cache weight is the current prediction rule.")
+```
+
+The 5% cache did not increase either success count. At 10% and 20%, both measures declined. No variant qualified; the reserved test remains unscored. These development percentages are not replacements for the separate 900-case accuracy estimate.
+
+# Discussion
+
+The speed improvement comes from performing the same search more efficiently. Exact regression equivalence supports retaining the existing independent accuracy estimates: **153/900 first-choice successes (17.0%; 95% interval 14.7% to 19.6%)** and **257/900 top-three successes (28.6%; 25.7% to 31.6%)**. These intervals describe uncertainty in an aggregate test result, not the reliability of a particular suggestion. Individual confidence has not been calibrated.
+
+More context did not automatically help this repetition-based method. Increasing the cache weight shifted probability toward previously used content words, but those words were not necessarily the next ones needed. The experiment therefore does not support deploying this cache. It also does not establish that a model trained to use sentence meaning would fail.
+
+The benchmark was conducted on one local machine. Randomized repeated comparisons reduce sensitivity to execution order, but do not establish the same speed gain on every server. The saved computation is about **`r sprintf("%.2f",old$median_ms-new$median_ms)` ms** per typical local call. The **150 ms automatic typing delay** and network/server conditions still dominate the visible response. A 70% reduction in computation is not a 70% reduction in total waiting time.
+
+# Conclusion and next steps
+
+The indexed implementation provides a measured speed improvement while preserving the tested model's predictions. The cache experiment provides no evidence of higher accuracy, so the deployed ranking remains unchanged. **100% next-word accuracy has not been achieved or demonstrated.**
+
+The next quality experiment should compare a compact model that is trained to use longer context, with fixed development cases and the same hosting constraints. A frozen candidate must earn improvement on untouched test data before replacing production. Separate calibration data and a small user study would assess confidence and whether suggestions reduce typing effort. Plausible alternative words currently count as errors when they differ from the original next word; their usefulness must be measured rather than assumed.
+
+# Reproducibility and references
+
+This report was knitted from R Markdown. `protocol.json` was written before evaluation; `run_study.R` records fixed seeds, candidate rules, exact-equivalence checks and randomized timings. `predictor-before.R`, `predictor.R` and `cache_candidate.R` preserve both implementations and the rejected quality method. Result CSVs contain hashes and outcomes, without raw corpus phrases. Full reproduction requires the project's private official-corpus artifacts. The companion `.Rproj`, R Markdown source and HTML output are retained with the final project.
+
+```{r fingerprint}
+knitr::kable(data.frame(Item=c("Trained model MD5","Regression phrases","New final test used","Selected quality rule"),
+ Value=c(s$model_md5,s$regression_phrases,"No",s$selected_quality)),caption="Table 3. Audit identifiers.")
+```
+
+1. R Core Team. [findInterval: sorted interval search](https://www.stat.math.ethz.ch/R-manual/R-devel/library/base/html/findInterval.html). Sortedness is checked when indexes are prepared, before repeated searches skip that check.
+2. Merity et al. (2016). [Pointer Sentinel Mixture Models](https://arxiv.org/abs/1609.07843). Background on combining language-model predictions with earlier context; the simple cache tested here is not that neural architecture.
+3. Posit. [Shiny debounce](https://shiny.posit.co/r/reference/shiny/latest/debounce.html) and [shinyapps.io hosting](https://docs.posit.co/shinyapps.io/guide/applications/).
