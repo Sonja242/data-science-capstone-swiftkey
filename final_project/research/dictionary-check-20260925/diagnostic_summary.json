@@ -1,0 +1,10 @@
+{
+  "cases": 600,
+  "vocabulary": 50000,
+  "recognized_vocabulary": 42640,
+  "top3": 164,
+  "known_outside_top3": 424,
+  "outside_vocabulary": 12,
+  "recognized_targets": 591,
+  "unrecognized_top3_suggestions": 3
+}

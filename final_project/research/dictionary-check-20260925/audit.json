@@ -1,0 +1,12 @@
+{
+  "author": "Sonja Sahebzad",
+  "passed": true,
+  "checks": "Baseline ranks match the frozen prior development output. Every dictionary variant preserves case-level top-1 and top-3 correctness. Strong and Strict output zero dictionary-unrecognized words. Final test not accessed.",
+  "reporting_correction": {
+    "field": "Current memory_mib",
+    "before": 216.2771148682,
+    "after": 215.7044906616,
+    "reason": "Measure the actual baseline object used for timing, including the shared research recognition annotation, instead of the unused penalty=1 variant. No predictions, timings or selection changed."
+  },
+  "reproducibility": "Predictor source frozen alongside study. Dictionary checksums and installed package version recorded."
+}

@@ -48,6 +48,10 @@ Automatic waiting was reduced from 400 to 150 ms without changing predictions. T
 
 A sorted numeric lookup reduced median local computation from 1.92 to 0.58 ms (69.9%) in five randomized interleaved rounds on 600 development phrases. The words, scores and metadata were identical on 5,510 checked phrases; 30 cases also matched dense scoring. Original independent accuracy remains 17.0% top-one and 28.6% top-three. The 150 ms typing delay is separate. Runtime timing and prepared memory are recorded in `app/runtime-metrics.json`; the original accuracy file is unchanged. The [study report](https://sonja242.github.io/data-science-capstone-swiftkey/context-speed-check.html) and `research/context-speed-20260925` contain the preregistered protocol, reproducible scripts, a rejected repetition-cache comparison and results. No quality challenger qualified, so the newly reserved 900-case test remains unscored.
 
+### Dictionary trial
+
+The [dictionary trial](https://sonja242.github.io/data-science-capstone-swiftkey/dictionary-check.html) tested American and British English Hunspell dictionaries as a ranking aid. All three penalty strengths retained 164/600 top-three successes. Of 436 misses, 424 target words were already in the model vocabulary and 12 were absent. Dictionary recognition is not next-word accuracy. The dictionaries were not added to the deployed app and add no runtime dependency. The protocol, exact dictionary checksums, error diagnosis, source R Markdown and results are in `research/dictionary-check-20260925`; the new quality test remains unused.
+
 ## Deploy
 
 With an authorized rsconnect account, deploy exactly these files:

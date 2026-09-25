@@ -99,6 +99,8 @@ A subsequent [speed and quality check](https://sonja242.github.io/data-science-c
 
 A further [indexed lookup and context study](https://sonja242.github.io/data-science-capstone-swiftkey/context-speed-check.html) reduced median computation from **1.92 to 0.58 ms** in 3,000 randomized, interleaved local calls per implementation. Predictions and scores matched exactly on **5,510 regression phrases**. Prepared model memory rose from **172.6 to 215.5 MiB**, within the separately predefined 256 MiB ceiling. Earlier-word cache weights of 5%, 10% and 20% yielded **164, 161 and 148/600** top-three successes, versus **164/600** without the cache. None qualified. Only the equivalent faster lookup was adopted; the unused quality test remains reserved. The original accuracy estimates still apply. The 70% reduction concerns computation, not total browser response time.
 
+An additional [English dictionary trial](https://sonja242.github.io/data-science-capstone-swiftkey/dictionary-check.html) gave **164/600** top-three successes for all three dictionary rules, matching the baseline. Of **436 missed development targets, 424 were already in the vocabulary** and only **12 were missing**. Dictionary recognition of suggestions was already **1,797/1,800 (99.8%)**, which measures recognized spelling, not prediction accuracy. No dictionary rule was deployed; improving context-dependent ranking remains the main research target.
+
 # Conclusion and next steps
 
 The product delivers an accessible, compact next-word service with **17.0% first-choice accuracy**, **28.6% top-three accuracy** and millisecond local computation on a reserved test. It meets the functional goal of accepting a phrase and returning one word, while making measured limitations visible.

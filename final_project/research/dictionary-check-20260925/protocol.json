@@ -1,0 +1,16 @@
+{
+  "author": "Sonja Sahebzad",
+  "date": "2026-09-25",
+  "objective": "Test whether English spelling-dictionary recognition improves next-word ranking without a material latency increase.",
+  "dictionary": "hunspell 3.0.6; union of bundled en_US and en_GB. Recognize a lowercase vocabulary word if its lowercase, initial-capital or uppercase form passes either dictionary. Dictionary recognition is computed once, never per prediction. Do not add any development/test answer to the dictionary.",
+  "candidates": "Current penalty 1; unrecognized-word multipliers 0.5, 0.1 and 0. All recognized words retain multiplier 1. Apply multipliers to the complete n-gram probability, normalize, and rank. Recompute the base-word ordering so sparse inference remains exactly equivalent to dense scoring.",
+  "diagnosis": "On the same 600 development cases, distinguish correct top-3, known words ranked too low, and words outside the retained vocabulary. Independently record dictionary recognition of targets and suggestions. Non-recognition is not a verified spelling error.",
+  "selection": "Use only the 600 development cases, 200 per source. Require at least six additional top-3 successes, no fewer top-1 successes, prepared model below 256 MiB, and median time at most 125% of current and below 20 ms. Three randomized interleaved rounds, 1800 timed calls per method. Select highest top-3, then top-1, then least aggressive penalty; otherwise retain production.",
+  "final": "Only a qualifying frozen winner may be tested once on the 900 still-unused cases reserved by speed-quality-20260925. Require paired source-stratified bootstrap 95% top-3 difference lower bound above zero, no lower top-1, and the stated resource limits before deployment. No candidate qualification means no final-test access.",
+  "interactions": "The multiplicative dictionary factor interacts with existing context-dependent scores. It is varied separately; context weights are not refitted. Three strengths assess sensitivity to the dictionary assumption.",
+  "limitations": "Dictionaries test recognized spellings and inflections, not whether a word is the intended next word. Names, new terms, contractions and informal spellings may be missing. This experiment does not retrain the model on dictionary definitions or add vocabulary.",
+  "seeds": {
+    "timing": 20261003,
+    "bootstrap": 20261004
+  }
+}

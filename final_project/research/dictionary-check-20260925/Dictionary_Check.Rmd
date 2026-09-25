@@ -1,0 +1,87 @@
+---
+title: "Sonja Next Word: Does a Dictionary Help?"
+subtitle: "Word recognition and next-word accuracy"
+author: "Author: Sonja Sahebzad"
+date: "2026-09-25"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: hide
+    self_contained: true
+    css: ../../../milestone-report.css
+---
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo=FALSE,warning=FALSE,message=FALSE)
+d <- read.csv("development_comparison.csv")
+a <- jsonlite::fromJSON("diagnostic_summary.json")
+s <- jsonlite::fromJSON("decision.json")
+stopifnot(s$selected=="Current",!s$final_test_used,!s$production_changed)
+pct <- function(x) sprintf("%.1f%%",100*x)
+```
+
+<div class="summary-box">
+**Management summary.** The deployed model already contains 50,000 words learned from the corpus. Two English spelling dictionaries were tested as an additional ranking aid. Three dictionary rules all returned **164/600 correct top-three predictions**, matching the current model. Of **436 missed words, 424 were already in the vocabulary**; only **12 were missing**. The trial therefore supports improving context and ranking rather than deploying a spelling filter to raise accuracy. The live model is unchanged.
+</div>
+
+# What the dictionary adds
+
+A vocabulary stores the words the model can predict. A spelling dictionary recognizes word forms and inflections. A language model learns how words follow one another. A dictionary can recognize *apple*, but that alone does not determine whether the next word after *I would like an* should be *apple*, *orange* or another valid word.
+
+This experiment uses the American and British English dictionaries bundled with **hunspell `r s$hunspell_version`**. Lowercase, initial-capital and uppercase forms were checked to reduce avoidable rejection of names and abbreviations. Either dictionary could recognize a word. Recognition was calculated once before prediction; no user's text was sent to an external service. **`r format(a$recognized_vocabulary,big.mark=",")` of 50,000 vocabulary entries** were recognized under this rule. Non-recognition does not prove a spelling error.
+
+The trial changes ranking only. It does not retrain on dictionary definitions, add new vocabulary or correct input spelling. No development or test answer was added to the dictionary.
+
+# Evidence and comparison
+
+All variants used the same 600 development cases, 200 each from blogs, news and Twitter. After the original context score was calculated, an unrecognized word retained 50%, 10% or 0% of its score; recognized words retained their full score. The resulting distribution was normalized. A separate ordering of base probabilities ensured that fast scoring still matched full-vocabulary scoring.
+
+```{r comparison}
+knitr::kable(data.frame(Rule=d$name,
+ `Unrecognized score retained`=pct(d$penalty),
+ `First correct`=sprintf("%d/600",d$top1),
+ `Within three`=sprintf("%d/600",d$top3),
+ `Unrecognized suggestions`=sprintf("%d/1800",d$unrecognized_suggestions),
+ `Median (ms)`=round(d$median_ms,3),check.names=FALSE),
+ caption="Table 1. Same development cases for every rule. Dictionary recognition is not an accuracy measure.")
+```
+
+All rules retained **106/600 (17.7%) first-choice** and **164/600 (27.3%) top-three** successes, with **zero newly correct and zero newly incorrect top-three cases**. The stronger rules removed the three dictionary-unrecognized suggestions, but did not turn any missed target into a success. Recognition improved; next-word accuracy did not.
+
+Timing used three randomized, interleaved rounds per case, or **1,800 calls per rule**. Medians were approximately **0.56 ms**. Differences of a few thousandths of a millisecond do not establish a practical speed improvement. These timings exclude dictionary preparation, model loading, the 150 ms typing delay, networking and display.
+
+```{r error-chart}
+plotly::plot_ly(x=c("Known, outside top three","Outside vocabulary"),
+ y=c(a$known_outside_top3,a$outside_vocabulary),type="bar",textposition="none",
+ marker=list(color=c("#123f68","#75aacf")),
+ text=c(sprintf("Known word ranked below third<br>%d of 436 misses (%.1f%%)",a$known_outside_top3,100*a$known_outside_top3/436),
+        sprintf("Word outside vocabulary<br>%d of 436 misses (%.1f%%)",a$outside_vocabulary,100*a$outside_vocabulary/436)),hoverinfo="text") |>
+ plotly::layout(yaxis=list(title="Missed next words",rangemode="tozero"),xaxis=list(title=""),
+  font=list(family="Calibri, Segoe UI, sans-serif"))
+```
+
+*Figure 1. Why vocabulary expansion alone is unlikely to resolve most observed errors. Hover for counts and percentages.*
+
+# Discussion
+
+Of the 436 missed targets, **424 (97.2%) were known words ranked below third** and **12 (2.8%) were outside the vocabulary**. The dictionaries already recognized **1,797/1,800 suggestions (99.8%)** from the current model. This **99.8% is dictionary recognition, not predictive accuracy**. It explains why removing unrecognized suggestions had little opportunity to improve this sample. The true targets were recognized in **591/600 cases (98.5%)**, illustrating that a strict filter can also exclude legitimate targets.
+
+These are repeatedly used development data, not independent performance estimates. The deployed model's separate 900-case test still gives **17.0% first-choice accuracy (approximate 95% interval 14.7% to 19.6%)** and **28.6% top-three accuracy (25.7% to 31.6%)**. The intervals describe uncertainty in aggregate accuracy, not confidence in an individual word. Individual confidence remains uncalibrated.
+
+The same-data comparison isolates dictionary reweighting because model weights and context processing stayed fixed. Three penalty strengths test sensitivity to that assumption. Dictionaries contain incomplete coverage of names, slang and new terms; recognized spelling also does not establish grammatical or semantic fit. A prior 100,000-word vocabulary trial likewise produced no top-three gain on these development cases. Neither result establishes that better context training or better training data cannot help.
+
+# Conclusion and next steps
+
+**The dictionaries were tested, but are not part of the live prediction rule.** No rule met the predefined minimum gain of six top-three successes without losing first-choice successes, within the speed and memory limits. The reserved 900-case quality test remains unscored. The current fast implementation and its accuracy results are retained.
+
+The next useful experiment should train or compare a compact model that can use longer sentence context, and measure whether it ranks known words more effectively within the hosting budget. Dictionary-based spelling assistance could be tested separately with misspelled inputs and human judgments of readability. Neither spelling recognition nor a plausible suggestion guarantees the author's exact next word, so **100% accuracy is not demonstrated or promised**.
+
+# Reproducibility and references
+
+This report was knitted from R Markdown. `run_dictionary_study.R` writes `protocol.json` before reading outcomes and records the dictionary files' checksums, recognition flags, case hashes, predictions and timing. Sparse versus dense ranking was verified on 52 inputs for each of four rules. Timing seed: **20261003**. A full rerun requires the private official-corpus development file and the recorded model. Raw phrases and quiz answers are excluded from publication. Source, HTML and the existing `.Rproj` are retained in the RStudio project.
+
+1. rOpenSci. [Hunspell spelling and morphological analysis](https://docs.ropensci.org/hunspell/reference/hunspell.html). The experiment used the recorded installed version and bundled dictionaries, rather than assuming future dictionary versions are identical.
+2. Sonja Sahebzad. [Controlled vocabulary and compression comparison](https://sonja242.github.io/data-science-capstone-swiftkey/speed-quality-check.html).
+3. Sonja Sahebzad. [Exact indexed inference and context-cache study](https://sonja242.github.io/data-science-capstone-swiftkey/context-speed-check.html) and [independent product evaluation](https://sonja242.github.io/data-science-capstone-swiftkey/final-product-report.html).
