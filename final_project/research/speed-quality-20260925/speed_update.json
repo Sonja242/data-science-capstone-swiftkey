@@ -1,0 +1,18 @@
+{
+  "author": "Sonja Sahebzad",
+  "brand": "Sonja Projects",
+  "automatic_wait_before_ms": 400,
+  "automatic_wait_after_ms": 150,
+  "intentional_delay_removed_ms": 250,
+  "model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "model_changed": false,
+  "new_accuracy_claim": false,
+  "regression_cases_identical": 1500,
+  "verification": "Virtual-time debounce and server regression checks passed.",
+  "publication_bundle": "12605788",
+  "files_md5": {
+    "app/app.R": "da35508c8e466486be88ffff400ea4b5",
+    "app/predictor.R": "aa62dfbb54d1e215239107527e33a020",
+    "scripts/verify_continuous_writing.R": "1d60934de2a28bdd6b3fd96dba3765ba"
+  }
+}

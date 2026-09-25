@@ -13,7 +13,7 @@
 
 <meta name="date" content="2026-09-25" />
 
-<title>Sonja Next Word: Final Product Report</title>
+<title>Sonja Next Word: Speed and Quality Check</title>
 
 <script>// Pandoc 2.9 adds attributes on both header and div. We remove the former (to
 // be compatible with the behavior of Pandoc < 2.8).
@@ -3482,9 +3482,10 @@ border-radius: 0px;
 
 
 
-<h1 class="title toc-ignore">Sonja Next Word: Final Product Report</h1>
-<h3 class="subtitle">A compact prediction service with measured
-performance</h3>
+<h1 class="title toc-ignore">Sonja Next Word: Speed and Quality
+Check</h1>
+<h3 class="subtitle">A faster response and a controlled compression
+comparison</h3>
 <h4 class="author">Author: Sonja Sahebzad</h4>
 <h4 class="date">2026-09-25</h4>
 
@@ -3492,291 +3493,157 @@ performance</h3>
 
 
 <div class="summary-box">
-<p><strong>Management summary.</strong> Sonja Next Word turns an English
-phrase into one next-word suggestion and two alternatives. A compact
-model runs on a CPU without an external AI service. On 900 reserved
-examples, the first suggestion was correct in <strong>17.0%</strong> and
-the correct word appeared among three in <strong>28.6%</strong>. Every
-case received a suggestion. Median local computation was <strong>1.9
-ms</strong>, excluding network time. The product demonstrates a
-reproducible, responsive workflow; its short context still limits
-semantic understanding.</p>
+<p><strong>Management summary.</strong> Automatic suggestions now wait
+<strong>150 ms instead of 400 ms</strong> after a completed word and a
+pause. This removes 250 ms of intentional delay without changing any
+prediction. Three changes to model compression were tested separately on
+the same 600 development cases. The best result was
+<strong>166/600</strong>, compared with <strong>164/600</strong> for the
+current model. No challenger met the predefined replacement rule. The
+deployed model and its independent <strong>28.6% top-three
+accuracy</strong> remain unchanged.</p>
 </div>
-<div id="product-and-use" class="section level1">
-<h1>Product and use</h1>
-<p><a href="https://sonjasahebzad.shinyapps.io/sonja-next-word/">Open
-the Shiny app</a>. Enter a phrase and finish a word with a space.
-Suggestions refresh after a short pause. Select a suggested word to
-append it, then continue typing or choosing words. <strong>Predict next
-word</strong> also works without a final space; automatic updates can be
-switched off. The Results and How to use tabs provide evidence and
-instructions. First visits may be slower while the hosting service
-starts the app. Automatic refresh waits at least 150 ms after a word
-boundary to avoid predicting from unfinished words. This intentional
-typing delay is separate from model computation time.</p>
-<p>The app processes text on the Shiny server for the active session.
-Application code does not persist phrases or call an external prediction
-API. A small output blocklist removes specified common profanities; it
-is not a comprehensive content filter.</p>
+<div id="what-became-faster" class="section level1">
+<h1>What became faster</h1>
+<p>The current model’s measured median local computation is <strong>1.9
+ms</strong>. Automatic waiting, network transport, server load and
+browser rendering add to the time the user experiences. The delay
+setting fell by <strong>62.5%</strong>; this is not a claim that total
+response time fell by 62.5%. Manual prediction bypasses this typing
+delay. The app still waits for a word boundary, preventing automatic
+predictions from unfinished words.</p>
+<p>Server tests verified that no result appears at 100 ms and a result
+is available after 160 ms of simulated time. Tests also covered rapid
+edits, clearing while a timer is pending, newlines, manual mode and
+input limits. All prediction words and scores remained identical on
+1,500 existing development/test examples. These checks establish
+regression equivalence, not a new accuracy estimate or a real-network
+latency benchmark.</p>
 </div>
-<div id="data-and-algorithm" class="section level1">
-<h1>Data and algorithm</h1>
-<p>The trained model uses <strong>3,213,276 deduplicated training
-lines</strong> and <strong>78,317,747 word tokens</strong> from the
-official English SwiftKey blogs, news and Twitter files. The original
-split separates training, validation and test lines after global
-deduplication.</p>
-<p>The product derives from the project’s frozen interpolated Kneser-Ney
-model. Text is lowercased, apostrophes normalized, and numbers,
-punctuation, URLs and mentions removed. Up to four recent words supply
-the context for a five-gram prediction. Longer patterns contribute when
-available; shorter patterns and general word frequencies provide
-fallback. These context patterns capture word combinations, but there is
-no separate fitted interaction model or full-sentence semantic
-reasoning. A full sentence can be entered and extended; words earlier
-than the four-word context do not influence the prediction. The
-interface shows the actual matched words, excluding start-of-text
-padding from its word count.</p>
-<p>Pruning limits vocabulary, context support and stored followers.
-Removed probability mass returns to shorter contexts. Sparse scoring
-preserves the exact top suggestions of this compact distribution,
-verified against dense scoring. The <strong>50,000-word</strong>
-deployed model occupies <strong>19.2 MiB</strong> compressed and
-<strong>172.6 MiB</strong> as an R object. Total server memory also
-includes R and Shiny.</p>
-</div>
-<div id="selection-and-independent-evaluation" class="section level1">
-<h1>Selection and independent evaluation</h1>
-<p>Three configurations were compared on the same <strong>600
-development cases</strong>, equally divided by source. The rule was
-fixed first: maximize top-three accuracy below 200 MiB model memory and
-50 MiB compressed size; break ties by top-one accuracy, then size. The
-final test did not determine this choice.</p>
+<div id="controlled-model-comparison" class="section level1">
+<h1>Controlled model comparison</h1>
+<p>The 600 development examples contain 200 cases from each source. Each
+challenger changes <strong>one</strong> compression setting while
+retaining the same trained weights, scoring method and maximum four-word
+context. More contexts lowers minimum support from five to two. More
+followers retains up to sixteen continuations instead of eight. Larger
+vocabulary retains 100,000 words instead of 50,000.</p>
+<p>Before comparison, the rule required at least <strong>six additional
+top-three successes</strong>, no loss in top-one successes, and limits
+of 256 MiB model memory and 50 MiB compressed size. This study increased
+the earlier 200 MiB memory limit before comparison to allow a larger
+candidate, while retaining hosting headroom. The complete protocol is in
+<code>protocol.json</code>. Timing is one sequential local pass; small
+timing differences do not establish a reliable speed ranking.</p>
 <table>
-<caption>Table 1. Development comparison, 600 identical cases per
-variant.</caption>
+<caption>Table 1. Same 600 development cases for every configuration.
+Timing excludes network and typing delay.</caption>
 <colgroup>
-<col width="10%" />
-<col width="12%" />
-<col width="6%" />
-<col width="17%" />
-<col width="11%" />
-<col width="15%" />
+<col width="20%" />
+<col width="18%" />
+<col width="18%" />
 <col width="14%" />
-<col width="12%" />
+<col width="27%" />
 </colgroup>
 <thead>
 <tr class="header">
 <th align="left">Variant</th>
-<th align="right">Vocabulary</th>
-<th align="right">Order</th>
-<th align="right">Minimum support</th>
-<th align="right">Followers</th>
 <th align="left">First correct</th>
 <th align="left">Within three</th>
-<th align="right">Size (MiB)</th>
+<th align="right">Memory (MiB)</th>
+<th align="right">Median computation (ms)</th>
 </tr>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Light</td>
-<td align="right">20000</td>
-<td align="right">3</td>
-<td align="right">20</td>
-<td align="right">5</td>
-<td align="left">13.3%</td>
-<td align="left">22.8%</td>
-<td align="right">4.2</td>
+<td align="left">Current</td>
+<td align="left">106/600 (17.7%)</td>
+<td align="left">164/600 (27.3%)</td>
+<td align="right">172.6</td>
+<td align="right">1.95</td>
 </tr>
 <tr class="even">
-<td align="left">Balanced</td>
-<td align="right">40000</td>
-<td align="right">5</td>
-<td align="right">10</td>
-<td align="right">5</td>
-<td align="left">16.8%</td>
-<td align="left">26.7%</td>
-<td align="right">12.8</td>
+<td align="left">More contexts</td>
+<td align="left">108/600 (18.0%)</td>
+<td align="left">166/600 (27.7%)</td>
+<td align="right">237.3</td>
+<td align="right">2.00</td>
 </tr>
 <tr class="odd">
-<td align="left">Extended</td>
-<td align="right">50000</td>
-<td align="right">5</td>
-<td align="right">5</td>
-<td align="right">8</td>
-<td align="left">17.7%</td>
-<td align="left">27.3%</td>
-<td align="right">19.2</td>
+<td align="left">More followers</td>
+<td align="left">107/600 (17.8%)</td>
+<td align="left">164/600 (27.3%)</td>
+<td align="right">202.5</td>
+<td align="right">1.95</td>
+</tr>
+<tr class="even">
+<td align="left">Larger vocabulary</td>
+<td align="left">107/600 (17.8%)</td>
+<td align="left">164/600 (27.3%)</td>
+<td align="right">181.9</td>
+<td align="right">2.06</td>
 </tr>
 </tbody>
 </table>
-<p>The Extended variant was selected: <strong>164/600 (27.3%)</strong>
-correct within three, compared with <strong>160/600 (26.7%)</strong> for
-Balanced and <strong>137/600 (22.8%)</strong> for Light. The four-case
-advantage over Balanced is small and is not evidence of a statistically
-established improvement. The larger variant satisfies the predefined
-resource limits.</p>
-<p>Before comparison, <strong>900 unused test lines</strong> were
-reserved, 300 per source. Earlier evaluation lines were excluded using
-reconstructed row selections and saved hashes. No test line overlaps
-training or validation. One random word position per line was hidden,
-retaining only the preceding words. Quiz items and human answer
-corrections play no part in this evaluation.</p>
-<table>
-<caption>Table 2. Frozen model, independent final test.</caption>
-<colgroup>
-<col width="33%" />
-<col width="10%" />
-<col width="9%" />
-<col width="45%" />
-</colgroup>
-<thead>
-<tr class="header">
-<th align="left">Measure</th>
-<th align="left">Count</th>
-<th align="left">Result</th>
-<th align="left">Approximate 95% interval</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">First suggestion correct</td>
-<td align="left">153/900</td>
-<td align="left">17.0%</td>
-<td align="left">14.7% to 19.6%</td>
-</tr>
-<tr class="even">
-<td align="left">Correct within three</td>
-<td align="left">257/900</td>
-<td align="left">28.6%</td>
-<td align="left">25.7% to 31.6%</td>
-</tr>
-<tr class="odd">
-<td align="left">Suggestion returned</td>
-<td align="left">900/900</td>
-<td align="left">100.0%</td>
-<td align="left">Functional coverage, not accuracy</td>
-</tr>
-</tbody>
-</table>
-<p>Wilson intervals summarize sampling uncertainty in these observed
-rates. They do not give a probability that a particular suggestion is
-correct. The equal source mix is deliberate and may not match real user
-traffic. The model’s individual scores have <strong>not been
-calibrated</strong>, so the interface displays no confidence
-percentages.</p>
-<div class="plotly html-widget html-fill-item" id="htmlwidget-499e6fe8f9963c2701b9" style="width:672px;height:480px;"></div>
-<script type="application/json" data-for="htmlwidget-499e6fe8f9963c2701b9">{"x":{"visdat":{"8f4036c14845":["function () ","plotlyVisDat"]},"cur_data":"8f4036c14845","attrs":{"8f4036c14845":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":["blogs","news","twitter"],"y":[16.666666666999998,19.666666666999998,14.666666666999999],"type":"bar","name":"First suggestion","marker":{"color":"#123f68"},"error_y":{"type":"data","symmetric":false,"array":[4.6329982940000036,4.8692101670000021,4.4495845559999996],"arrayminus":[3.7901335469999982,4.1022032469999985,3.5561479229999993]},"text":["First suggestion: 16.7%<br>95% interval 12.9% to 21.3%<br>300 cases","First suggestion: 19.7%<br>95% interval 15.6% to 24.5%<br>300 cases","First suggestion: 14.7%<br>95% interval 11.1% to 19.1%<br>300 cases"],"hoverinfo":"text","inherit":true},"8f4036c14845.1":{"alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"x":["blogs","news","twitter"],"y":[28.000000000000004,31.333333333000002,26.333333332999999],"type":"bar","name":"Within three","marker":{"color":"#75aacf"},"error_y":{"type":"data","symmetric":false,"array":[5.3343885209999975,5.4568978369999961,5.2606170110000008],"arrayminus":[4.7780977870000036,4.9848935770000011,4.6621830389999985]},"text":["Within three: 28.0%<br>95% interval 23.2% to 33.3%<br>300 cases","Within three: 31.3%<br>95% interval 26.3% to 36.8%<br>300 cases","Within three: 26.3%<br>95% interval 21.7% to 31.6%<br>300 cases"],"hoverinfo":"text","inherit":true}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"barmode":"group","yaxis":{"domain":[0,1],"automargin":true,"title":"Correct predictions (%)","range":[0,45]},"xaxis":{"domain":[0,1],"automargin":true,"title":"","type":"category","categoryorder":"array","categoryarray":["blogs","news","twitter"]},"font":{"family":"Calibri, Segoe UI, sans-serif"},"legend":{"orientation":"h","y":1.1499999999999999},"hovermode":"closest","showlegend":true},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["blogs","news","twitter"],"y":[16.666666666999998,19.666666666999998,14.666666666999999],"type":"bar","name":"First suggestion","marker":{"color":"#123f68","line":{"color":"rgba(31,119,180,1)"}},"error_y":{"color":"rgba(31,119,180,1)","type":"data","symmetric":false,"array":[4.6329982940000036,4.8692101670000021,4.4495845559999996],"arrayminus":[3.7901335469999982,4.1022032469999985,3.5561479229999993]},"text":["First suggestion: 16.7%<br>95% interval 12.9% to 21.3%<br>300 cases","First suggestion: 19.7%<br>95% interval 15.6% to 24.5%<br>300 cases","First suggestion: 14.7%<br>95% interval 11.1% to 19.1%<br>300 cases"],"hoverinfo":["text","text","text"],"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null},{"x":["blogs","news","twitter"],"y":[28.000000000000004,31.333333333000002,26.333333332999999],"type":"bar","name":"Within three","marker":{"color":"#75aacf","line":{"color":"rgba(255,127,14,1)"}},"error_y":{"color":"rgba(255,127,14,1)","type":"data","symmetric":false,"array":[5.3343885209999975,5.4568978369999961,5.2606170110000008],"arrayminus":[4.7780977870000036,4.9848935770000011,4.6621830389999985]},"text":["Within three: 28.0%<br>95% interval 23.2% to 33.3%<br>300 cases","Within three: 31.3%<br>95% interval 26.3% to 36.8%<br>300 cases","Within three: 26.3%<br>95% interval 21.7% to 31.6%<br>300 cases"],"hoverinfo":["text","text","text"],"error_x":{"color":"rgba(255,127,14,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
-<p><em>Figure 1. Accuracy by source with approximate 95% intervals.
-Hover over a bar for its values.</em></p>
-<p>Median local computation across 900 cases was <strong>1.89
-ms</strong>; the 95th percentile was <strong>2.38 ms</strong>. Model
-loading took <strong>0.71 seconds</strong> locally. These are CPU
-timings after a warm-up, excluding network and UI rendering. A separate
-high-resolution wall-clock pass replaced the coarse Windows timer for
-latency reporting; model selection and accuracy were unchanged.</p>
+<div class="plotly html-widget html-fill-item" id="htmlwidget-c6fd299fad7afcc1751c" style="width:672px;height:480px;"></div>
+<script type="application/json" data-for="htmlwidget-c6fd299fad7afcc1751c">{"x":{"visdat":{"8f405b81535":["function () ","plotlyVisDat"]},"cur_data":"8f405b81535","attrs":{"8f405b81535":{"x":["Current","More contexts","More followers","Larger vocabulary"],"y":[27.333333333333332,27.666666666666668,27.333333333333332,27.333333333333332],"marker":{"color":["#123f68","#75aacf","#75aacf","#75aacf"]},"text":["Current<br>164/600: 27.3%<br>Model memory: 172.6 MiB","More contexts<br>166/600: 27.7%<br>Model memory: 237.3 MiB","More followers<br>164/600: 27.3%<br>Model memory: 202.5 MiB","Larger vocabulary<br>164/600: 27.3%<br>Model memory: 181.9 MiB"],"hoverinfo":"text","alpha_stroke":1,"sizes":[10,100],"spans":[1,20],"type":"bar"}},"layout":{"margin":{"b":40,"l":60,"t":25,"r":10},"yaxis":{"domain":[0,1],"automargin":true,"title":"Correct within three (%)","range":[0,35]},"xaxis":{"domain":[0,1],"automargin":true,"title":"","type":"category","categoryorder":"array","categoryarray":["Current","Larger vocabulary","More contexts","More followers"]},"font":{"family":"Calibri, Segoe UI, sans-serif"},"hovermode":"closest","showlegend":false},"source":"A","config":{"modeBarButtonsToAdd":["hoverclosest","hovercompare"],"showSendToCloud":false},"data":[{"x":["Current","More contexts","More followers","Larger vocabulary"],"y":[27.333333333333332,27.666666666666668,27.333333333333332,27.333333333333332],"marker":{"color":["#123f68","#75aacf","#75aacf","#75aacf"],"line":{"color":"rgba(31,119,180,1)"}},"text":["Current<br>164/600: 27.3%<br>Model memory: 172.6 MiB","More contexts<br>166/600: 27.7%<br>Model memory: 237.3 MiB","More followers<br>164/600: 27.3%<br>Model memory: 202.5 MiB","Larger vocabulary<br>164/600: 27.3%<br>Model memory: 181.9 MiB"],"hoverinfo":["text","text","text","text"],"type":"bar","error_y":{"color":"rgba(31,119,180,1)"},"error_x":{"color":"rgba(31,119,180,1)"},"xaxis":"x","yaxis":"y","frame":null}],"highlight":{"on":"plotly_click","persistent":false,"dynamic":false,"selectize":false,"opacityDim":0.20000000000000001,"selected":{"opacity":1},"debounce":0},"shinyEvents":["plotly_hover","plotly_click","plotly_selected","plotly_relayout","plotly_brushed","plotly_brushing","plotly_clickannotation","plotly_doubleclick","plotly_deselect","plotly_afterplot","plotly_sunburstclick"],"base_url":"https://plot.ly"},"evals":[],"jsHooks":[]}</script>
+<p><em>Figure 1. Development accuracy. Hover over a bar to see its count
+and model memory.</em></p>
 </div>
 <div id="discussion" class="section level1">
 <h1>Discussion</h1>
-<p>The model supplies a usable suggestion in every test case, but
-availability must not be confused with correctness. <strong>643/900
-target words were absent from the first three</strong>, even though
-<strong>98.0%</strong> of target words were in the retained vocabulary.
-Thus, vocabulary coverage alone does not solve ranking and context
-errors.</p>
-<p>Top-three accuracy was <strong>31.3% for news</strong>, <strong>28.0%
-for blogs</strong>, and <strong>26.3% for Twitter</strong>. The
-intervals overlap, so these observations do not establish a reliable
-ordering of source difficulty. Short context, informal language and rare
-expressions are plausible limitations, not proven causes of these
-differences.</p>
-<p>The candidate comparison demonstrates sensitivity to compression. It
-does not isolate the effect of vocabulary, context length and pruning
-because they change together. Exact normalized duplicates were removed;
-near-duplicates may remain. Archived source text and equal source
-weighting limit generalization to current writing. Scores from previous
-GPU models or assisted quizzes cannot be transferred to this CPU product
-or used as its confidence. Informal corpus spellings, such as
-<em>mornin</em>, remain possible suggestions. Removing them would change
-the output distribution and needs a separate evaluation of readability,
-vocabulary coverage and accuracy.</p>
-<p>A subsequent <a href="https://sonja242.github.io/data-science-capstone-swiftkey/speed-quality-check.html">speed
-and quality check</a> reduced automatic waiting from <strong>400 to 150
-ms</strong> without changing predictions. Three separate compression
-relaxations produced at most <strong>166/600</strong> top-three
-successes versus <strong>164/600</strong> for the current model on
-development data. None met the predeclared six-case improvement rule.
-The model was retained and the newly reserved test remains unscored.
-These results do not replace the independent accuracy estimates
-above.</p>
+<p>The largest observed gain was <strong>2 additional correct words out
+of 600</strong>, or <strong>0.33 percentage points</strong>. All three
+challengers require more memory. None satisfies the predefined minimum
+improvement. The evidence therefore does not justify replacing the
+tested app model with one of these variants.</p>
+<p>These are reused development data, so their percentages should not be
+presented as independent test performance. They also cannot be compared
+directly with the app’s 28.6% on a different 900-case sample. Its
+existing approximate 95% interval remains <strong>25.7% to
+31.6%</strong>. This interval describes sampling uncertainty in
+aggregate accuracy, not confidence in an individual suggestion. No
+calibrated confidence percentage is displayed.</p>
+<p>The test checks an exact match with the original next word. A
+different plausible continuation is counted as incorrect. This explains
+what the measure captures; it does not establish that alternative
+suggestions are useful. All candidates retain the same short context and
+trained model, so this experiment does not test stronger sentence-level
+understanding.</p>
 </div>
-<div id="conclusion-and-next-steps" class="section level1">
-<h1>Conclusion and next steps</h1>
-<p>The product delivers an accessible, compact next-word service with
-<strong>17.0% first-choice accuracy</strong>, <strong>28.6% top-three
-accuracy</strong> and millisecond local computation on a reserved test.
-It meets the functional goal of accepting a phrase and returning one
-word, while making measured limitations visible.</p>
-<p>The next experiment should vary one compression setting at a time and
-compare a longer-context model under the same hosting budget. A new
-untouched test should assess whether sentence meaning improves ranking.
-Confidence calibration requires its own reserved data and reliability
-checks before percentages can be shown. A small user study should
-measure suggestion acceptance and typing effort; lower latency alone
-does not establish product benefit.</p>
+<div id="conclusion" class="section level1">
+<h1>Conclusion</h1>
+<p>The app now responds sooner after completed words, with unchanged
+predictions. Loosening compression alone did not meet the required
+quality improvement. A stronger follow-up should compare a model that
+uses more sentence context under an explicit latency and memory budget,
+then assess it on untouched cases. A user study should separately
+measure whether people accept suggestions and save typing effort. A high
+quiz score or a different model’s accuracy cannot substitute for this
+evidence.</p>
 </div>
 <div id="reproducibility-and-references" class="section level1">
 <h1>Reproducibility and references</h1>
 <p>This report was knitted from R Markdown.
-<code>scripts/build_and_evaluate.R</code> records the protocol, seeds,
-training-derived compression, selection, reserved hashes and case
-metrics. <code>scripts/verify_app.R</code> checks sparse scoring, input
-handling and server behavior. The distributed <code>app/model.rds</code>
-is the frozen evaluated model. Full rebuilds require the original corpus
-and earlier v3 training artifacts; <code>README.md</code> separates
-running the product from retraining it. Raw corpus lines and assessment
-answers are excluded from public publication. A subsequent interface
-update added continuous writing and corrected context counts.
-<code>scripts/verify_continuous_writing.R</code> confirmed identical
-prediction words and scores on all 1,500 existing development/test
-examples and checked input updates and clearing. This is a regression
-check, not a new accuracy estimate. The model checksum and the
-independent test results above remain unchanged.</p>
-<table>
-<caption>Table 3. Reproduction identifiers.</caption>
-<thead>
-<tr class="header">
-<th align="left">Item</th>
-<th align="left">Value</th>
-</tr>
-</thead>
-<tbody>
-<tr class="odd">
-<td align="left">Model MD5</td>
-<td align="left">bd58c642df1759c4ce1c39b9ace8927c</td>
-</tr>
-<tr class="even">
-<td align="left">Test selection seed</td>
-<td align="left">20260925</td>
-</tr>
-<tr class="odd">
-<td align="left">Word-position seed</td>
-<td align="left">20260926</td>
-</tr>
-<tr class="even">
-<td align="left">R version</td>
-<td align="left">R version 4.6.1 (2026-06-24 ucrt)</td>
-</tr>
-</tbody>
-</table>
+<code>compare_quality.R</code> records the protocol before comparison,
+changes one setting at a time and writes case-level outcomes without
+publishing text. Seeds 20260927 and 20260928 reserved 900 fresh test
+cases after excluding previous evaluations and checking train/validation
+separation. <strong>These cases remain unscored</strong>, because no
+development challenger qualified. Their hashes are in
+<code>reserved_hashes.csv</code> and must be excluded from other
+experiments until this reservation is released.
+<code>selection.json</code> records the decision. Models and full text
+stay in the private, ignored <code>data/final_product_quality</code>
+folder. <code>session-info.txt</code> records package versions.</p>
 <ol style="list-style-type: decimal">
-<li>Johns Hopkins / Coursera. <a href="https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip">Official
-SwiftKey training corpus</a>.</li>
-<li>Chen, S. F., and Goodman, J. (1996). <a href="https://aclanthology.org/P96-1041/">An Empirical Study of
-Smoothing Techniques for Language Modeling</a>. ACL, 310-318.</li>
-<li>Posit. <a href="https://shiny.posit.co/r/getstarted/shiny-basics/lesson1/">Shiny
-for R</a> and <a href="https://docs.posit.co/shinyapps.io/guide/applications/">shinyapps.io
-application hosting</a>.</li>
+<li><a href="https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip">Official
+Coursera SwiftKey corpus</a>.</li>
+<li>Chen and Goodman (1996). <a href="https://aclanthology.org/P96-1041/">An Empirical Study of
+Smoothing Techniques for Language Modeling</a>.</li>
+<li>Posit. <a href="https://shiny.posit.co/r/reference/shiny/latest/debounce.html">Shiny
+debounce documentation</a> and <a href="https://docs.posit.co/shinyapps.io/guide/applications/">shinyapps.io
+application resources</a>.</li>
 </ol>
 </div>
 

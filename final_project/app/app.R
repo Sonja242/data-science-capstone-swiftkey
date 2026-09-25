@@ -82,7 +82,7 @@ server <- function(input, output, session) {
   last_phrase <- reactiveVal("")
   output$counter <- renderText(sprintf("%s / 500",nchar(input$phrase %||% "")))
   observeEvent(input$phrase,{result(NULL);error(NULL)},ignoreInit=TRUE,priority=10)
-  settled_phrase <- debounce(reactive(input$phrase %||% ""), millis=400)
+  settled_phrase <- debounce(reactive(input$phrase %||% ""), millis=150)
   predict_for <- function(phrase, explicit=FALSE) {
     if (nchar(phrase)>500L) {result(NULL);error("Please shorten the phrase to 500 characters or fewer.");return()}
     if (!nzchar(normalize_phrase(phrase))) {

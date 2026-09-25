@@ -1,0 +1,17 @@
+{
+  "author": "Sonja Sahebzad",
+  "date": "2026-09-25",
+  "question": "Does relaxing one compression setting improve the existing CPU product?",
+  "development": "The existing 600 cases, 200 per source. These are reused development data, not independent performance estimates.",
+  "candidates": "Current; support 2 instead of 5; 16 retained followers instead of 8; vocabulary 100000 instead of 50000. All other settings unchanged.",
+  "resources": "At most 256 MiB for the R model object and 50 MiB xz file, leaving headroom within the default 1024 MiB Shiny instance. This study relaxes the previous 200 MiB object budget before comparison.",
+  "selection": "Require at least 6 additional correct top-3 cases (+1 percentage point), no fewer top-1 successes, and the resource limits. Among qualifying candidates maximize top-3, then top-1, then smaller memory. Otherwise retain production.",
+  "final_test": "Reserve 900 fresh cases before comparison. Only if a candidate qualifies, compare frozen winner and production once on these same cases. Never reuse the old 900 cases for selection.",
+  "promotion": "A candidate is eligible for release only if the paired stratified bootstrap 95% interval for the top-3 difference is above zero, top-1 does not decrease, and median inference is below 20 ms. Otherwise retain production. Do not tune further against the final test.",
+  "ui": "Separately test 150 ms instead of 400 ms automatic waiting. This does not alter model outputs.",
+  "seeds": {
+    "reservation": 20260927,
+    "word_position": 20260928,
+    "bootstrap": 20260929
+  }
+}

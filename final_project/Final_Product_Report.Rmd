@@ -28,7 +28,7 @@ ci <- function(lo,hi) paste(pct(lo),"to",pct(hi))
 
 # Product and use
 
-[Open the Shiny app](https://sonjasahebzad.shinyapps.io/sonja-next-word/). Enter a phrase and finish a word with a space. Suggestions refresh after a short pause. Select a suggested word to append it, then continue typing or choosing words. **Predict next word** also works without a final space; automatic updates can be switched off. The Results and How to use tabs provide evidence and instructions. First visits may be slower while the hosting service starts the app. Automatic refresh waits at least 400 ms after a word boundary to avoid predicting from unfinished words. This intentional typing delay is separate from model computation time.
+[Open the Shiny app](https://sonjasahebzad.shinyapps.io/sonja-next-word/). Enter a phrase and finish a word with a space. Suggestions refresh after a short pause. Select a suggested word to append it, then continue typing or choosing words. **Predict next word** also works without a final space; automatic updates can be switched off. The Results and How to use tabs provide evidence and instructions. First visits may be slower while the hosting service starts the app. Automatic refresh waits at least 150 ms after a word boundary to avoid predicting from unfinished words. This intentional typing delay is separate from model computation time.
 
 The app processes text on the Shiny server for the active session. Application code does not persist phrases or call an external prediction API. A small output blocklist removes specified common profanities; it is not a comprehensive content filter.
 
@@ -93,6 +93,8 @@ The model supplies a usable suggestion in every test case, but availability must
 Top-three accuracy was **31.3% for news**, **28.0% for blogs**, and **26.3% for Twitter**. The intervals overlap, so these observations do not establish a reliable ordering of source difficulty. Short context, informal language and rare expressions are plausible limitations, not proven causes of these differences.
 
 The candidate comparison demonstrates sensitivity to compression. It does not isolate the effect of vocabulary, context length and pruning because they change together. Exact normalized duplicates were removed; near-duplicates may remain. Archived source text and equal source weighting limit generalization to current writing. Scores from previous GPU models or assisted quizzes cannot be transferred to this CPU product or used as its confidence. Informal corpus spellings, such as *mornin*, remain possible suggestions. Removing them would change the output distribution and needs a separate evaluation of readability, vocabulary coverage and accuracy.
+
+A subsequent [speed and quality check](https://sonja242.github.io/data-science-capstone-swiftkey/speed-quality-check.html) reduced automatic waiting from **400 to 150 ms** without changing predictions. Three separate compression relaxations produced at most **166/600** top-three successes versus **164/600** for the current model on development data. None met the predeclared six-case improvement rule. The model was retained and the newly reserved test remains unscored. These results do not replace the independent accuracy estimates above.
 
 # Conclusion and next steps
 

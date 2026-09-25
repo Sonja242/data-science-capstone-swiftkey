@@ -22,7 +22,7 @@ The model is included. No GPU, raw corpus, Python runtime, API key or retraining
 
 ## User documentation
 
-Type up to 500 characters of English text. With automatic updates enabled, suggestions refresh after a space or punctuation and a pause of at least 400 ms. A partial word does not trigger a next-word prediction. Without a trailing space, select **Predict next word** or press Ctrl + Enter / Command + Enter. Select a suggestion to append it with a space and continue automatically. Clear resets the text. Example buttons start an automatic prediction. Disable automatic updates to use the button only.
+Type up to 500 characters of English text. With automatic updates enabled, suggestions refresh after a space or punctuation and a pause of at least 150 ms. A partial word does not trigger a next-word prediction. Without a trailing space, select **Predict next word** or press Ctrl + Enter / Command + Enter. Select a suggestion to append it with a space and continue automatically. Clear resets the text. Example buttons start an automatic prediction. Disable automatic updates to use the button only.
 
 The context label counts actual input words, excluding start-of-text markers. The total input word count is displayed separately. Only the last four normalized words supply context. Unseen contexts fall back to shorter patterns or general frequencies. This product does not correct spelling or reason over a whole sentence. A small explicit profanity blocklist is not a comprehensive safety filter. Input is processed on the hosting server; application code does not persist phrases or call external prediction services.
 
@@ -39,6 +39,10 @@ Knit `Final_Product_Report.Rmd` with RStudio's Knit button. Open `Next_Word_Pitc
 ### Continuous-writing verification
 
 `scripts/verify_continuous_writing.R` compares predictions and scores with the preserved v1 predictor on the 600 development and 900 existing test examples. All 1,500 outputs are identical. These are regression checks, not a new independent accuracy test. It also checks automatic refresh, partial words, rapid edits, punctuation, clearing a pending timer, manual mode and input limits. The UI guards against selecting suggestions from older input. See `results/continuous-writing.json` for the recorded version and checksums. The model, normalization and ranking are unchanged; informal corpus spellings can still be suggested.
+
+### Speed and quality follow-up
+
+Automatic waiting was reduced from 400 to 150 ms without changing predictions. Three one-setting compression changes were compared on the same 600 development cases. The best challenger produced 166 correct top-three results versus 164 for the current model and missed the predeclared minimum gain of six cases. Production is retained; 900 newly reserved cases remain unscored. The [follow-up report](https://sonja242.github.io/data-science-capstone-swiftkey/speed-quality-check.html), `research/speed-quality-20260925/compare_quality.R`, protocol and case-level metrics document the comparison. These development percentages are not replacement test accuracy.
 
 ## Deploy
 

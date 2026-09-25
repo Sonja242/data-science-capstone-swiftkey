@@ -1,0 +1,81 @@
+---
+title: "Sonja Next Word: Speed and Quality Check"
+subtitle: "A faster response and a controlled compression comparison"
+author: "Author: Sonja Sahebzad"
+date: "2026-09-25"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: hide
+    self_contained: true
+    css: ../../../milestone-report.css
+---
+
+```{r setup,include=FALSE}
+knitr::opts_chunk$set(echo=FALSE,warning=FALSE,message=FALSE)
+d <- read.csv("development_comparison.csv")
+s <- jsonlite::fromJSON("selection.json")
+stopifnot(s$selected=="Current",!s$final_test_used)
+base <- d[d$name=="Current",]
+best <- max(d$top3)
+pct <- function(x) sprintf("%.1f%%",100*x)
+labels <- c(Current="Current",More_contexts="More contexts",More_followers="More followers",Larger_vocabulary="Larger vocabulary")
+```
+
+<div class="summary-box">
+**Management summary.** Automatic suggestions now wait **150 ms instead of 400 ms** after a completed word and a pause. This removes 250 ms of intentional delay without changing any prediction. Three changes to model compression were tested separately on the same 600 development cases. The best result was **`r best`/600**, compared with **`r base$top3`/600** for the current model. No challenger met the predefined replacement rule. The deployed model and its independent **28.6% top-three accuracy** remain unchanged.
+</div>
+
+# What became faster
+
+The current model's measured median local computation is **1.9 ms**. Automatic waiting, network transport, server load and browser rendering add to the time the user experiences. The delay setting fell by **62.5%**; this is not a claim that total response time fell by 62.5%. Manual prediction bypasses this typing delay. The app still waits for a word boundary, preventing automatic predictions from unfinished words.
+
+Server tests verified that no result appears at 100 ms and a result is available after 160 ms of simulated time. Tests also covered rapid edits, clearing while a timer is pending, newlines, manual mode and input limits. All prediction words and scores remained identical on 1,500 existing development/test examples. These checks establish regression equivalence, not a new accuracy estimate or a real-network latency benchmark.
+
+# Controlled model comparison
+
+The 600 development examples contain 200 cases from each source. Each challenger changes **one** compression setting while retaining the same trained weights, scoring method and maximum four-word context. More contexts lowers minimum support from five to two. More followers retains up to sixteen continuations instead of eight. Larger vocabulary retains 100,000 words instead of 50,000.
+
+Before comparison, the rule required at least **six additional top-three successes**, no loss in top-one successes, and limits of 256 MiB model memory and 50 MiB compressed size. This study increased the earlier 200 MiB memory limit before comparison to allow a larger candidate, while retaining hosting headroom. The complete protocol is in `protocol.json`. Timing is one sequential local pass; small timing differences do not establish a reliable speed ranking.
+
+```{r comparison}
+knitr::kable(data.frame(Variant=unname(labels[d$name]),
+  `First correct`=sprintf("%d/600 (%s)",d$top1,pct(d$top1/600)),
+  `Within three`=sprintf("%d/600 (%s)",d$top3,pct(d$top3/600)),
+  `Memory (MiB)`=round(d$object_mib,1),
+  `Median computation (ms)`=round(d$median_ms,2),check.names=FALSE),
+  caption="Table 1. Same 600 development cases for every configuration. Timing excludes network and typing delay.")
+```
+
+```{r comparison-chart}
+plotly::plot_ly(x=unname(labels[d$name]),y=100*d$top3/600,type="bar",
+  marker=list(color=c("#123f68","#75aacf","#75aacf","#75aacf")),
+  text=sprintf("%s<br>%d/600: %.1f%%<br>Model memory: %.1f MiB",unname(labels[d$name]),d$top3,100*d$top3/600,d$object_mib),
+  hoverinfo="text") |>
+  plotly::layout(yaxis=list(title="Correct within three (%)",range=c(0,35)),
+    xaxis=list(title=""),font=list(family="Calibri, Segoe UI, sans-serif"))
+```
+
+*Figure 1. Development accuracy. Hover over a bar to see its count and model memory.*
+
+# Discussion
+
+The largest observed gain was **`r best-base$top3` additional correct words out of 600**, or **`r sprintf("%.2f",100*(best-base$top3)/600)` percentage points**. All three challengers require more memory. None satisfies the predefined minimum improvement. The evidence therefore does not justify replacing the tested app model with one of these variants.
+
+These are reused development data, so their percentages should not be presented as independent test performance. They also cannot be compared directly with the app's 28.6% on a different 900-case sample. Its existing approximate 95% interval remains **25.7% to 31.6%**. This interval describes sampling uncertainty in aggregate accuracy, not confidence in an individual suggestion. No calibrated confidence percentage is displayed.
+
+The test checks an exact match with the original next word. A different plausible continuation is counted as incorrect. This explains what the measure captures; it does not establish that alternative suggestions are useful. All candidates retain the same short context and trained model, so this experiment does not test stronger sentence-level understanding.
+
+# Conclusion
+
+The app now responds sooner after completed words, with unchanged predictions. Loosening compression alone did not meet the required quality improvement. A stronger follow-up should compare a model that uses more sentence context under an explicit latency and memory budget, then assess it on untouched cases. A user study should separately measure whether people accept suggestions and save typing effort. A high quiz score or a different model's accuracy cannot substitute for this evidence.
+
+# Reproducibility and references
+
+This report was knitted from R Markdown. `compare_quality.R` records the protocol before comparison, changes one setting at a time and writes case-level outcomes without publishing text. Seeds 20260927 and 20260928 reserved 900 fresh test cases after excluding previous evaluations and checking train/validation separation. **These cases remain unscored**, because no development challenger qualified. Their hashes are in `reserved_hashes.csv` and must be excluded from other experiments until this reservation is released. `selection.json` records the decision. Models and full text stay in the private, ignored `data/final_product_quality` folder. `session-info.txt` records package versions.
+
+1. [Official Coursera SwiftKey corpus](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip).
+2. Chen and Goodman (1996). [An Empirical Study of Smoothing Techniques for Language Modeling](https://aclanthology.org/P96-1041/).
+3. Posit. [Shiny debounce documentation](https://shiny.posit.co/r/reference/shiny/latest/debounce.html) and [shinyapps.io application resources](https://docs.posit.co/shinyapps.io/guide/applications/).
