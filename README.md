@@ -121,3 +121,16 @@ The [ranking and calibration report](https://sonja242.github.io/data-science-cap
 On **900 new final-test examples**, the retained model achieves **23.8% first-suggestion accuracy** and **37.1% top-three accuracy**. Calibration changes the test Brier score from **0.1498 to 0.1460**, without changing predictions. At an estimated-confidence threshold of 95%, only **4/900** cases are answered; their measured first-suggestion accuracy is 100.0% (4/4). The report supplies Wilson intervals and lower-threshold results, so subset accuracy is never presented as overall accuracy or a service guarantee.
 
 The [reproduction guide](python/RANKING_STUDY.md), [case-level predictions](models/ranking_study_final_cases.csv), [fixed protocol](models/ranking_study_protocol.json) and [independent final audit](models/ranking_study_independent_audit.json) document selection before calibration and final testing. An independent R optimizer also verifies the calibration fit. Open `30_ranking_and_calibration.Rmd`, or source `31_verify_ranking_study.R` in RStudio to verify and knit saved results. Confidence remains a research assessment; the operational interface `18_try_neural_predictor.R` is unchanged.
+
+## Applied NLP: Quiz 2 case study
+
+The [Quiz 2 report](https://sonja242.github.io/data-science-capstone-swiftkey/quiz-2-case-study.html) presents methods, aggregate results, discussion and independent confidence evidence. The reviewed submission achieved **100%**; the saved model matched **9/10 final reviewed choices**. These fixed cases do not establish general prediction accuracy.
+
+[Public R Markdown, knitted HTML and aggregate data](reports/quiz2/) reproduce the analysis without assessment questions, answers or screenshots. The complete assessment records remain local. Open the project in RStudio and knit `reports/quiz2/Quiz_2_public_report.Rmd`. Raw corpus files and model weights remain excluded from Git.
+
+
+## Applied NLP: Quiz 3 case study
+
+The [Quiz 3 report](https://sonja242.github.io/data-science-capstone-swiftkey/quiz-3-case-study.html) presents methods, aggregate results, discussion and independent confidence evidence. The reviewed submission achieved **100%**; the saved model matched **8/10 final reviewed choices**. These fixed cases do not establish general prediction accuracy.
+
+[Public R Markdown, knitted HTML and aggregate data](reports/quiz3/) reproduce the analysis without assessment questions, answers or screenshots. The complete assessment records remain local. Open the project in RStudio and knit `reports/quiz3/Quiz_3_public_report.Rmd`. Raw corpus files and model weights remain excluded from Git.

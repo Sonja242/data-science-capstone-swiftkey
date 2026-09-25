@@ -1,0 +1,258 @@
+---
+title: "Next-Word Prediction: Quiz 2 Case Study"
+subtitle: "Sonja Projects | Methods, aggregate results and prediction reliability"
+author: "Author: Sonja Sahebzad"
+date: "2026-09-25"
+output:
+  html_document:
+    theme: flatly
+    highlight: tango
+    css: ../../milestone-report.css
+    toc: true
+    toc_depth: 2
+    toc_float: true
+    code_folding: hide
+    self_contained: true
+---
+
+```{r setup, include=FALSE}
+library(ggplot2)
+knitr::opts_chunk$set(echo=TRUE,message=FALSE,warning=FALSE,
+  fig.width=9,fig.height=4.5,fig.align="center",out.width="100%")
+sha <- function(file) digest::digest(file=file,algo="sha256")
+pct <- function(x) sprintf("%.1f%%",100*x)
+report_theme <- function() theme_minimal(base_family="Calibri")+
+  theme(legend.position="bottom",text=element_text(color="#17212b"),panel.grid.minor=element_blank())
+interactive_chart <- function(p) plotly::config(plotly::ggplotly(p,tooltip="text"),
+  displaylogo=FALSE,responsive=TRUE,
+  toImageButtonOptions=list(format="png",width=1200,height=650,scale=2))
+summary_data <- jsonlite::read_json("public_summary.json",simplifyVector=TRUE)
+n <- summary_data$cases
+model_matches <- summary_data$saved_model_match_count
+stopifnot(n==10L,summary_data$options_per_case==4L,
+  summary_data$reported_grade_percent==100L,
+  model_matches+summary_data$review_changes==n)
+calibration_path <- "../../models/ranking_study_summary.json"
+calibration <- jsonlite::read_json(calibration_path,simplifyVector=FALSE)
+calibration_audit <- jsonlite::read_json("../../models/ranking_study_independent_audit.json",simplifyVector=FALSE)
+stopifnot(isTRUE(calibration_audit$passed),
+  identical(sha(calibration_path),calibration_audit$summary_sha256),
+  calibration_audit$calibration_cases==900L,calibration_audit$final_cases==900L)
+cal_final <- Filter(function(x)x$variant==calibration$selected,calibration$final)[[1]]
+cal_raw <- Filter(function(x)x$variant==calibration$selected && x$kind=="raw_shortlist_share",calibration$confidence)[[1]]
+cal_fitted <- Filter(function(x)x$variant==calibration$selected && x$kind=="calibrated",calibration$confidence)[[1]]
+cal_selective <- Filter(function(x)x$variant==calibration$selected,calibration$selective)
+wilson_interval <- function(correct,total,confidence=.95) {
+  stopifnot(total>0,correct>=0,correct<=total)
+  z <- qnorm(1-(1-confidence)/2); p <- correct/total
+  denominator <- 1+z^2/total
+  centre <- (p+z^2/(2*total))/denominator
+  half <- z*sqrt(p*(1-p)/total+z^2/(4*total^2))/denominator
+  c(lower=centre-half,upper=centre+half)
+}
+interval_text <- function(x) paste(pct(unlist(x)),collapse=" to ")
+first_correct <- round(cal_final$top1*cal_final$cases)
+top3_correct <- round(cal_final$top3*cal_final$cases)
+first_interval <- wilson_interval(first_correct,cal_final$cases)
+top3_interval <- wilson_interval(top3_correct,cal_final$cases)
+for(x in cal_selective) stopifnot(max(abs(wilson_interval(x$correct_first,x$answered)-unlist(x$wilson95)))<1e-10)
+cal70 <- Filter(function(x)x$threshold==.70,cal_selective)[[1]]
+cal95 <- Filter(function(x)x$threshold==.95,cal_selective)[[1]]
+stopifnot(first_correct==214L,top3_correct==334L)
+```
+
+<div class="summary-box">
+
+**Management summary.** Quiz 2 was completed with a **`r summary_data$reported_grade_percent`% grade** following model-assisted language review. The original model matched **`r model_matches`/`r n` final reviewed choices (`r sprintf("%.0f%%",100*model_matches/n)`)**. The result describes an assisted workflow. A separate 900-case test establishes the predictor's independent performance and shows why a perfect quiz result does not guarantee every future prediction.
+
+</div>
+
+# Objective and scope
+
+Apply an existing next-word predictor to ten English fragments, each with four supplied alternatives, in the Data Science Capstone [1]. All ten cases were included. This public report shares methods, aggregate results and analysis; assessment wording, answers and screenshots are retained only in the local study records.
+
+# Methods and analytical choices
+
+**Fixed model.** The existing Qwen3-1.7B-Base model and its adaptation to the official course texts were retained [2]. R prepared the input and generated suggestions from familiar word sequences. Python scored each supplied option against the preceding text. Holding settings fixed separates the contribution of language review from model changes.
+
+**Sentence context.** The model reads text in small units called tokens, which may be whole words or parts of words. The existing limit of **128 tokens** was retained for consistency with the established predictor. A token may be a whole word or part of a word. For a word composed of multiple tokens, its score combines those parts and accounts for whether the word ends at that point. Each option is therefore assessed as a complete next word.
+
+**Separate review.** An assisted language review checked grammar, intended meaning and natural wording. The original predictions remained unchanged. No training, model selection or interaction fitting used these quiz cases. There was no interaction experiment because this application held model settings fixed.
+
+**Different prediction tasks.** The quiz restricts the model to four given words. Unrestricted prediction must also find candidate words. Their results are reported separately because they measure different tasks.
+
+# Results
+
+## Outcome of the reviewed workflow
+
+```{r workflow-table}
+knitr::kable(data.frame(
+  Stage=c("Original model matches","Reviewed submission"),
+  Count=c(paste0(model_matches," / ",n),paste0(n," / ",n)),
+  Percentage=c(pct(model_matches/n),pct(summary_data$reported_grade_percent/100)),
+  Basis=c(summary_data$model_measure,"Final course grade"),
+  check.names=FALSE),row.names=FALSE)
+```
+
+The original model agreed with **9/10 reviewed choices (90%)**. One choice changed during review. The final reviewed submission received **100%**. Agreement describes the review workflow; it is not an independently graded model-only attempt.
+
+*Chart tip: Hover over a bar or point to see exact values and counts.*
+
+```{r workflow-chart}
+chart_data <- data.frame(
+  Stage=factor(c("Original model matches","Reviewed submission"),
+    levels=c("Original model matches","Reviewed submission")),
+  Count=c(model_matches,n),Rate=c(model_matches/n,summary_data$reported_grade_percent/100))
+chart_data$Tooltip <- with(chart_data,paste0(Stage,"<br>Count: ",Count," / ",n,"<br>Percentage: ",pct(Rate)))
+p <- ggplot(chart_data,aes(Stage,Rate,fill=Stage,text=Tooltip))+
+  geom_col(width=.55)+scale_fill_manual(values=c("#7d8a94","#1f73a8"))+
+  scale_y_continuous(labels=scales::percent,limits=c(0,1))+
+  labs(x=NULL,y="Percentage on these ten cases")+
+  report_theme()+theme(legend.position="none")
+interactive_chart(p)
+```
+
+*Figure 1. Saved model agreement and final course result. These fixed assessment cases are not a random sample of future user requests.*
+
+## Independent prediction performance
+
+The earlier study [3] used **600 development cases**, **900 separate calibration cases** and **900 new final-test cases**. It predicted words without quiz alternatives or language review.
+
+```{r independent-accuracy}
+knitr::kable(data.frame(
+  Measure=c("First suggestion correct","Correct word in first three"),
+  `Correct / tested`=c(paste0(first_correct," / ",cal_final$cases),paste0(top3_correct," / ",cal_final$cases)),
+  Accuracy=c(pct(cal_final$top1),pct(cal_final$top3)),
+  `95% confidence interval`=c(interval_text(first_interval),interval_text(top3_interval)),
+  check.names=FALSE),row.names=FALSE)
+```
+
+About **24 of every 100** first suggestions were correct. About **37 of every 100** cases contained the correct word among the first three. A **confidence interval** describes sampling uncertainty in these measured rates, not certainty about a particular answer [4]. No general accuracy interval is inferred from the ten fixed quiz cases.
+
+# Confidence and answer coverage
+
+**Confidence** is an estimated chance that a prediction is correct. Calibration adjusts those estimates using separate examples. It does not change the words selected. The quiz ranking scores have not been calibrated into correctness percentages.
+
+```{r calibration-table}
+knitr::kable(data.frame(
+  Measure=c("Brier score","Log loss","Average confidence gap (percentage points)"),
+  Before=c(sprintf("%.4f",cal_raw$brier),sprintf("%.4f",cal_raw$log_loss),sprintf("%.2f",100*cal_raw$ece_10_equal_width)),
+  After=c(sprintf("%.4f",cal_fitted$brier),sprintf("%.4f",cal_fitted$log_loss),sprintf("%.2f",100*cal_fitted$ece_10_equal_width)),
+  check.names=FALSE),row.names=FALSE)
+```
+
+**Lower is better.** Brier score measures probability errors; log loss especially penalizes confidently wrong predictions. The confidence gap compares estimated and observed correctness across ten groups, weighted by their sizes [5]. Its reduction from **5.49 to 2.85 percentage points** supports better probability estimates on this test. It does not establish higher word-selection accuracy.
+
+```{r reliability-chart}
+reliability_chart_data <- do.call(rbind,lapply(list(cal_raw,cal_fitted),function(estimate) {
+  do.call(rbind,lapply(estimate$reliability,function(bin) {
+    if(bin$cases==0) return(NULL)
+    correct <- round(bin$observed_accuracy*bin$cases)
+    stopifnot(abs(correct/bin$cases-bin$observed_accuracy)<1e-10)
+    ci <- wilson_interval(correct,bin$cases)
+    data.frame(Kind=estimate$kind,Cases=bin$cases,Correct=correct,
+      Estimated=bin$mean_probability,Observed=bin$observed_accuracy,
+      Lower=ci[1],Upper=ci[2],row.names=NULL)
+  }))
+}))
+reliability_chart_data$Estimate <- factor(reliability_chart_data$Kind,
+  levels=c("raw_shortlist_share","calibrated"),
+  labels=c("Before calibration","After calibration"))
+reliability_chart_data$Tooltip <- with(reliability_chart_data,paste0(
+  Estimate,"<br>Mean estimated confidence: ",pct(Estimated),
+  "<br>Observed accuracy: ",pct(Observed),"<br>Correct: ",Correct," / ",Cases,
+  "<br>95% interval: ",pct(Lower)," to ",pct(Upper)))
+stopifnot(all(tapply(reliability_chart_data$Cases,reliability_chart_data$Kind,sum)==cal_final$cases))
+p <- ggplot(reliability_chart_data,aes(Estimated,Observed,
+    color=Estimate,shape=Estimate,linetype=Estimate,text=Tooltip))+
+  geom_abline(slope=1,intercept=0,color="#aab2b9",linetype=3)+
+  geom_errorbar(aes(ymin=Lower,ymax=Upper),width=.008,alpha=.3,show.legend=FALSE)+
+  geom_line()+geom_point(size=2.7)+
+  scale_color_manual(values=c("#7d8a94","#1f73a8"))+
+  scale_shape_manual(values=c(16,17))+
+  scale_linetype_manual(values=c("dashed","solid"))+
+  scale_x_continuous(labels=scales::percent,limits=c(0,1))+
+  scale_y_continuous(labels=scales::percent,limits=c(0,1))+
+  labs(x="Mean estimated first-suggestion correctness",y="Observed first-suggestion accuracy",
+       color=NULL,shape=NULL,linetype=NULL)+report_theme()
+reliability_plot <- interactive_chart(p)
+reliability_plot
+```
+
+*Figure 2. Closer to the diagonal means estimated confidence better matches observed correctness. Bars show 95% Wilson intervals within each group. Wide bars indicate limited evidence. Calibration groups the same 900 cases differently.*
+
+**Answer coverage** is the fraction of cases receiving a suggestion after applying a minimum-confidence rule. All five thresholds below were specified before testing.
+
+```{r confidence-coverage}
+selective_table <- do.call(rbind,lapply(cal_selective,function(x)data.frame(
+  `Minimum confidence`=if(x$threshold==0) "No minimum" else pct(x$threshold),
+  `Correct / answered`=paste0(x$correct_first," / ",x$answered),
+  Coverage=pct(x$coverage),`Accuracy when answered`=pct(x$accuracy_first),
+  `95% interval`=interval_text(x$wilson95),check.names=FALSE)))
+knitr::kable(selective_table,row.names=FALSE)
+```
+
+```{r accuracy-coverage-chart}
+selective_chart_data <- do.call(rbind,lapply(cal_selective,function(x) {
+  data.frame(Threshold=x$threshold,Answered=x$answered,Correct=x$correct_first,
+    Accuracy=x$accuracy_first,Coverage=x$coverage,
+    Lower=unlist(x$wilson95)[1],Upper=unlist(x$wilson95)[2],row.names=NULL)
+}))
+accuracy_series <- transform(selective_chart_data,Series="Accuracy when answered",Value=Accuracy,
+  Tooltip=paste0("Minimum confidence: ",pct(Threshold),"<br>Correct: ",Correct," / ",Answered,
+    "<br>Accuracy: ",pct(Accuracy),"<br>95% interval: ",pct(Lower)," to ",pct(Upper)))
+coverage_series <- transform(selective_chart_data,Series="Share of cases answered",Value=Coverage,
+  Tooltip=paste0("Minimum confidence: ",pct(Threshold),"<br>Answered: ",Answered," / ",cal_final$cases,
+    "<br>Answer coverage: ",pct(Coverage)))
+threshold_chart_data <- rbind(accuracy_series,coverage_series)
+threshold_chart_data$Series <- factor(threshold_chart_data$Series,
+  levels=c("Accuracy when answered","Share of cases answered"))
+p <- ggplot(threshold_chart_data,aes(Threshold,Value,
+    color=Series,shape=Series,linetype=Series,text=Tooltip))+
+  geom_errorbar(data=subset(threshold_chart_data,Series=="Accuracy when answered"),
+    aes(ymin=Lower,ymax=Upper),width=.012,alpha=.55,show.legend=FALSE)+
+  geom_line()+geom_point(size=2.7)+
+  scale_color_manual(values=c("#1f73a8","#7d8a94"))+
+  scale_shape_manual(values=c(16,17))+
+  scale_linetype_manual(values=c("solid","dashed"))+
+  scale_x_continuous(labels=scales::percent,breaks=selective_chart_data$Threshold,limits=c(0,1))+
+  scale_y_continuous(labels=scales::percent,limits=c(0,1))+
+  labs(x="Minimum estimated confidence (0% means no minimum)",y="Percentage",
+       color=NULL,shape=NULL,linetype=NULL)+report_theme()
+coverage_plot <- interactive_chart(p)
+coverage_plot
+```
+
+*Figure 3. Blue shows accuracy among answered cases, with 95% intervals. Gray shows the share of all cases answered. Lines connect the five tested thresholds; intermediate thresholds were not evaluated.*
+
+At the **70% threshold**, **30/35 predictions are correct (85.7%)**, but only **3.9%** of cases receive an answer. The **70.6% to 93.7%** interval still includes accuracy below 85%. At **95%**, **4/4** answers are correct, but coverage is **0.4%** and the interval spans **51.0% to 100%**. Four successes cannot establish a dependable 95% service. The fitted confidence map remains a research result and is not enabled in the standard interface.
+
+# Discussion
+
+The **100% final grade** supports the success of the reviewed workflow on these ten cases. The saved model agreed with **`r model_matches`/10 final choices**, and **`r summary_data$review_changes`** changed during review. The revised choice was already among the model's leading alternatives. This motivates testing how ranking uses whole-sentence meaning and natural expressions. One successful change cannot establish the benefit of a general review rule or a new model. Sensitivity to another model remains untested in this application.
+
+The separate test gives a stronger basis for estimating independent prediction quality: **23.8% first-suggestion accuracy** and **37.1% top-three accuracy**, with the intervals above. Higher selective accuracy is achieved by answering fewer cases. These findings distinguish completing a restricted-choice task with review from providing reliable suggestions across new text.
+
+The balanced English test sample may differ from future users. Near duplicates and unknown overlap with model pretraining may remain. Wilson intervals describe sampling uncertainty under their assumptions; they do not remove these biases or provide joint guarantees across thresholds [4]. The public aggregates reproduce the calculations, while individual assessment decisions remain private.
+
+# Conclusion and improvements
+
+**The reviewed workflow achieved 100% on Quiz 2. Further progress requires improving the model's own ranking on new text.** A controlled experiment should compare methods that assess whole-sentence meaning and natural wording while keeping candidates and evaluation cases fixed. Another suitable model should be compared on the same development data to assess sensitivity to model choice.
+
+Punctuation handling and context processing should be tested separately and together if both change. Training, model selection and confidence calibration should use separate data. Adoption should require a useful gain on a new final test, with accuracy, uncertainty, response time and answer coverage reported together. The present results motivate these experiments; they do not demonstrate that a proposed change already works.
+
+# Reproducibility
+
+This report was **knitted from `Quiz_2_public_report.Rmd`** using the shared Milestone stylesheet. The **Code** menu reveals calculations. The published R Markdown, HTML and `public_summary.json` reproduce the tables and plots without private assessment files, model training or a GPU. The summary contains only aggregate counts checked against the local records.
+
+Independent results are read from `models/ranking_study_summary.json`; its checksum is verified against the saved audit. Percentages and Wilson intervals are calculated in R. Threshold intervals are cross-checked against the archived study. The original model and local assessment records are preserved separately. Public reproduction checks the reported calculations; it does not re-grade the course submission.
+
+[Public source and aggregate data](https://github.com/Sonja242/data-science-capstone-swiftkey/tree/main/reports/quiz2)
+
+# References
+
+1. Johns Hopkins University. [Data Science Capstone](https://www.coursera.org/learn/data-science-project). Course setting for this applied case study.
+2. Qwen team. [Qwen3-1.7B-Base, pinned model revision](https://huggingface.co/Qwen/Qwen3-1.7B-Base/tree/ea980cb0a6c2ae4b936e82123acc929f1cec04c1).
+3. Sahebzad, S. (2026). [Ranking Rules and Prediction Reliability](https://sonja242.github.io/data-science-capstone-swiftkey/ranking-calibration.html). Separate development, calibration and final-test study.
+4. NIST/SEMATECH. [Confidence intervals for a proportion: Wilson method](https://www.itl.nist.gov/div898/handbook/prc/section2/prc241.htm).
+5. scikit-learn documentation. [Probability calibration and reliability diagrams](https://scikit-learn.org/stable/modules/calibration.html).

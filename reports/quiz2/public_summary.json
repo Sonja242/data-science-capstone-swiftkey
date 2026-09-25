@@ -1,0 +1,12 @@
+{
+  "author": "Sonja Sahebzad",
+  "quiz": 2,
+  "cases": 10,
+  "options_per_case": 4,
+  "reported_grade_percent": 100,
+  "saved_model_match_count": 9,
+  "review_changes": 1,
+  "model_measure": "Agreement with the final reviewed choices",
+  "scope": "Aggregate outcome only. No question text, answer words, option rankings, item identifiers or screenshots are included.",
+  "grade_basis": "Course result and local review records checked before creating this public summary."
+}
