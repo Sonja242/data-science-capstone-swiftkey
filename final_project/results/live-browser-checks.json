@@ -1,0 +1,36 @@
+{
+  "date": "2026-09-25",
+  "url": "https://sonjasahebzad.shinyapps.io/sonja-next-word/",
+  "checks": [
+    {
+      "source": "news",
+      "phrase": "the all volunteer pirates offer little",
+      "prediction": "girl",
+      "server_ms": 20
+    },
+    {
+      "source": "news",
+      "phrase": "when they start playing games in akron or here we're going to",
+      "prediction": "be",
+      "server_ms": 50
+    },
+    {
+      "source": "twitter",
+      "phrase": "when will they learn dont slide",
+      "prediction": "into",
+      "server_ms": 5
+    },
+    {
+      "source": "twitter",
+      "phrase": "i was born ready always curious",
+      "prediction": "and",
+      "server_ms": 16
+    },
+    {
+      "source": "twitter",
+      "phrase": "great day so far lots accomplished lots yet to do more in",
+      "prediction": "the",
+      "server_ms": 4
+    }
+  ]
+}

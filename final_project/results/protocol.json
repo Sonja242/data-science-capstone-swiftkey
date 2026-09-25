@@ -1,0 +1,12 @@
+{
+  "version": "1.0",
+  "date": "2026-09-25",
+  "author": "Sonja Sahebzad",
+  "objective": "A CPU next-word product with measured quality, resource use and reproducible inference.",
+  "selection": "Highest development top-3 among models below 200 MiB in-memory and 50 MiB compressed; ties use top-1 then smaller size.",
+  "development": "Existing 600 validation examples, 200 per source. No quiz questions.",
+  "test": "900 previously unused original test lines, 300 per source; one random next-word position per line. Fixed seed 20260925.",
+  "metrics": "Top-1, top-3, vocabulary coverage, prediction availability, per-source results, Wilson 95% intervals, local CPU inference time and size.",
+  "confidence": "Model scores are not calibrated confidence. No confidence percentage will be displayed to users.",
+  "limitations": "Equal source weighting is an evaluation design, not an estimate of real user traffic. Archived web text may differ from current usage."
+}

@@ -1,0 +1,114 @@
+---
+title: "Sonja Next Word: Final Product Report"
+subtitle: "A compact prediction service with measured performance"
+author: "Author: Sonja Sahebzad"
+date: "2026-09-25"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: hide
+    self_contained: true
+    css: ../milestone-report.css
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo=FALSE,warning=FALSE,message=FALSE)
+m <- jsonlite::fromJSON("results/metrics.json")
+s <- m$overall
+d <- read.csv("results/development_comparison.csv")
+pct <- function(x) sprintf("%.1f%%",100*x)
+ci <- function(lo,hi) paste(pct(lo),"to",pct(hi))
+```
+
+<div class="summary-box">
+**Management summary.** Sonja Next Word turns an English phrase into one next-word suggestion and two alternatives. A compact model runs on a CPU without an external AI service. On 900 reserved examples, the first suggestion was correct in **`r pct(s$top1)`** and the correct word appeared among three in **`r pct(s$top3)`**. Every case received a suggestion. Median local computation was **`r sprintf("%.1f",s$median_ms)` ms**, excluding network time. The product demonstrates a reproducible, responsive workflow; its short context still limits semantic understanding.
+</div>
+
+# Product and use
+
+[Open the Shiny app](https://sonjasahebzad.shinyapps.io/sonja-next-word/). Enter a phrase, select **Predict next word**, and select a suggested word to append it. Predict again to continue. The Results and How to use tabs provide evidence and instructions. First visits may be slower while the hosting service starts the app.
+
+The app processes text on the Shiny server for the active session. Application code does not persist phrases or call an external prediction API. A small output blocklist removes specified common profanities; it is not a comprehensive content filter.
+
+# Data and algorithm
+
+The trained model uses **`r format(m$training_lines,big.mark=",")` deduplicated training lines** and **`r format(m$training_tokens,big.mark=",")` word tokens** from the official English SwiftKey blogs, news and Twitter files. The original split separates training, validation and test lines after global deduplication.
+
+The product derives from the project's frozen interpolated Kneser-Ney model. Text is lowercased, apostrophes normalized, and numbers, punctuation, URLs and mentions removed. Up to four recent words supply the context for a five-gram prediction. Longer patterns contribute when available; shorter patterns and general word frequencies provide fallback. These context patterns capture word combinations, but there is no separate fitted interaction model or full-sentence semantic reasoning.
+
+Pruning limits vocabulary, context support and stored followers. Removed probability mass returns to shorter contexts. Sparse scoring preserves the exact top suggestions of this compact distribution, verified against dense scoring. The **`r format(m$vocabulary,big.mark=",")`-word** deployed model occupies **`r sprintf("%.1f",m$model_mib)` MiB** compressed and **`r sprintf("%.1f",m$memory_mib)` MiB** as an R object. Total server memory also includes R and Shiny.
+
+# Selection and independent evaluation
+
+Three configurations were compared on the same **600 development cases**, equally divided by source. The rule was fixed first: maximize top-three accuracy below 200 MiB model memory and 50 MiB compressed size; break ties by top-one accuracy, then size. The final test did not determine this choice.
+
+```{r candidates}
+knitr::kable(data.frame(Variant=d$name,Vocabulary=d$vocab,Order=d$max_order,
+  `Minimum support`=d$support,Followers=d$followers,
+  `First correct`=pct(d$top1/d$cases),`Within three`=pct(d$top3/d$cases),
+  `Size (MiB)`=round(d$file_mib,1),check.names=FALSE),
+  caption="Table 1. Development comparison, 600 identical cases per variant.")
+```
+
+The Extended variant was selected: **164/600 (27.3%)** correct within three, compared with **160/600 (26.7%)** for Balanced and **137/600 (22.8%)** for Light. The four-case advantage over Balanced is small and is not evidence of a statistically established improvement. The larger variant satisfies the predefined resource limits.
+
+Before comparison, **900 unused test lines** were reserved, 300 per source. Earlier evaluation lines were excluded using reconstructed row selections and saved hashes. No test line overlaps training or validation. One random word position per line was hidden, retaining only the preceding words. Quiz items and human answer corrections play no part in this evaluation.
+
+```{r final-results}
+knitr::kable(data.frame(Measure=c("First suggestion correct","Correct within three","Suggestion returned"),
+  Count=c(paste0(s$top1_count,"/900"),paste0(s$top3_count,"/900"),"900/900"),
+  Result=c(pct(s$top1),pct(s$top3),pct(s$available)),
+  `Approximate 95% interval`=c(ci(s$top1_low,s$top1_high),ci(s$top3_low,s$top3_high),"Functional coverage, not accuracy"),check.names=FALSE),
+  caption="Table 2. Frozen model, independent final test.")
+```
+
+Wilson intervals summarize sampling uncertainty in these observed rates. They do not give a probability that a particular suggestion is correct. The equal source mix is deliberate and may not match real user traffic. The model's individual scores have **not been calibrated**, so the interface displays no confidence percentages.
+
+```{r quality-chart}
+b <- m$by_source
+fig <- plotly::plot_ly()
+for(k in c("top1","top3")) {
+  vals <- b[[k]]*100; lo <- b[[paste0(k,"_low")]]*100; hi <- b[[paste0(k,"_high")]]*100
+  label <- if(k=="top1") "First suggestion" else "Within three"
+  fig <- plotly::add_bars(fig,x=b$source,y=vals,name=label,
+    marker=list(color=if(k=="top1") "#123f68" else "#75aacf"),
+    error_y=list(type="data",symmetric=FALSE,array=hi-vals,arrayminus=vals-lo),
+    text=sprintf("%s: %.1f%%<br>95%% interval %.1f%% to %.1f%%<br>300 cases",label,vals,lo,hi),hoverinfo="text")
+}
+plotly::layout(fig,barmode="group",yaxis=list(title="Correct predictions (%)",range=c(0,45)),
+  xaxis=list(title=""),font=list(family="Calibri, Segoe UI, sans-serif"),
+  legend=list(orientation="h",y=1.15),margin=list(t=25))
+```
+
+*Figure 1. Accuracy by source with approximate 95% intervals. Hover over a bar for its values.*
+
+Median local computation across 900 cases was **`r sprintf("%.2f",s$median_ms)` ms**; the 95th percentile was **`r sprintf("%.2f",s$p95_ms)` ms**. Model loading took **`r sprintf("%.2f",m$load_seconds)` seconds** locally. These are CPU timings after a warm-up, excluding network and UI rendering. A separate high-resolution wall-clock pass replaced the coarse Windows timer for latency reporting; model selection and accuracy were unchanged.
+
+# Discussion
+
+The model supplies a usable suggestion in every test case, but availability must not be confused with correctness. **643/900 target words were absent from the first three**, even though **98.0%** of target words were in the retained vocabulary. Thus, vocabulary coverage alone does not solve ranking and context errors.
+
+Top-three accuracy was **31.3% for news**, **28.0% for blogs**, and **26.3% for Twitter**. The intervals overlap, so these observations do not establish a reliable ordering of source difficulty. Short context, informal language and rare expressions are plausible limitations, not proven causes of these differences.
+
+The candidate comparison demonstrates sensitivity to compression. It does not isolate the effect of vocabulary, context length and pruning because they change together. Exact normalized duplicates were removed; near-duplicates may remain. Archived source text and equal source weighting limit generalization to current writing. Scores from previous GPU models or assisted quizzes cannot be transferred to this CPU product or used as its confidence.
+
+# Conclusion and next steps
+
+The product delivers an accessible, compact next-word service with **17.0% first-choice accuracy**, **28.6% top-three accuracy** and millisecond local computation on a reserved test. It meets the functional goal of accepting a phrase and returning one word, while making measured limitations visible.
+
+The next experiment should vary one compression setting at a time and compare a longer-context model under the same hosting budget. A new untouched test should assess whether sentence meaning improves ranking. Confidence calibration requires its own reserved data and reliability checks before percentages can be shown. A small user study should measure suggestion acceptance and typing effort; lower latency alone does not establish product benefit.
+
+# Reproducibility and references
+
+This report was knitted from R Markdown. `scripts/build_and_evaluate.R` records the protocol, seeds, training-derived compression, selection, reserved hashes and case metrics. `scripts/verify_app.R` checks sparse scoring, input handling and server behavior. The distributed `app/model.rds` is the frozen evaluated model. Full rebuilds require the original corpus and earlier v3 training artifacts; `README.md` separates running the product from retraining it. Raw corpus lines and assessment answers are excluded from public publication.
+
+```{r fingerprint}
+knitr::kable(data.frame(Item=c("Model MD5","Test selection seed","Word-position seed","R version"),
+ Value=c(m$model_md5,m$test_seed,m$position_seed,m$R)),caption="Table 3. Reproduction identifiers.")
+```
+
+1. Johns Hopkins / Coursera. [Official SwiftKey training corpus](https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip).
+2. Chen, S. F., and Goodman, J. (1996). [An Empirical Study of Smoothing Techniques for Language Modeling](https://aclanthology.org/P96-1041/). ACL, 310-318.
+3. Posit. [Shiny for R](https://shiny.posit.co/r/getstarted/shiny-basics/lesson1/) and [shinyapps.io application hosting](https://docs.posit.co/shinyapps.io/guide/applications/).

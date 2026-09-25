@@ -1,0 +1,4 @@
+PASS: sparse and dense rankings agree on 50 fresh cases.
+PASS: 7 tokenizer/fallback edge cases return three safe-format words.
+PASS: Shiny server prediction, edit invalidation, empty input, input limit, fallback and clear.
+Timing on 900 cases: median 1.895 ms, p95 2.379 ms; load 0.712 s.

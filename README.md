@@ -5,6 +5,15 @@
 
 This repository contains a reproducible workflow for the Johns Hopkins University Data Science Capstone. It explores the official English SwiftKey corpus and compares experimental next-word predictors on separate training, validation and test data. Predictions are fallible; this project is not an answer key.
 
+## Final product: Sonja Next Word
+
+- [Live Shiny app](https://sonjasahebzad.shinyapps.io/sonja-next-word/)
+- [Five-slide RStudio Presenter pitch on RPubs](https://rpubs.com/Sonja_Janssen/sonja-next-word)
+- [Final product report](https://sonja242.github.io/data-science-capstone-swiftkey/final-product-report.html)
+- [Run and reproduce the product](final_project/README.md)
+
+The deployed compact model is evaluated separately from the GPU research models and quiz case studies. On 900 reserved examples, first-choice accuracy is 17.0% and top-three accuracy is 28.6%. It returns a suggestion for every test case; that coverage is not accuracy. The app does not display uncalibrated confidence percentages.
+
 ## View the finished reports
 
 Open the published [Data Science Capstone report website](https://sonja242.github.io/data-science-capstone-swiftkey/). The site renders the knitted HTML reports as complete web pages. The `.Rmd` files remain available as reproducible source code.
@@ -60,7 +69,7 @@ The knitted `.html` files preserve the corresponding code and printed results.
 4. Run `source("15_train_expanded_predictor.R")` to train and compare the expanded candidates. It rebuilds the v2 baseline if required. Then knit `16_expanded_predictor_evaluation.Rmd`. The full build requires substantial time, RAM and disk space; its caches are reused.
 5. Run `source("13_try_predictor.R")` in the RStudio Console to try the selected predictor.
 
-The corpus, ZIP archive and generated `.rds` model objects are intentionally excluded from Git. The model objects can be rebuilt from the official data and the committed source code.
+The corpus, ZIP archive and large research model objects are excluded from Git. The compact, evaluated `final_project/app/model.rds` is included so the Shiny product can run without retraining. Research model objects can be rebuilt from the official data and committed source code.
 
 ## Reusable R code
 

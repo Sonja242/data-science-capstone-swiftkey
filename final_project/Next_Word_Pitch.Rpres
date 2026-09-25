@@ -1,0 +1,63 @@
+Sonja Next Word
+========================================================
+author: Author: Sonja Sahebzad
+date: September 25, 2026
+css: pitch.css
+width: 1440
+height: 900
+transition: none
+
+<div class="cover-kicker">SONJA PROJECTS</div>
+<div class="cover-line">A small assist for<br>your next sentence.</div>
+<p class="lead">A responsive English word-completion product.<br>Built in R. Published with Shiny. Measured honestly.</p>
+<p class="launch"><a href="https://sonjasahebzad.shinyapps.io/sonja-next-word/" target="_blank">Open the live app</a></p>
+<p class="small-note">Five slides. Use the navigation controls or arrow keys.</p>
+
+Common patterns, compact delivery
+========================================================
+
+<div class="algorithm-layout">
+<div>
+<h3>Learn from real writing</h3>
+<p>3.21 million training lines from the official English blogs, news and Twitter corpus.</p>
+<h3>Combine short and long patterns</h3>
+<p>Up to four recent words guide a five-gram model. Kneser-Ney smoothing blends shorter patterns when evidence is limited.</p>
+<h3>Keep only useful continuations</h3>
+<p>Pruned vocabulary and followers reduce memory. Sparse scoring preserves the compact model's exact top suggestions.</p>
+</div>
+<div class="side-stat"><strong>19.2 MiB</strong><span>compressed model</span><strong>50,000</strong><span>possible next words</span><p>CPU only.<br>No external prediction API.<br>Model loaded once per process.</p></div>
+</div>
+
+Type. Predict. Keep writing.
+========================================================
+
+<div class="demo-layout">
+<div>
+<ol><li>Enter an English phrase.</li><li>Select <b>Predict next word</b>.</li><li>Select the large word or an alternative to append it.</li></ol>
+<p>Predict again to continue. A fallback keeps unfamiliar contexts usable.</p>
+<p class="small-note">The Results tab explains measured quality. The How to use tab documents the product.</p>
+<p><a href="https://sonjasahebzad.shinyapps.io/sonja-next-word/" target="_blank">Try the live app</a></p>
+</div>
+<div><img class="app-shot" src="assets/app-demo.png" alt="Live Sonja Next Word app showing a phrase, a primary suggestion and two alternatives."></div>
+</div>
+
+Performance of the deployed model
+========================================================
+
+<p class="slide-intro">900 reserved examples. 300 each from blogs, news and Twitter.<br>Chosen on 600 separate development cases, then frozen before testing.</p>
+<div class="performance-layout">
+<div class="accuracy-block"><strong>17.0%</strong><h3>First suggestion correct</h3><p>153 / 900<br>95% interval 14.7% to 19.6%</p></div>
+<div class="accuracy-block"><strong>28.6%</strong><h3>Correct within three</h3><p>257 / 900<br>95% interval 25.7% to 31.6%</p></div>
+<div class="timing-block"><strong>1.9 ms</strong><h3>Median computation</h3><p>95th percentile 2.4 ms<br>Local CPU, warm model.<br>Network time excluded.</p></div>
+</div>
+<p class="evidence-line">900 / 900 cases received a suggestion. This is availability, not 100% accuracy.</p>
+<p class="small-note">Approximate Wilson intervals describe test uncertainty. Individual confidence is not calibrated.</p>
+
+A deployable foundation, with a clear next step
+========================================================
+
+<div class="closing-layout">
+<div><h3>Value delivered</h3><p>A working web product with fast local computation, clickable suggestions, readable documentation and reproducible evidence.</p><h3>Limits made visible</h3><p>Short context can miss sentence meaning. New names and rare phrases remain difficult. A modest profanity blocklist is not a complete filter.</p></div>
+<div><h3>Next investment</h3><p>Compare longer context under the same hosting budget. Calibrate on separate data. Measure suggestion acceptance with users.</p><p class="closing-cta"><a href="https://sonjasahebzad.shinyapps.io/sonja-next-word/" target="_blank">Explore Sonja Next Word</a></p></div>
+</div>
+<p class="references">Sources: <a href="https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip">Coursera SwiftKey corpus</a>; <a href="https://aclanthology.org/P96-1041/">Chen &amp; Goodman, 1996</a>; <a href="https://shiny.posit.co/">Posit Shiny</a>.<br><a href="https://github.com/Sonja242/data-science-capstone-swiftkey/tree/main/final_project">Code, test protocol, case metrics and full report</a>. Author: Sonja Sahebzad.</p>

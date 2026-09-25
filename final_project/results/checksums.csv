@@ -1,0 +1,8 @@
+file,md5
+app/model.rds,bd58c642df1759c4ce1c39b9ace8927c
+app/predictor.R,e091924da73f93e57f9b9c4117d0a431
+app/app.R,7db993c09497c31193ca61ada1866862
+scripts/build_and_evaluate.R,bfe742aaea15f2f11d60fea59e8cb8eb
+scripts/verify_app.R,eeb81498fbd1ea98d832caeb5039b968
+Next_Word_Pitch.Rpres,bd51c0afc398bd50132cd6bf25be18d2
+Next_Word_Pitch.html,18a1319766f64354c6355d60e9b898a5
