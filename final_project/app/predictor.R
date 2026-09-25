@@ -41,8 +41,12 @@ predict_word <- function(model, phrase, top_n = 3L, dense = FALSE) {
   }
   ranking <- order(-p, model$vocabulary[candidate_ids])
   take <- head(ranking, top_n)
+  # Start-of-text padding contributes to n-gram order, but is not a typed word.
+  context_words <- min(length(words), used_order - 1L)
   list(words = model$vocabulary[candidate_ids[take]], scores = p[take],
        order = used_order, context = paste(tail(words, used_order - 1L), collapse = " "),
+       context_words = context_words, input_words = length(words),
+       start_markers = used_order - 1L - context_words,
        normalized = clean,
        distribution = if (dense) p else NULL)
 }

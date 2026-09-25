@@ -22,9 +22,9 @@ The model is included. No GPU, raw corpus, Python runtime, API key or retraining
 
 ## User documentation
 
-Type up to 500 characters of English text, finishing the last word. Select **Predict next word** or press Ctrl + Enter / Command + Enter. Select the primary word or one of the two alternatives to append it, then predict again. Clear resets the text. Example buttons supply starting phrases.
+Type up to 500 characters of English text. With automatic updates enabled, suggestions refresh after a space or punctuation and a pause of at least 400 ms. A partial word does not trigger a next-word prediction. Without a trailing space, select **Predict next word** or press Ctrl + Enter / Command + Enter. Select a suggestion to append it with a space and continue automatically. Clear resets the text. Example buttons start an automatic prediction. Disable automatic updates to use the button only.
 
-Only the last four normalized words supply context. Unseen contexts fall back to shorter patterns or general frequencies. This product does not correct spelling or reason over a whole sentence. A small explicit profanity blocklist is not a comprehensive safety filter. Input is processed on the hosting server; application code does not persist phrases or call external prediction services.
+The context label counts actual input words, excluding start-of-text markers. The total input word count is displayed separately. Only the last four normalized words supply context. Unseen contexts fall back to shorter patterns or general frequencies. This product does not correct spelling or reason over a whole sentence. A small explicit profanity blocklist is not a comprehensive safety filter. Input is processed on the hosting server; application code does not persist phrases or call external prediction services.
 
 ## Reproduce or audit
 
@@ -36,6 +36,10 @@ Full rebuilding requires the original official corpus and the earlier project ou
 
 Knit `Final_Product_Report.Rmd` with RStudio's Knit button. Open `Next_Word_Pitch.Rpres` and select Preview to use RStudio Presenter. Export as a standalone webpage for RPubs. Both publication artifacts must correspond to the evaluated app/model checksum.
 
+### Continuous-writing verification
+
+`scripts/verify_continuous_writing.R` compares predictions and scores with the preserved v1 predictor on the 600 development and 900 existing test examples. All 1,500 outputs are identical. These are regression checks, not a new independent accuracy test. It also checks automatic refresh, partial words, rapid edits, punctuation, clearing a pending timer, manual mode and input limits. The UI guards against selecting suggestions from older input. See `results/continuous-writing.json` for the recorded version and checksums. The model, normalization and ranking are unchanged; informal corpus spellings can still be suggested.
+
 ## Deploy
 
 With an authorized rsconnect account, deploy exactly these files:
@@ -43,7 +47,7 @@ With an authorized rsconnect account, deploy exactly these files:
 ```r
 rsconnect::deployApp(
   appDir = "app",
-  appFiles = c("app.R", "predictor.R", "model.rds", "metrics.json", "www/styles.css"),
+  appFiles = c("app.R", "predictor.R", "model.rds", "metrics.json", "www/styles.css", "www/input.js"),
   appName = "sonja-next-word",
   account = "sonjasahebzad", server = "shinyapps.io"
 )

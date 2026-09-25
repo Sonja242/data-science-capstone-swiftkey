@@ -1,0 +1,46 @@
+{
+  "version": "continuous-writing-1.1",
+  "author": "Sonja Sahebzad",
+  "brand": "Sonja Projects",
+  "recorded_utc": "2026-09-25T16:16:22.859859+00:00",
+  "model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "previous_predictor_md5": "e091924da73f93e57f9b9c4117d0a431",
+  "files_md5": {
+    "app/app.R": "fb8970edc998cfcef572c2fc8dde41a9",
+    "app/predictor.R": "aa62dfbb54d1e215239107527e33a020",
+    "app/www/styles.css": "f2a24c9d6f74d4f56aefa90c36b3718c",
+    "app/www/input.js": "934ab2fd689845aba5f30c5ac361f7f2",
+    "scripts/verify_continuous_writing.R": "bc00e58ade1bbb4e89bde12811522d00",
+    "README.md": "a417cd83ec900f39d490ebd476c9fe76",
+    "Final_Product_Report.Rmd": "4c87aaa1faf074e18d703b3a103ca0af",
+    "Next_Word_Pitch.Rpres": "3846878b3f186ff434cdd3d0b6db6293"
+  },
+  "regression": {
+    "existing_development_cases": 600,
+    "existing_test_cases": 900,
+    "identical_prediction_words_and_scores": 1500,
+    "new_independent_accuracy_evaluation": false
+  },
+  "changes": [
+    "automatic refresh after word boundaries and at least 400 ms idle",
+    "selected word appends with a space and refreshes predictions",
+    "accurate count of actual matched words, excluding start padding",
+    "immediate stale-suggestion guard while editing"
+  ],
+  "unchanged": [
+    "model weights",
+    "normalization",
+    "ranking",
+    "four-word maximum context",
+    "calibration status"
+  ],
+  "local_checks": "Server regression and interactive browser checks passed before installation.",
+  "published_app": {
+    "url": "https://sonjasahebzad.shinyapps.io/sonja-next-word/",
+    "bundle_id": "12605701",
+    "verified_word_count": 3,
+    "verified_example": "top of the",
+    "verified_click_continuation": "morning appended; next suggestion to",
+    "course_submission": "Not submitted; awaiting author review"
+  }
+}

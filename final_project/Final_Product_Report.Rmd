@@ -28,7 +28,7 @@ ci <- function(lo,hi) paste(pct(lo),"to",pct(hi))
 
 # Product and use
 
-[Open the Shiny app](https://sonjasahebzad.shinyapps.io/sonja-next-word/). Enter a phrase, select **Predict next word**, and select a suggested word to append it. Predict again to continue. The Results and How to use tabs provide evidence and instructions. First visits may be slower while the hosting service starts the app.
+[Open the Shiny app](https://sonjasahebzad.shinyapps.io/sonja-next-word/). Enter a phrase and finish a word with a space. Suggestions refresh after a short pause. Select a suggested word to append it, then continue typing or choosing words. **Predict next word** also works without a final space; automatic updates can be switched off. The Results and How to use tabs provide evidence and instructions. First visits may be slower while the hosting service starts the app. Automatic refresh waits at least 400 ms after a word boundary to avoid predicting from unfinished words. This intentional typing delay is separate from model computation time.
 
 The app processes text on the Shiny server for the active session. Application code does not persist phrases or call an external prediction API. A small output blocklist removes specified common profanities; it is not a comprehensive content filter.
 
@@ -36,7 +36,7 @@ The app processes text on the Shiny server for the active session. Application c
 
 The trained model uses **`r format(m$training_lines,big.mark=",")` deduplicated training lines** and **`r format(m$training_tokens,big.mark=",")` word tokens** from the official English SwiftKey blogs, news and Twitter files. The original split separates training, validation and test lines after global deduplication.
 
-The product derives from the project's frozen interpolated Kneser-Ney model. Text is lowercased, apostrophes normalized, and numbers, punctuation, URLs and mentions removed. Up to four recent words supply the context for a five-gram prediction. Longer patterns contribute when available; shorter patterns and general word frequencies provide fallback. These context patterns capture word combinations, but there is no separate fitted interaction model or full-sentence semantic reasoning.
+The product derives from the project's frozen interpolated Kneser-Ney model. Text is lowercased, apostrophes normalized, and numbers, punctuation, URLs and mentions removed. Up to four recent words supply the context for a five-gram prediction. Longer patterns contribute when available; shorter patterns and general word frequencies provide fallback. These context patterns capture word combinations, but there is no separate fitted interaction model or full-sentence semantic reasoning. A full sentence can be entered and extended; words earlier than the four-word context do not influence the prediction. The interface shows the actual matched words, excluding start-of-text padding from its word count.
 
 Pruning limits vocabulary, context support and stored followers. Removed probability mass returns to shorter contexts. Sparse scoring preserves the exact top suggestions of this compact distribution, verified against dense scoring. The **`r format(m$vocabulary,big.mark=",")`-word** deployed model occupies **`r sprintf("%.1f",m$model_mib)` MiB** compressed and **`r sprintf("%.1f",m$memory_mib)` MiB** as an R object. Total server memory also includes R and Shiny.
 
@@ -92,7 +92,7 @@ The model supplies a usable suggestion in every test case, but availability must
 
 Top-three accuracy was **31.3% for news**, **28.0% for blogs**, and **26.3% for Twitter**. The intervals overlap, so these observations do not establish a reliable ordering of source difficulty. Short context, informal language and rare expressions are plausible limitations, not proven causes of these differences.
 
-The candidate comparison demonstrates sensitivity to compression. It does not isolate the effect of vocabulary, context length and pruning because they change together. Exact normalized duplicates were removed; near-duplicates may remain. Archived source text and equal source weighting limit generalization to current writing. Scores from previous GPU models or assisted quizzes cannot be transferred to this CPU product or used as its confidence.
+The candidate comparison demonstrates sensitivity to compression. It does not isolate the effect of vocabulary, context length and pruning because they change together. Exact normalized duplicates were removed; near-duplicates may remain. Archived source text and equal source weighting limit generalization to current writing. Scores from previous GPU models or assisted quizzes cannot be transferred to this CPU product or used as its confidence. Informal corpus spellings, such as *mornin*, remain possible suggestions. Removing them would change the output distribution and needs a separate evaluation of readability, vocabulary coverage and accuracy.
 
 # Conclusion and next steps
 
@@ -102,7 +102,7 @@ The next experiment should vary one compression setting at a time and compare a 
 
 # Reproducibility and references
 
-This report was knitted from R Markdown. `scripts/build_and_evaluate.R` records the protocol, seeds, training-derived compression, selection, reserved hashes and case metrics. `scripts/verify_app.R` checks sparse scoring, input handling and server behavior. The distributed `app/model.rds` is the frozen evaluated model. Full rebuilds require the original corpus and earlier v3 training artifacts; `README.md` separates running the product from retraining it. Raw corpus lines and assessment answers are excluded from public publication.
+This report was knitted from R Markdown. `scripts/build_and_evaluate.R` records the protocol, seeds, training-derived compression, selection, reserved hashes and case metrics. `scripts/verify_app.R` checks sparse scoring, input handling and server behavior. The distributed `app/model.rds` is the frozen evaluated model. Full rebuilds require the original corpus and earlier v3 training artifacts; `README.md` separates running the product from retraining it. Raw corpus lines and assessment answers are excluded from public publication. A subsequent interface update added continuous writing and corrected context counts. `scripts/verify_continuous_writing.R` confirmed identical prediction words and scores on all 1,500 existing development/test examples and checked input updates and clearing. This is a regression check, not a new accuracy estimate. The model checksum and the independent test results above remain unchanged.
 
 ```{r fingerprint}
 knitr::kable(data.frame(Item=c("Model MD5","Test selection seed","Word-position seed","R version"),

@@ -33,8 +33,8 @@ Type. Predict. Keep writing.
 
 <div class="demo-layout">
 <div>
-<ol><li>Enter an English phrase.</li><li>Select <b>Predict next word</b>.</li><li>Select the large word or an alternative to append it.</li></ol>
-<p>Predict again to continue. A fallback keeps unfamiliar contexts usable.</p>
+<ol><li>Enter an English phrase.</li><li>Add a space for automatic suggestions, or select <b>Predict next word</b>.</li><li>Select a suggestion to append it, or keep typing.</li></ol>
+<p>Suggestions refresh as you continue. A fallback keeps unfamiliar contexts usable.</p>
 <p class="small-note">The Results tab explains measured quality. The How to use tab documents the product.</p>
 <p><a href="https://sonjasahebzad.shinyapps.io/sonja-next-word/" target="_blank">Try the live app</a></p>
 </div>

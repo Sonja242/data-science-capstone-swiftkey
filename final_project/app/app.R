@@ -10,7 +10,7 @@ ui <- fluidPage(
   title = "Sonja Next Word",
   tags$head(tags$link(rel="stylesheet",type="text/css",href="styles.css"),
     tags$meta(name="viewport",content="width=device-width, initial-scale=1"),
-    tags$script(HTML("document.addEventListener('click',function(e){if(e.target.closest('#predict')&&window.Shiny){Shiny.setInputValue('phrase',document.getElementById('phrase').value,{priority:'event'});}},true); $(document).on('keydown','#phrase',function(e){if((e.ctrlKey||e.metaKey)&&e.key==='Enter'){e.preventDefault();document.getElementById('predict').click();}});"))),
+    tags$script(src="input.js")),
   tags$div(class="shell",
     tags$header(class="masthead", tags$a(class="brand", href="#", "SONJA PROJECTS"),
       tags$span(class="edition", "DATA SCIENCE CAPSTONE")),
@@ -23,9 +23,10 @@ ui <- fluidPage(
           tags$section(class="editor-panel",tags$h2("Start with a phrase"),
             textAreaInput("phrase","Your English phrase",value="",rows=4,
               placeholder="The weather today is",width="100%"),
-            tags$div(class="input-meta",tags$span("Up to 500 characters. Finish the last word before predicting."),textOutput("counter",inline=TRUE)),
+            tags$div(class="input-meta",tags$span("Up to 500 characters. Add a space after a complete word."),textOutput("counter",inline=TRUE)),
+            checkboxInput("automatic","Update suggestions while writing",value=TRUE),
             tags$div(class="actions",actionButton("predict","Predict next word",class="btn-primary"),actionButton("clear","Clear",class="btn-quiet")),
-            tags$p(class="keyboard-hint","Keyboard shortcut: Ctrl + Enter (or Command + Enter)."),
+            tags$p(class="keyboard-hint","Automatic updates follow a space or punctuation and a short pause. Without a space, press Predict or Ctrl + Enter (Command + Enter on Mac)."),
             tags$p(class="example-label","Try a starting point"),
             tags$div(class="examples",actionButton("example1","The weather today is"),
               actionButton("example2","I am looking forward to"),actionButton("example3","She put the book on")),
@@ -53,13 +54,14 @@ ui <- fluidPage(
       tabPanel("How to use",value="guide",
         tags$section(class="content-panel guide",tags$h2("Three steps to keep writing"),
           tags$ol(tags$li("Enter an English phrase, or choose a starting point."),
-            tags$li("Select Predict next word. The large word is the first suggestion."),
-            tags$li("Select a suggestion to add it to your text. Predict again to continue.")),
+            tags$li("Finish a word and add a space. Suggestions update after a short pause. Alternatively, select Predict next word."),
+            tags$li("Select a suggestion to add it, or keep typing your own words. The next suggestions update automatically.")),
           tags$h3("How the prediction works"),
           tags$p(sprintf("The model was trained on %s deduplicated English lines from the official SwiftKey corpus. It combines patterns of up to %d words, using at most the last %d words of your phrase. Longer patterns help when they have support; shorter patterns provide a fallback when they do not.",format(metrics$training_lines,big.mark=","),metrics$max_order,metrics$max_order-1L)),
           tags$p("Kneser-Ney smoothing shares probability with shorter patterns. Pruning retains a compact set of useful continuations. Sparse scoring produces the same top suggestions as scoring every word in this compact model, while avoiding unnecessary computation."),
           tags$h3("What to expect"),
           tags$p("Suggestions are lowercase English words. Capitalization, numbers, URLs and punctuation are normalized. Unfamiliar contexts fall back to frequent words. This is next-word completion, not spelling correction or sentence-level reasoning."),
+          tags$p("A full sentence is accepted, but only the most recent four normalized words can affect the prediction. The context shown under the suggestions identifies the longest matched pattern. Informal spellings, such as mornin, can occur because the training corpus includes informal writing."),
           tags$p("An explicit output blocklist excludes some common profanities. It is not a comprehensive content filter. The short context can overlook the meaning of the full sentence."),
           tags$h3("Evidence and reproducibility"),
           tags$p("The model weights and vocabulary remain fixed during use. There is no online learning from your input. Development selection and the independent final test are recorded separately in the project source."),
@@ -80,24 +82,38 @@ server <- function(input, output, session) {
   last_phrase <- reactiveVal("")
   output$counter <- renderText(sprintf("%s / 500",nchar(input$phrase %||% "")))
   observeEvent(input$phrase,{result(NULL);error(NULL)},ignoreInit=TRUE,priority=10)
-  observeEvent(input$predict,{
-    phrase <- input$phrase %||% ""
+  settled_phrase <- debounce(reactive(input$phrase %||% ""), millis=400)
+  predict_for <- function(phrase, explicit=FALSE) {
     if (nchar(phrase)>500L) {result(NULL);error("Please shorten the phrase to 500 characters or fewer.");return()}
-    if (!nzchar(normalize_phrase(phrase))) {result(NULL);error("Enter an English word or phrase, then select Predict next word.");return()}
+    if (!nzchar(normalize_phrase(phrase))) {
+      result(NULL)
+      error(if(explicit) "Enter an English word or phrase, then select Predict next word." else NULL)
+      return()
+    }
+    if (identical(phrase,last_phrase()) && !is.null(result())) return()
     start <- as.numeric(Sys.time())
     p <- predict_word(model,phrase)
     p$elapsed <- (as.numeric(Sys.time())-start)*1000
     last_phrase(phrase);error(NULL);result(p)
+  }
+  observeEvent(input$predict,{
+    predict_for(input$phrase %||% "",explicit=TRUE)
+  })
+  observeEvent(list(settled_phrase(),input$automatic),{
+    phrase <- settled_phrase()
+    # A pending timer must never replace a newer input or a manual prediction.
+    if (!isTRUE(input$automatic) || !identical(phrase,input$phrase %||% "")) return()
+    if (nchar(phrase)>500L || grepl("[[:space:].!?;:,]$",phrase)) predict_for(phrase)
   })
   observeEvent(input$clear,{updateTextAreaInput(session,"phrase",value="");result(NULL);error(NULL)})
   examples <- c("The weather today is","I am looking forward to","She put the book on")
   for (i in seq_along(examples)) local({j <- i
-    observeEvent(input[[paste0("example",j)]],{updateTextAreaInput(session,"phrase",value=examples[j]);result(NULL);error(NULL)})
+    observeEvent(input[[paste0("example",j)]],{updateTextAreaInput(session,"phrase",value=paste0(examples[j]," "));result(NULL);error(NULL)})
   })
   for (i in 1:3) local({j <- i
     observeEvent(input[[paste0("choose",j)]],{
       p <- result();req(p,!is.null(p$words[j]),identical(input$phrase,last_phrase()))
-      new_text <- paste(trimws(last_phrase()),p$words[j])
+      new_text <- paste0(trimws(last_phrase())," ",p$words[j]," ")
       if(nchar(new_text)>500L){error("Adding this word would exceed 500 characters.");return()}
       updateTextAreaInput(session,"phrase",value=new_text);result(NULL);error(NULL)
     })
@@ -107,14 +123,15 @@ server <- function(input, output, session) {
     if (!is.null(error())) return(tagList(tags$p(class="eyebrow","ONE MORE STEP"),tags$h2("Ready when you are."),tags$p(class="input-error",error())))
     if (is.null(p)) return(tagList(tags$p(class="eyebrow","YOUR NEXT WORD"),
       tags$div(class="empty-mark", "Aa"),tags$h2("A little help with what comes next."),
-      tags$p("Enter a phrase and select Predict next word. Your suggestions will appear here.")))
-    tagList(tags$p(class="eyebrow","FIRST SUGGESTION"),
+      tags$p(if(isTRUE(input$automatic)) "Finish a word and add a space, or select Predict next word. Suggestions refresh as you continue." else "Enter a phrase and select Predict next word. Your suggestions will appear here.")))
+    tags$div(`data-prediction-phrase`=last_phrase(),tags$p(class="eyebrow","FIRST SUGGESTION"),
       actionButton("choose1",p$words[1],class="word-primary",title="Add this word to your phrase"),
       tags$p(class="choose-hint","Select a word to add it to your phrase."),
       tags$p(class="example-label","Two alternatives"),
       tags$div(class="alternatives",actionButton("choose2",p$words[2]),actionButton("choose3",p$words[3])),
-      tags$div(class="evidence",tags$strong(if(p$order==1L) "Frequent-word fallback" else sprintf("Pattern with %d recent word%s",p$order-1L,if(p$order==2L)"" else "s")),
+      tags$div(class="evidence",tags$strong(if(p$order==1L) "Frequent-word fallback" else sprintf("Pattern with %d recent word%s",p$context_words,if(p$context_words==1L)"" else "s")),
         tags$p(if(p$order==1L)"This context was not retained in the compact model." else paste("Context:",if(nzchar(p$context))p$context else "start of text")),
+        tags$p(class="context-note",sprintf("%d input word%s. Predictions use at most %d recent words.",p$input_words,if(p$input_words==1L)"" else "s",model$maximum_order-1L)),
         tags$small(sprintf("%.0f ms to compute on this server. Network time excluded.",p$elapsed))))
   })
   output$source_plot <- renderPlot({
