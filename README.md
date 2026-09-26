@@ -5,14 +5,18 @@
 
 This repository contains a reproducible workflow for the Johns Hopkins University Data Science Capstone. It explores the official English SwiftKey corpus and compares experimental next-word predictors on separate training, validation and test data. Predictions are fallible; this project is not an answer key.
 
-## Final product: Sonja Next Word
+## Final product: Sonja PhraseFlow 1.4
 
 - [Live Shiny app](https://sonjasahebzad.shinyapps.io/sonja-next-word/)
 - [Five-slide RStudio Presenter pitch on RPubs](https://rpubs.com/Sonja_Janssen/sonja-next-word)
-- [Final product report](https://sonja242.github.io/data-science-capstone-swiftkey/final-product-report.html)
-- [Run and reproduce the product](final_project/README.md)
+- [Illustrated user guide, figures and results](https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-guide.html)
+- [Archived English product report](https://sonja242.github.io/data-science-capstone-swiftkey/final-product-report.html)
+- [Run the current app and open the editable RStudio documents](final_project/phraseflow_multilingual/README.md)
+- [Review pack and submission links](final_project/Submission_Details.md)
 
-The deployed compact model is evaluated separately from the GPU research models and quiz case studies. On 900 reserved examples, first-choice accuracy is 17.0% and top-three accuracy is 28.6%. It returns a suggestion for every test case; that coverage is not accuracy. The app does not display uncalibrated confidence percentages.
+The app now offers twelve language choices, 5/10/20 visible words and experimental short endings. Additional languages use separately evaluated models; their results do not demonstrate improved English accuracy or reliable full-sentence meaning.
+
+The unchanged English compact model is evaluated separately from the GPU research models and quiz case studies. On 900 reserved examples, first-choice accuracy is 17.0% and top-three accuracy is 28.6%. It returns a suggestion for every test case; that coverage is not accuracy. The app does not display uncalibrated confidence percentages.
 
 ## View the finished reports
 

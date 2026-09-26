@@ -1,0 +1,62 @@
+{
+  "en_US": {
+    "rows": 126476,
+    "memory_mib": 9.3538,
+    "file_mib": 1.0239
+  },
+  "de_DE": {
+    "rows": 81108,
+    "memory_mib": 6.8447,
+    "file_mib": 0.7715
+  },
+  "fi_FI": {
+    "rows": 34405,
+    "memory_mib": 3.4088,
+    "file_mib": 0.3942
+  },
+  "ru_RU": {
+    "rows": 57420,
+    "memory_mib": 5.8631,
+    "file_mib": 0.6774
+  },
+  "nl_NL": {
+    "rows": 134025,
+    "memory_mib": 8.7311,
+    "file_mib": 0.9889
+  },
+  "fr_FR": {
+    "rows": 142426,
+    "memory_mib": 9.2894,
+    "file_mib": 1.1281
+  },
+  "ko_KR": {
+    "rows": 7207,
+    "memory_mib": 0.6588,
+    "file_mib": 0.0659
+  },
+  "zh_CN": {
+    "rows": 94472,
+    "memory_mib": 6.8728,
+    "file_mib": 0.7656
+  },
+  "pt_PT": {
+    "rows": 139493,
+    "memory_mib": 8.9147,
+    "file_mib": 1.0615
+  },
+  "it_IT": {
+    "rows": 129524,
+    "memory_mib": 8.1065,
+    "file_mib": 0.9345
+  },
+  "hi_IN": {
+    "rows": 27576,
+    "memory_mib": 2.1712,
+    "file_mib": 0.2201
+  },
+  "es_ES": {
+    "rows": 125342,
+    "memory_mib": 8.3444,
+    "file_mib": 0.9825
+  }
+}

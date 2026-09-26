@@ -1,28 +1,45 @@
-# Final Project: review and submission
+# Final project: author review before submission
 
-Author: Sonja Sahebzad. Sonja Projects.
+Author: Sonja Sahebzad · Utrecht, the Netherlands · Sonja Projects
 
-**Status: ready for the author's review, not submitted to Coursera.**
+**Status: publication verification in progress. Not submitted to Coursera. No peer-review message sent.**
 
-**Project title:** Sonja Next Word: A Compact English Prediction App
+**Project title:** Sonja PhraseFlow: Multilingual Next-Word Prediction
 
-**Shiny app URL:** https://sonjasahebzad.shinyapps.io/sonja-next-word/
+**Shiny app:** https://sonjasahebzad.shinyapps.io/sonja-next-word/
 
-**Five-slide RPubs URL:** https://rpubs.com/Sonja_Janssen/sonja-next-word
+**Five-slide RPubs deck:** https://rpubs.com/Sonja_Janssen/sonja-next-word
 
-**Supporting report:** https://sonja242.github.io/data-science-capstone-swiftkey/final-product-report.html
+**User guide and measured results:** https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-guide.html
 
-| Rubric requirement | Evidence |
-| --- | --- |
-| Public shinyapps.io application | Anonymous HTTP access verified; live UI tested |
-| Phrase text input and submit action | Write tab, Predict next word button, keyboard shortcut |
-| Single-word output | Large first suggestion; two alternatives are optional |
-| Five English news/Twitter phrases receive a prediction | Five of five live browser tests; details in results/live-browser-checks.json |
-| No more than five RStudio Presenter slides on RPubs | Native `.Rpres` export; five HTML sections verified anonymously |
-| Algorithm explained | Slide 2 and app How to use tab |
-| Quantitative predictive performance | Slide 4: 900-case accuracy, intervals and local timing |
-| App demonstration and instructions | Slide 3 includes an actual app image and usage steps |
-| Professional user experience | Consistent blue style, click-to-append, examples, accessible labels, results and guide |
-| Reproducibility and limitations | Supporting R Markdown report, source code, protocol and frozen model |
+**GitHub source:** https://github.com/Sonja242/data-science-capstone-swiftkey
 
-Experience and hiring judgments remain the peer reviewer's own assessment. No grade is guaranteed. Check the two submission links once more before submitting. The author makes the final course submission after reviewing these materials.
+**Portfolio:** https://sonjasahebzad.shinyapps.io/data-science-portfolio/
+
+## Author review
+
+1. Open the app, keep English selected and enter a phrase. Check that the large first suggestion is one word.
+2. Click a suggestion and continue writing. Try the 5/10/20 choices, another language and the User guide / Handleiding button.
+3. Open RPubs without signing in. Review all five slides, graphs and the guide link.
+4. Confirm the project title and the two submission URLs above. Submit only after author approval.
+
+The course rubric requires an operating Shiny app and a deck of at most five RStudio Presenter slides. The app predicts from a multiword input; the optional ending buttons supplement the prominent single-word prediction. Slide 2 explains the algorithm, slide 3 demonstrates use, and slides 4–5 provide quantitative results and limitations. Evidence of live checks is retained in `publication-20260927`.
+
+The English score is 17.0% first-choice and 28.6% top-three on the archived 900-case evaluation. Those percentages are not per-suggestion confidence. Extra endings have no independent accuracy evaluation. No new reserved English test cases were opened for this release.
+
+## Peer-review message — draft only
+
+Hello everyone,
+
+My final capstone project, **Sonja PhraseFlow**, is available to explore. It predicts the next word from an English phrase, with additional experimental language options and an illustrated user guide.
+
+- App: https://sonjasahebzad.shinyapps.io/sonja-next-word/
+- Five-slide presentation: https://rpubs.com/Sonja_Janssen/sonja-next-word
+- User guide and results: https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-guide.html
+
+After submission, the Coursera review link will be added here. Feedback on usability, clarity of the explanation and the reported evaluation would be appreciated. Please assess the project using the course rubric.
+
+Thank you,
+Sonja Sahebzad
+
+The actual Coursera peer-review link can only be confirmed after submission. The app and presentation links are not substitutes for that review link. This draft has not been posted or sent.

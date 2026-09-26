@@ -1,0 +1,11 @@
+{
+  "cases": 600,
+  "purpose": "Warm CPU timing on reused English development prefixes; not a quality evaluation",
+  "median_ms": 1.807,
+  "p95_ms": 3.5388,
+  "word_candidates": 20,
+  "includes": "Next-word prediction and supplementary ending retrieval",
+  "excludes": "Loading, 150ms debounce, rendering, network",
+  "unchanged_top10_all_600": true,
+  "toy_context_and_no_match_checks": true
+}

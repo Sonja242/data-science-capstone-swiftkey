@@ -1,0 +1,3 @@
+app.R
+www/styles.css
+www/favicon.svg

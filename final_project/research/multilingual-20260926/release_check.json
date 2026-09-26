@@ -1,0 +1,18 @@
+{
+  "native_presenter_slides": 5,
+  "all_five_slides_visually_checked": true,
+  "language_choices": [
+    "en_US",
+    "de_DE",
+    "fi_FI",
+    "ru_RU"
+  ],
+  "all_languages_supported": false,
+  "browser_language_reset_checked": true,
+  "browser_cyrillic_append_refresh_checked": true,
+  "browser_finnish_metrics_match_saved_results": true,
+  "language_selector_text_visible": true,
+  "html_guide_served_by_shiny": true,
+  "production_deployment_changed": false,
+  "course_submission_made": false
+}

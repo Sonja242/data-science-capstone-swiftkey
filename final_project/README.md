@@ -1,3 +1,5 @@
+> **Latest release:** [Sonja PhraseFlow 1.4](phraseflow_multilingual/README.md) contains the current multilingual app, guide and five-slide deck. The material below documents the original English product and remains an archived reference.
+
 # Sonja Next Word
 
 Author: **Sonja Sahebzad**. Sonja Projects.

@@ -1,0 +1,28 @@
+{
+  "languages": 12,
+  "twenty_word_candidates": true,
+  "english_exact_600": true,
+  "english_reserved_test_opened": false,
+  "unicode_hindi_korean_chinese": true,
+  "automatic_and_manual_all_languages": true,
+  "composition_pause": true,
+  "language_switch_clears_results": true,
+  "cache_maximum_four": true,
+  "prepared_model_objects_maximum_mib": 273.5269012451,
+  "model_memory_mib": {
+    "en_US": 224.8674621582,
+    "de_DE": 17.0620422363,
+    "fi_FI": 11.0851364136,
+    "ru_RU": 15.8151855469,
+    "nl_NL": 13.8218460083,
+    "fr_FR": 15.7822113037,
+    "ko_KR": 3.7539672852,
+    "zh_CN": 12.4229812622,
+    "pt_PT": 15.6102905273,
+    "it_IT": 13.3842391968,
+    "hi_IN": 3.8117980957,
+    "es_ES": 15.2779312134
+  },
+  "english_model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "production_model_md5": "bd58c642df1759c4ce1c39b9ace8927c"
+}

@@ -1,0 +1,28 @@
+{
+  "author": "Sonja Sahebzad",
+  "brand": "Sonja Projects",
+  "date": "2026-09-26",
+  "languages": [
+    "de_DE",
+    "fi_FI",
+    "ru_RU"
+  ],
+  "samples_per_source": 32000,
+  "training_cap_per_source": 25000,
+  "heldout_cases_per_source": 200,
+  "maximum_words_per_line": 80,
+  "seed": 20260927,
+  "maximum_order": 5,
+  "vocabulary_cap": 40000,
+  "minimum_count": 2,
+  "context_support": 3,
+  "followers": 8,
+  "method": "Pruned interpolated Kneser-Ney, fixed discount 0.75",
+  "selection": "No tuning or model selection on held-out cases. Fixed compact settings for first language prototypes.",
+  "baselines": "Same-language unigram frequency, evaluated on the exact same held-out cases.",
+  "split": "Global normalized-line deduplication within language before source-stratified split; one random target per held-out line.",
+  "tokenizer": "NFC Unicode letters with internal apostrophes, lowercase, URL/mention removal. English tokenizer unchanged.",
+  "english_model_changed": false,
+  "english_reserved_test_opened": false,
+  "deployment": "Local prototype only. No claim of all-language support or semantic understanding."
+}

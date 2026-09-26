@@ -1,0 +1,78 @@
+{
+  "source_url": "https://d396qusza40orc.cloudfront.net/dsscapstone/dataset/Coursera-SwiftKey.zip",
+  "archive_sha256": "f82ff2e2fab8a406df71399799efbe328ac6f35ffa21a8fdcceadb4263af66a8",
+  "members": [
+    {
+      "language": "de_DE",
+      "source": "blogs",
+      "member": "final/de_DE/de_DE.blogs.txt",
+      "archive_lines": 371440,
+      "sampled": 32000,
+      "crc": 1480165668
+    },
+    {
+      "language": "de_DE",
+      "source": "news",
+      "member": "final/de_DE/de_DE.news.txt",
+      "archive_lines": 244743,
+      "sampled": 32000,
+      "crc": 3615551896
+    },
+    {
+      "language": "de_DE",
+      "source": "twitter",
+      "member": "final/de_DE/de_DE.twitter.txt",
+      "archive_lines": 947774,
+      "sampled": 32000,
+      "crc": 14280599
+    },
+    {
+      "language": "fi_FI",
+      "source": "blogs",
+      "member": "final/fi_FI/fi_FI.blogs.txt",
+      "archive_lines": 439785,
+      "sampled": 32000,
+      "crc": 2882918506
+    },
+    {
+      "language": "fi_FI",
+      "source": "news",
+      "member": "final/fi_FI/fi_FI.news.txt",
+      "archive_lines": 485758,
+      "sampled": 32000,
+      "crc": 2169663667
+    },
+    {
+      "language": "fi_FI",
+      "source": "twitter",
+      "member": "final/fi_FI/fi_FI.twitter.txt",
+      "archive_lines": 285214,
+      "sampled": 32000,
+      "crc": 1060439428
+    },
+    {
+      "language": "ru_RU",
+      "source": "blogs",
+      "member": "final/ru_RU/ru_RU.blogs.txt",
+      "archive_lines": 337100,
+      "sampled": 32000,
+      "crc": 1930885919
+    },
+    {
+      "language": "ru_RU",
+      "source": "news",
+      "member": "final/ru_RU/ru_RU.news.txt",
+      "archive_lines": 196360,
+      "sampled": 32000,
+      "crc": 2359965067
+    },
+    {
+      "language": "ru_RU",
+      "source": "twitter",
+      "member": "final/ru_RU/ru_RU.twitter.txt",
+      "archive_lines": 881414,
+      "sampled": 32000,
+      "crc": 2062560090
+    }
+  ]
+}

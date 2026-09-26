@@ -1,0 +1,28 @@
+library(jsonlite);library(data.table)
+app<-'final_project/phraseflow_multilingual';out<-'final_project/research/languages-20260926-v13'
+new<-fromJSON(file.path(out,'metrics.json'),simplifyVector=FALSE)
+tab<-rbindlist(lapply(new,function(d)data.table(Language=d$language_name,top1=d$overall$top1,top3=d$overall$top3,
+ low1=d$overall$top1_low,high1=d$overall$top1_high,low3=d$overall$top3_low,high3=d$overall$top3_high,
+ median=d$median_ms,training=d$training_lines)))
+dir.create(file.path(app,'www','figures'),showWarnings=FALSE)
+png(file.path(app,'www/figures/additional-languages.png'),width=1500,height=1000,res=150)
+par(mar=c(4.7,9.5,2.5,1),family='sans',fg='#15344e',col.axis='#15344e',cex=1.1)
+y<-rev(seq_len(nrow(tab)))
+plot(NA,xlim=c(0,45),ylim=c(.4,nrow(tab)+1),xlab='Recorded next word matched (%)',ylab='',yaxt='n',bty='n')
+abline(v=seq(0,40,10),col='#e2eaf0',lty=1)
+axis(2,at=y,labels=tab$Language,las=1,tick=FALSE,cex.axis=1.05)
+segments(100*tab$low1,y+.11,100*tab$high1,y+.11,col='#123f68',lwd=1.5)
+points(100*tab$top1,y+.11,pch=16,col='#123f68',cex=1.05)
+segments(100*tab$low3,y-.11,100*tab$high3,y-.11,col='#1f73a8',lwd=1.5)
+points(100*tab$top3,y-.11,pch=15,col='#1f73a8',cex=1.05)
+text(100*tab$high3+1.2,y-.11,sprintf('%.1f%%',100*tab$top3),adj=0,col='#123f68',cex=.9)
+legend('top',legend=c('First suggestion','Within three'),pch=c(16,15),col=c('#123f68','#1f73a8'),bty='n',horiz=TRUE,cex=.95)
+dev.off()
+en<-fromJSON(file.path(app,'metrics.json'))$overall
+png(file.path(app,'www/figures/english-performance.png'),width=1400,height=800,res=150)
+par(mar=c(5,5,2,1),family='sans',fg='#15344e',col.axis='#15344e',cex=1.25)
+b<-barplot(100*c(en$top1,en$top3),names.arg=c('First suggestion','Within three'),ylim=c(0,40),col=c('#123f68','#75aacf'),border=NA,ylab='Recorded next word matched (%)',width=.6,space=.9)
+arrows(b,100*c(en$top1_low,en$top3_low),b,100*c(en$top1_high,en$top3_high),angle=90,code=3,length=.08,col='#15344e',lwd=1.5)
+text(b,100*c(en$top1_high,en$top3_high)+3,sprintf('%.1f%%',100*c(en$top1,en$top3)),cex=1.2,col='#123f68')
+dev.off()
+fwrite(tab,file.path(out,'figure_values.csv'))

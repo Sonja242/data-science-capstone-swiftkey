@@ -1,0 +1,86 @@
+{
+  "en_US": {
+    "training_file": "data\\student_context\\training_lines.csv",
+    "sha256": "81940af5bdc8dbe577ac5e5c43fb0e347351633fa8206e75b2acd2c52384cc34",
+    "training_lines": 90000,
+    "contexts": 617742,
+    "build_seconds": 2.313
+  },
+  "de_DE": {
+    "training_file": "data\\multilingual_20260926\\de_DE_train.csv",
+    "sha256": "84564e41d08168b4317c76e42ef625ff42c4222418913d50095d55993209c4a2",
+    "training_lines": 75000,
+    "contexts": 536493,
+    "build_seconds": 1.967
+  },
+  "fi_FI": {
+    "training_file": "data\\multilingual_20260926\\fi_FI_train.csv",
+    "sha256": "ab5299e42c13dd8e6b3670e2c0c95094f11c00d3f9842a89c7f9fea9dbd22b72",
+    "training_lines": 75000,
+    "contexts": 581782,
+    "build_seconds": 2.015
+  },
+  "ru_RU": {
+    "training_file": "data\\multilingual_20260926\\ru_RU_train.csv",
+    "sha256": "e58dcdd9f18165e1eb684b7c495dc27ddea4c27e2695c46d3a804b2e5df5d5c8",
+    "training_lines": 75000,
+    "contexts": 537752,
+    "build_seconds": 2.151
+  },
+  "nl_NL": {
+    "training_file": "data\\languages_20260926_v13\\nl_NL_train.csv",
+    "sha256": "197e7cc9c003eecc38f5c5be35762e44f2dc58ac4496247728a7484a90b97dc3",
+    "training_lines": 75000,
+    "contexts": 305284,
+    "build_seconds": 1.192
+  },
+  "fr_FR": {
+    "training_file": "data\\languages_20260926_v13\\fr_FR_train.csv",
+    "sha256": "d72e86848c21dcc6821efffa1ca659f72953852b44a600bfb1bbdb13b33ffbc4",
+    "training_lines": 75000,
+    "contexts": 348163,
+    "build_seconds": 1.384
+  },
+  "ko_KR": {
+    "training_file": "data\\languages_20260926_v13\\ko_KR_train.csv",
+    "sha256": "dccc0ba460d5ead6eddb85c2e0e4127870c5c854e99ab3695b5cd109b4b5d373",
+    "training_lines": 14602,
+    "contexts": 52739,
+    "build_seconds": 0.139
+  },
+  "zh_CN": {
+    "training_file": "data\\languages_20260926_v13\\zh_CN_train.csv",
+    "sha256": "b7824aec3987bd3d7578e2726847ab4dab9ec66193044cb325537c98a4b9c7f2",
+    "training_lines": 75000,
+    "contexts": 373265,
+    "build_seconds": 1.198
+  },
+  "pt_PT": {
+    "training_file": "data\\languages_20260926_v13\\pt_PT_train.csv",
+    "sha256": "5cb85a342325f48d896c619d8f0b0e93eaa0424ee83f3898e8a6073ce1425bca",
+    "training_lines": 75000,
+    "contexts": 339979,
+    "build_seconds": 1.336
+  },
+  "it_IT": {
+    "training_file": "data\\languages_20260926_v13\\it_IT_train.csv",
+    "sha256": "9247f48298d89e11a25a050be8b49d406769ab777b71d4cf28df9f20f270af54",
+    "training_lines": 75000,
+    "contexts": 262894,
+    "build_seconds": 1.066
+  },
+  "hi_IN": {
+    "training_file": "data\\languages_20260926_v13\\hi_IN_train.csv",
+    "sha256": "2e5b55b5799b2d045881f8208250be89b003bacdeff78134c556ea51cc9bc9c3",
+    "training_lines": 15466,
+    "contexts": 68602,
+    "build_seconds": 0.215
+  },
+  "es_ES": {
+    "training_file": "data\\languages_20260926_v13\\es_ES_train.csv",
+    "sha256": "c24d698afe3dead0c7b1446f456dbcd00ea805fb975f2bbe6b45c8d12c9b429c",
+    "training_lines": 75000,
+    "contexts": 350866,
+    "build_seconds": 1.335
+  }
+}

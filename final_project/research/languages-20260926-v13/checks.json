@@ -1,0 +1,27 @@
+{
+  "languages": 12,
+  "english_exact_600": true,
+  "english_reserved_test_opened": false,
+  "unicode_hindi_korean_chinese": true,
+  "automatic_and_manual_all_languages": true,
+  "composition_pause": true,
+  "language_switch_clears_results": true,
+  "cache_maximum_four": true,
+  "prepared_model_objects_maximum_mib": 243.3591842651,
+  "model_memory_mib": {
+    "en_US": 215.513633728,
+    "de_DE": 10.2172317505,
+    "fi_FI": 7.6763076782,
+    "ru_RU": 9.9520111084,
+    "nl_NL": 5.0906829834,
+    "fr_FR": 6.4926757812,
+    "ko_KR": 3.0950317383,
+    "zh_CN": 5.5501174927,
+    "pt_PT": 6.6955337524,
+    "it_IT": 5.2776107788,
+    "hi_IN": 1.6405105591,
+    "es_ES": 6.9334106445
+  },
+  "english_model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "production_model_md5": "bd58c642df1759c4ce1c39b9ace8927c"
+}

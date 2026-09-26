@@ -33,3 +33,12 @@ README.original.md
 models/neural/
 __pycache__/
 models/neural_*_pilot.json
+
+# Preserved previews and generated training intermediates (not public releases)
+final_project/phraseflow_multilingual_v*/
+final_project/phraseflow_preview/
+final_project/research/continuations-20260926-v14/*_index.tsv
+final_project/phraseflow_multilingual/PhraseFlow_Pitch-rpubs.html
+final_project/phraseflow_multilingual/documentation/
+final_project/phraseflow_multilingual/www/PhraseFlow_User_Guide.pdf
+final_project/phraseflow_multilingual/www/multilingual-preview.png

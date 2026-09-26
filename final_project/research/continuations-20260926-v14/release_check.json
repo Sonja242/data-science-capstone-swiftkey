@@ -1,0 +1,19 @@
+{
+  "version": "1.4",
+  "model_files_unchanged": 12,
+  "native_presenter_slides": 5,
+  "embedded_images": 3,
+  "knitted_guide_matches_app_copy": true,
+  "automated_checks": "checks.json and continuation_checks.json",
+  "browser_checks": [
+    "5/10/20 visible word choices",
+    "Dutch single-word insertion and refreshed predictions",
+    "Dutch two-word insertion and refreshed predictions",
+    "Chinese insertion without spaces",
+    "Immediate typing after language change preserved",
+    "New guide and slide illustration inspected"
+  ],
+  "language_models": 12,
+  "quality_limitation": "No independent accuracy evaluation of supplementary endings. Existing word rankings unchanged.",
+  "deployed": false
+}

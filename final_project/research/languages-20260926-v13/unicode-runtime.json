@@ -1,0 +1,28 @@
+{
+  "Unicode.version": "15.1",
+  "ICU.version": "74.1",
+  "Locale": {
+    "Language": "nl",
+    "Country": "NL",
+    "Variant": "",
+    "Name": "nl_NL"
+  },
+  "Charset.internal": ["UTF-8", "UTF-16"],
+  "Charset.native": {
+    "Name.friendly": "UTF-8",
+    "Name.ICU": "UTF-8",
+    "Name.UTR22": null,
+    "Name.IBM": "ibm-1208",
+    "Name.WINDOWS": "windows-65001",
+    "Name.JAVA": "UTF-8",
+    "Name.IANA": "UTF-8",
+    "Name.MIME": "UTF-8",
+    "ASCII.subset": true,
+    "Unicode.1to1": null,
+    "CharSize.8bit": false,
+    "CharSize.min": 1,
+    "CharSize.max": 3
+  },
+  "ICU.system": false,
+  "ICU.UTF8": false
+}

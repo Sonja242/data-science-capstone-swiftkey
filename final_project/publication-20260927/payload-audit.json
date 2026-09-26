@@ -1,0 +1,131 @@
+{
+  "model_files_inspected": 12,
+  "continuation_files_inspected": 12,
+  "user_authorization": "User requested latest project publication on their GitHub, GitHub Pages, RPubs and portfolio before reviewing the Coursera submission.",
+  "sources": "Four language models derive from the public course corpus; eight derive from public Tatoeba exports with CC BY 2.0 FR attribution retained.",
+  "private_training_or_holdout_rows_in_model_payload": false,
+  "course_quiz_answer_tables_in_model_payload": false,
+  "credentials_excluded": true,
+  "records": {
+    "model.rds": {
+      "fields": ["version", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "support", "followers", "training_lines", "training_tokens", "method", "blocked_terms"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 50000
+    },
+    "languages/de_DE.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 40000
+    },
+    "languages/es_ES.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method", "training_source", "prediction_unit"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 35573
+    },
+    "languages/fi_FI.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 40000
+    },
+    "languages/fr_FR.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method", "training_source", "prediction_unit"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 31976
+    },
+    "languages/hi_IN.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method", "training_source", "prediction_unit"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 7709
+    },
+    "languages/it_IT.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method", "training_source", "prediction_unit"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 26037
+    },
+    "languages/ko_KR.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method", "training_source", "prediction_unit"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 19696
+    },
+    "languages/nl_NL.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method", "training_source", "prediction_unit"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 24342
+    },
+    "languages/pt_PT.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method", "training_source", "prediction_unit"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 32444
+    },
+    "languages/ru_RU.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 40000
+    },
+    "languages/zh_CN.rds": {
+      "fields": ["version", "language", "tokenizer", "vocabulary", "lookup", "base_probability", "base_order", "tables", "maximum_order", "training_lines", "training_tokens", "method", "training_source", "prediction_unit"],
+      "kind": "Vocabulary and aggregate numeric n-gram weights; no training rows, held-out examples or quiz answer table",
+      "vocabulary": 30522
+    },
+    "continuations/de_DE.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 81108,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/en_US.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 126476,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/es_ES.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 125342,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/fi_FI.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 34405,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/fr_FR.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 142426,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/hi_IN.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 27576,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/it_IT.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 129524,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/ko_KR.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 7207,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/nl_NL.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 134025,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/pt_PT.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 139493,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/ru_RU.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 57420,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    },
+    "continuations/zh_CN.rds": {
+      "columns": ["context", "continuation", "count"],
+      "rows": 94472,
+      "kind": "Frequency-aggregated public-training phrase suffixes: 2-4 context units and 1-3 ending units; not raw training or held-out rows"
+    }
+  }
+}

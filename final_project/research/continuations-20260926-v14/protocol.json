@@ -1,0 +1,11 @@
+{
+  "version": "1.4",
+  "author": "Sonja Sahebzad",
+  "method": "Training-sentence endings; exact suffix match of 2 to 4 normalized units; one to three unit continuations.",
+  "pruning": "Retain up to eight endings per context by count, lexical tie-break. Discard contexts with less than two retained training occurrences; gzip storage for quick loading.",
+  "runtime": "Prefer longest matching suffix. If only two units match, offer the first next unit only. For longer matches, retain complete saved endings. Rank by training count.",
+  "limits": "Local context lookup; not full-sentence semantic understanding. Examples are demonstrations, not an accuracy evaluation.",
+  "reserved_test_opened": false,
+  "new_training": false,
+  "hardcoded_user_answers": false
+}

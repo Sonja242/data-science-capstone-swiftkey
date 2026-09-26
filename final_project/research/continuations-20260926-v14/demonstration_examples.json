@@ -1,0 +1,65 @@
+{
+  "we houden van": {
+    "first": "elkaar",
+    "alternatives": ["de", "het", "me", "een", "dit", "ons", "muziek", "honden", "pizza"],
+    "continuations": {
+      "text": ["de sneeuw", "ons land", "picknicks"],
+      "context": "we houden van",
+      "context_words": 3
+    }
+  },
+  "we leven lang en": {
+    "first": "de",
+    "alternatives": ["een", "ik", "het", "zijn", "is", "dat", "niet", "van", "hij"],
+    "continuations": {
+      "text": ["gelukkig", "prachtig", "atletisch"],
+      "context": "lang en",
+      "context_words": 2
+    }
+  },
+  "ik wens je een": {
+    "first": "goede",
+    "alternatives": ["paar", "is", "vraag", "van", "nieuwe", "in", "en", "goed", "beetje"],
+    "continuations": {
+      "text": ["gelukkig nieuwjaar", "goede dag tom", "goede morgen"],
+      "context": "ik wens je een",
+      "context_words": 4
+    }
+  },
+  "dank je wel voor": {
+    "first": "de",
+    "alternatives": ["het", "een", "je", "mij", "zijn", "me", "haar", "is", "van"],
+    "continuations": {
+      "text": ["de aanbeveling", "de pizza"],
+      "context": "dank je wel voor",
+      "context_words": 4
+    }
+  },
+  "ik kijk uit naar": {
+    "first": "kerstmis",
+    "alternatives": ["de", "het", "huis", "een", "school", "boston", "australië", "buiten", "is"],
+    "continuations": {
+      "text": ["morgen", "uw beslissing"],
+      "context": "ik kijk uit naar",
+      "context_words": 4
+    }
+  },
+  "mag ik een kopje": {
+    "first": "thee",
+    "alternatives": ["koffie", "is", "van", "in", "en", "zijn", "te", "de", "op"],
+    "continuations": {
+      "text": ["koffie gebruiken", "suiker lenen", "thee van u"],
+      "context": "ik een kopje",
+      "context_words": 3
+    }
+  },
+  "we zijn blij dat": {
+    "first": "ik",
+    "alternatives": ["je", "tom", "het", "we", "jullie", "hij", "ze", "de", "is"],
+    "continuations": {
+      "text": "alles",
+      "context": "blij dat",
+      "context_words": 2
+    }
+  }
+}

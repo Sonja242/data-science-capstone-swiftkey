@@ -1,0 +1,45 @@
+{
+  "author": "Sonja Sahebzad",
+  "location": "Utrecht, the Netherlands",
+  "brand": "Sonja Projects",
+  "title": "Sonja PhraseFlow",
+  "version": "1.4",
+  "date": "2026-09-27",
+  "status": "Prepared for public release; deployment evidence is stored separately",
+  "languages": [
+    "en_US",
+    "de_DE",
+    "fi_FI",
+    "ru_RU",
+    "nl_NL",
+    "fr_FR",
+    "ko_KR",
+    "zh_CN",
+    "pt_PT",
+    "it_IT",
+    "hi_IN",
+    "es_ES"
+  ],
+  "english_model_unchanged": true,
+  "english_model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "new_languages_experimental": true,
+  "individual_confidence_calibrated": false,
+  "guide": "Multilingual_Guide.html",
+  "guide_source": "Multilingual_Guide.Rmd",
+  "slide_deck": "PhraseFlow_Pitch.html",
+  "slide_source": "PhraseFlow_Pitch.Rpres",
+  "slides": 5,
+  "previous_preview": "../phraseflow_multilingual_v13_20260926",
+  "production_changed": false,
+  "publication_note": "Deck and guide use public links. See ../publication-20260927/publication.json for verified deployment status.",
+  "historical_artifacts": [
+    "PhraseFlow_Pitch-rpubs.html (superseded local export)",
+    "www/PhraseFlow_User_Guide.pdf (original English 1.1 guide)"
+  ],
+  "features": [
+    "5, 10 or 20 visible word choices",
+    "Supplementary training-text endings in twelve languages",
+    "Stable insertion and language change handling"
+  ],
+  "continuations_independently_evaluated": false
+}

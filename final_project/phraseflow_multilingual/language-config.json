@@ -1,0 +1,154 @@
+{
+  "en_US": {
+    "name": "English",
+    "label": "English",
+    "tokenizer": "english",
+    "examples": [
+      "The weather today is",
+      "I am looking forward to",
+      "She put the book on"
+    ],
+    "corpus": "Original course corpus",
+    "experimental": false
+  },
+  "de_DE": {
+    "name": "German",
+    "label": "Deutsch",
+    "tokenizer": "unicode",
+    "examples": [
+      "Ich freue mich auf",
+      "Das Wetter ist heute",
+      "Vielen Dank für"
+    ],
+    "corpus": "Original course corpus",
+    "experimental": true
+  },
+  "fi_FI": {
+    "name": "Finnish",
+    "label": "Suomi",
+    "tokenizer": "unicode",
+    "examples": [
+      "Minä haluan mennä",
+      "Tänään on kaunis",
+      "Kiitos paljon"
+    ],
+    "corpus": "Original course corpus",
+    "experimental": true
+  },
+  "ru_RU": {
+    "name": "Russian",
+    "label": "Русский",
+    "tokenizer": "unicode",
+    "examples": [
+      "Я хочу пойти в",
+      "Сегодня хорошая",
+      "Спасибо большое за"
+    ],
+    "corpus": "Original course corpus",
+    "experimental": true
+  },
+  "nl_NL": {
+    "iso": "nld",
+    "name": "Dutch",
+    "label": "Nederlands",
+    "tokenizer": "unicode",
+    "examples": [
+      "Ik kijk uit naar",
+      "Het weer is vandaag",
+      "Dank je wel voor"
+    ],
+    "corpus": "Tatoeba example sentences",
+    "experimental": true
+  },
+  "fr_FR": {
+    "iso": "fra",
+    "name": "French",
+    "label": "Français",
+    "tokenizer": "unicode",
+    "examples": [
+      "Je voudrais aller au",
+      "Merci beaucoup pour",
+      "Il fait beau"
+    ],
+    "corpus": "Tatoeba example sentences",
+    "experimental": true
+  },
+  "ko_KR": {
+    "iso": "kor",
+    "name": "Korean",
+    "label": "한국어",
+    "tokenizer": "unicode",
+    "examples": [
+      "저는 한국어를",
+      "오늘 날씨가",
+      "저는 학교에"
+    ],
+    "corpus": "Tatoeba example sentences",
+    "experimental": true
+  },
+  "zh_CN": {
+    "iso": "cmn",
+    "name": "Mandarin Chinese",
+    "label": "中文（普通话）",
+    "tokenizer": "chinese",
+    "examples": [
+      "我想去",
+      "今天的天气",
+      "非常感谢你的"
+    ],
+    "corpus": "Tatoeba example sentences",
+    "experimental": true
+  },
+  "pt_PT": {
+    "iso": "por",
+    "name": "Portuguese",
+    "label": "Português",
+    "tokenizer": "unicode",
+    "examples": [
+      "Eu gostaria de",
+      "Muito obrigado pela",
+      "Hoje o tempo está"
+    ],
+    "corpus": "Tatoeba example sentences",
+    "experimental": true
+  },
+  "it_IT": {
+    "iso": "ita",
+    "name": "Italian",
+    "label": "Italiano",
+    "tokenizer": "unicode",
+    "examples": [
+      "Vorrei andare al",
+      "Grazie mille per",
+      "Il tempo oggi è"
+    ],
+    "corpus": "Tatoeba example sentences",
+    "experimental": true
+  },
+  "hi_IN": {
+    "iso": "hin",
+    "name": "Hindi",
+    "label": "हिन्दी",
+    "tokenizer": "unicode",
+    "examples": [
+      "मुझे घर जाना",
+      "आज मौसम बहुत",
+      "आपका बहुत बहुत"
+    ],
+    "corpus": "Tatoeba example sentences",
+    "experimental": true
+  },
+  "es_ES": {
+    "iso": "spa",
+    "name": "Spanish",
+    "label": "Español",
+    "tokenizer": "unicode",
+    "examples": [
+      "Me gustaría ir a",
+      "Muchas gracias por",
+      "Hoy hace buen"
+    ],
+    "corpus": "Tatoeba example sentences",
+    "experimental": true
+  }
+}
