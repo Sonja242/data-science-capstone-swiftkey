@@ -1,0 +1,15 @@
+{
+  "cases": 3000,
+  "development_cases": 600,
+  "training_covered": 1710,
+  "model_md5": "bd58c642df1759c4ce1c39b9ace8927c",
+  "training_sha256": "121c428ff68bb055a98b4d75db2efa76959c99df7c59cea5747c4d96e1bc212b",
+  "development_sha256": "1f81ff9f335b4252c221ef79699fe7f6c95c0147e4bea4f70ff15974b4fe47f1",
+  "requests_sha256": "c0e7202d9a8b34885bfc1724e674405ccc065208f02796f28490fbce8d5e0ef6",
+  "protocol_sha256": "2bcdcebcf835932b4fa8bf0c1ff0935ad24bedf28052864817b1957f4150d87e",
+  "generated_from_prefix_only": true,
+  "target_inserted": false,
+  "reserved_test_opened": false,
+  "production_changed": false,
+  "completed_utc": "2026-09-26 10:41:37 UTC"
+}

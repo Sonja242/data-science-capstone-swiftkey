@@ -1,0 +1,20 @@
+{
+  "date": "2026-09-27",
+  "study": "Sonja PhraseFlow: A Controlled Improvement Study",
+  "six_runs_reconciled": true,
+  "development_rows": 3600,
+  "baseline_top1": 106,
+  "baseline_top3": 164,
+  "candidate_recall_count": 332,
+  "reserved_test_opened": false,
+  "public_csv_files_contain_no_prefixes_targets_or_answers": true,
+  "excluded_private_script": "verify_preview_and_quizzes.R",
+  "scientific_results_unchanged": true,
+  "publication_only_edits": [
+    "Current product links",
+    "Clarified course submission scope",
+    "Location and publication date"
+  ],
+  "course_submitted": false,
+  "peer_message_sent": false
+}

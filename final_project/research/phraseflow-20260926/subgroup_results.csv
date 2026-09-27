@@ -1,0 +1,37 @@
+objective,seed,dimension,group,cases,covered,cpu_top1,cpu_top3,top1,top3
+TargetOnly,20260926,source,blogs,200,115,32,52,32,53
+TargetOnly,20260926,context_length,1-4 words,188,103,40,56,34,59
+TargetOnly,20260926,context_length,5-12 words,171,100,30,46,29,45
+TargetOnly,20260926,context_length,13+ words,241,129,36,62,36,60
+TargetOnly,20260926,source,news,200,103,33,55,33,57
+TargetOnly,20260926,source,twitter,200,114,41,57,34,54
+TargetOnly,20260927,source,blogs,200,115,32,52,32,50
+TargetOnly,20260927,context_length,1-4 words,188,103,40,56,34,58
+TargetOnly,20260927,context_length,5-12 words,171,100,30,46,29,43
+TargetOnly,20260927,context_length,13+ words,241,129,36,62,35,57
+TargetOnly,20260927,source,news,200,103,33,55,32,56
+TargetOnly,20260927,source,twitter,200,114,41,57,34,52
+TargetOnly,20260928,source,blogs,200,115,32,52,33,52
+TargetOnly,20260928,context_length,1-4 words,188,103,40,56,35,59
+TargetOnly,20260928,context_length,5-12 words,171,100,30,46,29,45
+TargetOnly,20260928,context_length,13+ words,241,129,36,62,34,60
+TargetOnly,20260928,source,news,200,103,33,55,30,58
+TargetOnly,20260928,source,twitter,200,114,41,57,35,54
+ConditionalTeacher25,20260926,source,blogs,200,115,32,52,34,48
+ConditionalTeacher25,20260926,context_length,1-4 words,188,103,40,56,39,56
+ConditionalTeacher25,20260926,context_length,5-12 words,171,100,30,46,29,45
+ConditionalTeacher25,20260926,context_length,13+ words,241,129,36,62,35,60
+ConditionalTeacher25,20260926,source,news,200,103,33,55,32,54
+ConditionalTeacher25,20260926,source,twitter,200,114,41,57,37,59
+ConditionalTeacher25,20260927,source,blogs,200,115,32,52,32,47
+ConditionalTeacher25,20260927,context_length,1-4 words,188,103,40,56,40,55
+ConditionalTeacher25,20260927,context_length,5-12 words,171,100,30,46,28,45
+ConditionalTeacher25,20260927,context_length,13+ words,241,129,36,62,31,61
+ConditionalTeacher25,20260927,source,news,200,103,33,55,33,56
+ConditionalTeacher25,20260927,source,twitter,200,114,41,57,34,58
+ConditionalTeacher25,20260928,source,blogs,200,115,32,52,35,49
+ConditionalTeacher25,20260928,context_length,1-4 words,188,103,40,56,38,57
+ConditionalTeacher25,20260928,context_length,5-12 words,171,100,30,46,27,44
+ConditionalTeacher25,20260928,context_length,13+ words,241,129,36,62,35,61
+ConditionalTeacher25,20260928,source,news,200,103,33,55,32,54
+ConditionalTeacher25,20260928,source,twitter,200,114,41,57,33,59

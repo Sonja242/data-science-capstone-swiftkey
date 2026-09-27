@@ -1,0 +1,47 @@
+{
+  "feature_seconds": 1.6983153999899514,
+  "runs": [
+    {
+      "objective": "TargetOnly",
+      "seed": 20260926,
+      "device": "GPU",
+      "seconds_training_and_evaluation": 1.6345090999966487
+    },
+    {
+      "objective": "TargetOnly",
+      "seed": 20260927,
+      "device": "GPU",
+      "seconds_training_and_evaluation": 1.4742544000037014
+    },
+    {
+      "objective": "TargetOnly",
+      "seed": 20260928,
+      "device": "GPU",
+      "seconds_training_and_evaluation": 1.4852288999973098
+    },
+    {
+      "objective": "ConditionalTeacher25",
+      "seed": 20260926,
+      "device": "GPU",
+      "seconds_training_and_evaluation": 1.4844027999934042
+    },
+    {
+      "objective": "ConditionalTeacher25",
+      "seed": 20260927,
+      "device": "GPU",
+      "seconds_training_and_evaluation": 1.461809300002642
+    },
+    {
+      "objective": "ConditionalTeacher25",
+      "seed": 20260928,
+      "device": "GPU",
+      "seconds_training_and_evaluation": 1.575535400013905
+    }
+  ],
+  "gpu": "NVIDIA RTX 2000 Ada Generation Laptop GPU",
+  "frozen_encoder_sha256": "3d3b87262dce3326235376302bd3b67754b3c8cf810918b59b05617da1cef894",
+  "trainable_parameters": 12801,
+  "protocol_sha256": "2bcdcebcf835932b4fa8bf0c1ff0935ad24bedf28052864817b1957f4150d87e",
+  "code_sha256": "c557c700dde34a0d3826dbbc7dd4aec7ff87f4aa3a279f942627690d47ee41c2",
+  "reserved_test_opened": false
+}

@@ -1,0 +1,11 @@
+{
+  "all_six_runs_reconciled": true,
+  "protocol_unchanged": true,
+  "production_model_unchanged": true,
+  "preview_model_identical": true,
+  "preview_predictor_identical": true,
+  "reserved_test_opened": false,
+  "pitch_slides": 5,
+  "quiz_used_for_selection": false,
+  "public_deployment_changed": false
+}

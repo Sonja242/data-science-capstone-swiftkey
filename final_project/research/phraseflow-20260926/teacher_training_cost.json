@@ -1,0 +1,11 @@
+{
+  "cases": 3000,
+  "device": "GPU",
+  "gpu": "NVIDIA RTX 2000 Ada Generation Laptop GPU",
+  "seconds": 391.14371659948665,
+  "median_ms": 125.84020000213059,
+  "p95_ms": 160.54678498840076,
+  "peak_gpu_mib": 4403.89013671875,
+  "scores_sha256": "8c9cf33dfef7523dc12737c15c6073664f0e1d4d86f6f9fdf1eae25be4eb477b",
+  "reserved_test_opened": false
+}

@@ -1,0 +1,12 @@
+{
+  "build_preview.py": "bfbfc40c494ee5fabb5216cc70037c1454c2c8761e86caefce5418dc2e52cb64",
+  "build_user_guide.py": "36a71e5997692ff02ed77ede0be250d44998bd99c6f93ad8860794a69b94991d",
+  "evaluate_r.R": "d7fe211b25288f39d7dc734bf3279f3796f908057949d4cdcbcb75266bd3308a",
+  "finalize_evidence.py": "4977793484b8be9bec1b949986466964c8d7bf212a9798eab87ae42b561e7e33",
+  "PhraseFlow_Study.Rmd": "e7c37ef25647d35e27c548979895cb1e08cfd40149429fac41ea92f36b31859c",
+  "prepare_training.R": "18e17b62e651c7997b3b5509cd0aaa6d2a2facd11d5ed153354abc56ffa90815",
+  "reranker.R": "9199f172c659e0235d53acbc960d5cd6ea266ef485cb14ba6a49ebb61d6039c8",
+  "score_training_teacher.py": "15638d30db800a723a4a912aaf2301f1155537e59fdc172862916d0b16a3a367",
+  "train_reranker.py": "c557c700dde34a0d3826dbbc7dd4aec7ff87f4aa3a279f942627690d47ee41c2",
+  "verify_preview_and_quizzes.R": "849840c36e87d4307ca4c53f63ba58c08bda8233edae5fae0786909e910abec2"
+}

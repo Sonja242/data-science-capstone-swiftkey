@@ -1,0 +1,191 @@
+---
+title: "Sonja PhraseFlow: A Controlled Improvement Study"
+subtitle: "Longer-context reranking, product documentation and release evidence"
+author: "Author: Sonja Sahebzad | Utrecht, the Netherlands"
+date: "Study: 26 September 2026 | Published: 27 September 2026 | Sonja Projects"
+output:
+  html_document:
+    theme: flatly
+    toc: true
+    toc_float: true
+    code_folding: hide
+    self_contained: true
+    css: ../../../milestone-report.css
+---
+
+```{r setup,include=FALSE}
+library(data.table);library(jsonlite);library(ggplot2)
+knitr::opts_chunk$set(echo=FALSE,warning=FALSE,message=FALSE,fig.width=9,fig.height=4.5)
+curve<-fread('learning_curves.csv');comparison<-fread('selected_comparison.csv')
+cases<-fread('development_cases.csv');decision<-fromJSON('decision.json');cpu<-fromJSON('cpu_checks.json')
+quiz<-fread('quiz_demonstration_summary.csv');checks<-fromJSON('preview_checks.json')
+cost<-fromJSON('training_cost.json');teacher_cost<-fromJSON('teacher_training_cost.json')
+stopifnot(!decision$production_changed,!decision$reserved_test_opened,cpu$all600_top3_match,
+ checks$baseline_first3_unchanged_on600,nrow(comparison)==6L)
+pct<-function(x)sprintf('%.1f%%',100*x)
+```
+
+<div class="summary-box">
+**Decision.** Retain the current prediction model. A compact neural reranker can run quickly in native R, but this controlled trial does **not** improve accuracy. The unchanged model reaches **164/600 top-three matches (27.3%)**. The two new training methods average **162/600 (27.0%)** and **161.3/600 (26.9%)** at their selected epochs across three seeds. The product preview adds a clearer identity, an optional list of further suggestions and an illustrated guide. These interface improvements are distinct from model accuracy.
+</div>
+
+In plain language, **top three** means the recorded next word appears among the first three suggestions. A **reranker** changes their order. The **teacher** is a larger neural model used during research. A **seed** changes the random starting point of a training run; repeating the run checks whether the result is stable.
+
+**Publication context.** This report preserves the English-model experiment of 26 September 2026. The later [PhraseFlow 1.4 app](https://sonjasahebzad.shinyapps.io/sonja-next-word/) adds languages and interface features; it does not deploy the unsuccessful reranker. The [current user guide](https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-guide.html) documents that release. The experimental results below are unchanged.
+
+## Question and design
+
+Can a small model use more of the preceding sentence to improve the order of existing suggestions while retaining fast R/CPU inference? The previous diagnosis found that a frozen neural teacher reached **204/600 top-three matches (34.0%)** when reordering the exact same 128 candidates, versus **164/600** for the CPU model. This provides a measured opportunity to investigate, not a guarantee that a smaller model can reproduce the teacher.
+
+The registered trial fixes the CPU model, 50,000-word vocabulary, normalization, 128 prefix-generated candidates and **600 reused development cases**, equally split among blogs, news and Twitter. It uses **3,000 existing training prefixes** with no overlap with those development cases. The reserved 900 examples were not opened in this study. Quiz questions never enter training or model selection.
+
+A frozen, previously trained GRU encodes up to **48 words**. A **12,801-parameter scoring head** combines this context, the candidate word representation, their interactions and six simple features. Its final layer starts at zero so that initial predictions match the CPU model exactly. Scaling is fitted using training candidates only. The teacher remains the existing Qwen3-1.7B-Base with its fixed local adapter and a 128-model-token limit.
+
+Two equal-budget objectives are compared with three fixed seeds and 12 epochs:
+
+- **Target only:** learn from the recorded next word when it is already in the list.
+- **Conditional teacher:** combine that objective with 25% teacher guidance, normalized within the same candidate list at temperature 2. The conventional temperature-squared factor is applied.
+
+No correct word is inserted into a list. The recorded target is present in **1,710/3,000 training lists** and **332/600 development lists**. Missing training targets receive no fabricated label. The teacher-guided objective can still learn from their candidate scores.
+
+## Results
+
+The epoch for each method is selected by mean development top-three accuracy across seeds, with predeclared tie rules. All seeds are retained. These are **exploratory development comparisons**, not independent test results.
+
+```{r comparison-table}
+summary<-comparison[,.(Epoch=unique(epoch),`First correct (mean)`=sprintf('%.1f/600 (%.1f%%)',mean(top1),mean(top1)/6),
+ `Within three (mean)`=sprintf('%.1f/600 (%.1f%%)',mean(top3),mean(top3)/6),
+ `Top-three counts by seed`=paste(top3,collapse=', ')),by=.(Method=objective)]
+summary<-rbind(data.table(Method='Unchanged CPU',Epoch=NA_integer_,`First correct (mean)`='106/600 (17.7%)',
+ `Within three (mean)`='164/600 (27.3%)',`Top-three counts by seed`='Deterministic baseline'),summary)
+knitr::kable(summary,caption='Table 1. Matched development results; means across seeds can be fractional.')
+```
+
+Neither method meets the accuracy requirements of at least 170 top-three matches on average, at least 106 first-word matches on average, two seeds improving top three and no seed losing first-word accuracy. The best method by the registered selection rule is target-only at epoch 1; its fixed representative seed has **99 first-word matches and 164 top-three matches**. It gains 11 top-three successes and loses 11. Its paired difference is **0.0 percentage points**, with a descriptive 95% interval of **-1.5 to +1.5 points**.
+
+<details><summary>All seeds and paired uncertainty</summary>
+
+```{r all-seeds}
+detail<-comparison[,.(Method=objective,Epoch=epoch,Seed=seed,`First correct`=top1,`Within three`=top3,
+ Gained=top3_gained,Lost=top3_lost,`Difference (percentage points)`=sprintf('%.1f [%.1f, %.1f]',100*top3_difference,100*top3_difference_low,100*top3_difference_high))]
+knitr::kable(detail)
+```
+
+Intervals use 10,000 paired bootstrap resamples stratified by source. They compare the same cases. They do not correct for epoch selection or repeated use of development data and therefore cannot establish a confirmatory improvement.
+</details>
+
+<details><summary>Results by text source and context length</summary>
+
+```{r subgroups}
+groups<-fread('subgroup_results.csv')[objective=='TargetOnly' & seed==20260926]
+knitr::kable(groups[,.(Grouping=dimension,Group=group,Examples=cases,
+ `Target in list`=pct(covered/cases),`Original top three`=pct(cpu_top3/cases),
+ `Selected reranker top three`=pct(top3/cases))])
+```
+
+These describe the fixed representative run. Small subgroup differences on reused development examples do not establish a reliable improvement. Counts for every seed are retained in `subgroup_results.csv`.
+</details>
+
+## What the learning curves show
+
+```{r learning-curves,fig.cap='Figure 1. Training success rises while development success does not. Each line is one fixed seed; epoch zero reproduces the CPU baseline.'}
+g<-copy(curve);g[,Accuracy:=100*top3/fifelse(split=='training',3000,600)]
+ggplot(g,aes(epoch,Accuracy,group=interaction(objective,seed),colour=objective,linetype=factor(seed)))+
+ geom_line(linewidth=.6)+facet_wrap(~split,scales='free_y')+
+ scale_colour_manual(values=c('#1f73a8','#123f68'))+
+ labs(x='Training epoch',y='Correct within three (%)',colour='Objective',linetype='Seed')+
+ theme_minimal(base_family='sans',base_size=12)+theme(legend.position='bottom')
+```
+
+The extra training increasingly fits the training examples without improving the development cases. This is evidence of an overfitting pattern within this trial. It does not establish that all longer-context models are ineffective. The small continuation sample and frozen, modest context encoder remain plausible limitations; this experiment does not isolate their individual contributions.
+
+Unlike the earlier full-vocabulary distillation objective, the new teacher loss explicitly compares relative ordering within the same list. Even at its best mean development epoch, that change does not transfer the teacher's advantage. Better loss alignment is therefore insufficient on its own in this implementation.
+
+```{r loss-curve,fig.cap='Figure 2. Conditional teacher divergence on development data. A lower value means closer agreement with the teacher within the candidate list; it is not accuracy or calibrated confidence.'}
+ggplot(curve[split=='development'],aes(epoch,conditional_teacher_kl_T2,group=interaction(objective,seed),colour=objective,linetype=factor(seed)))+
+ geom_line(linewidth=.6)+scale_colour_manual(values=c('#1f73a8','#123f68'))+
+ labs(x='Training epoch',y='Conditional teacher divergence',colour='Objective',linetype='Seed')+
+ theme_minimal(base_size=12)+theme(legend.position='bottom')
+```
+
+## Speed, memory and reproducibility
+
+The selected representative model produces the same top-three words in Python and native R on all **600 development cases**. The maximum score difference is `r sprintf('%.6f',cpu$maximum_score_difference)`; rankings agree despite floating-point differences. An R feature expression was corrected during export verification before the final successful check; the Python training results were unaffected.
+
+Native R complete inference, including CPU candidate generation, context encoding and reranking, takes **`r sprintf('%.2f',cpu$median_ms)` ms median** and **`r sprintf('%.2f',cpu$p95_ms)` ms at the 95th percentile**, across 1,800 warm calls. Combined R objects occupy **`r sprintf('%.1f',cpu$combined_objects_mib)` MiB**. These meet the declared CPU/memory limits, but do not compensate for the failed accuracy requirement. The separately recorded 0.58 ms production benchmark uses a different timing run and a simpler three-word lookup path; this is not a controlled speed-ratio experiment.
+
+Teacher scoring of the 3,000 training prefixes took **`r sprintf('%.1f',teacher_cost$seconds)` seconds on the GPU**. The six small-head runs, including evaluation, took **`r sprintf('%.1f',sum(cost$runs$seconds_training_and_evaluation))` seconds on the GPU**, after feature preparation. These figures exclude process startup and are not app response times.
+
+The study preserves its protocol, input/checkpoint fingerprints, all epoch checkpoints, component losses, case-level results and native R export. Raw text, quiz details and model weights remain in private project data folders. The production model checksum remains unchanged.
+
+<details><summary>Reproduce the study in a fresh project copy</summary>
+
+The scripts intentionally refuse to overwrite completed evidence. Retain the input models and private training/development files. Run from the corpus project root in a fresh study copy, then knit this R Markdown report. No step requires opening the reserved test examples.
+
+```{r commands,eval=FALSE,echo=TRUE}
+source('final_project/research/phraseflow-20260926/prepare_training.R')
+# Python, using the saved project environment:
+# python score_training_teacher.py
+# python train_reranker.py
+source('final_project/research/phraseflow-20260926/evaluate_r.R')
+# Optional quiz checks were run privately after freezing the decision.
+# Only their aggregate results are included in the public package.
+```
+
+Exact paths, environment and output definitions are in the accompanying README and `R-session-info.txt`. This HTML report is knitted from R Markdown using saved measurements, not fabricated figure values.
+</details>
+
+## Quiz demonstrations and natural wording
+
+The two previously supplied ten-question quizzes were checked **after the model decision was frozen**. The table compares the current CPU app with the saved reviewed/submitted choices. The archived neural option rankings come from earlier case studies, not a new teacher run. The already exposed items are not an unbiased measure of general language prediction.
+
+```{r quiz-summary}
+knitr::kable(quiz[,.(Quiz=quiz,Items=cases,`CPU first word`=cpu_free_top1_agreement,
+ `CPU within three`=cpu_free_top3_agreement,`CPU supplied options`=cpu_four_option_agreement,
+ `Archived neural options`=archived_teacher_option_agreement)],caption='Table 2. Agreement counts on ten previously exposed items per quiz. Question and answer text remains private.')
+```
+
+The recorded course grades of 100% describe the submitted, reviewed quiz responses. They do not mean that the currently deployed CPU model independently predicts every answer. Free prediction and ranking four supplied options are different tasks.
+
+Naturalness also differs from exact matching: two plausible continuations may express different intentions. A future semantic evaluation should use unseen prefixes, independently assessed acceptable continuations and blinded ratings. It should report exact-match accuracy alongside appropriateness, rather than relabeling plausible mistakes as correct after inspecting outputs.
+
+## Current literature and design choices
+
+The literature check was performed on 26 September 2026 using primary publications. Recent methods are considered for their relevance to this task and hosting budget, not simply their publication year.
+
+| Source | Status and relevant contribution | Implication here |
+|:--|:--|:--|
+| Qwen Team, 2025 [1] | Organization-authored technical report for pretrained language models | The existing frozen Qwen3 teacher supplies a consistent comparison. Its benchmark scores do not transfer to this app. |
+| Li et al., ACL 2025 [2] | Peer-reviewed study of training-sample influence in next-word prediction | Supports examining representation and generalization, rather than optimizing only familiar examples. This study does not replicate their method. |
+| Wei et al., July 2026 [3] | Preprint on separately scaling pretrained memory, including billion-parameter memory modules | A relevant longer-term research direction, but its resource needs and different benchmarks do not establish suitability for this R/CPU deployment. Not implemented here. |
+| Hugging Face, SmolLM3, 2025 [4] | Organization release of a 3-billion-parameter language model | A possible future teacher comparison, not a lightweight drop-in replacement under the present native R memory limit. Not downloaded or evaluated. |
+
+## Discussion and conclusion
+
+The product now has a clearer user guide, explicit document metadata and an optional longer suggestion list. Tests confirm that these changes preserve the original first three predictions on all 600 development cases. They improve usability and documentation, not measured predictive accuracy.
+
+The modeling conclusion is equally specific: **retain the current CPU predictor**. Correcting the distillation objective and adding context-by-candidate interactions did not yield a robust accuracy gain. The measured candidate recall of **55.3%** is the maximum exact-match success achievable by a reranker restricted to these lists on these 600 cases; the teacher's **34.0% top-three score** is a measured result, not a theoretical ceiling. Perfect prediction is not supported.
+
+The next justified modeling experiment is to improve the context representation while keeping the corrected candidate-conditional loss and CPU shortlist fixed. Compare a lightly unfrozen encoder with this frozen control using a larger, source-balanced training sample and a preregistered learning curve. That would test representation and training-scale limitations explicitly. Any candidate must pass CPU limits and a new independent evaluation before deployment. Confidence calibration follows model selection on separate data. This follow-up has not been run.
+
+## Final-project requirements
+
+**The course submission requires the Shiny app URL and a presentation of at most five RStudio Presenter slides on RPubs.** The portfolio and this research report are supporting publications, not additional items for peer grading. PhraseFlow 1.4 is now published with 5, 10 or 20 word choices while retaining one prominent next word. It preserves the English word model studied here. The course submission remains pending author review. [Current illustrated guide](https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-guide.html) · [Study source and measured results](https://github.com/Sonja242/data-science-capstone-swiftkey/tree/main/final_project/research/phraseflow-20260926).
+
+| Requirement | Evidence |
+|:--|:--|
+| Shiny app on shinyapps.io | [Public app](https://sonjasahebzad.shinyapps.io/sonja-next-word/) is published as PhraseFlow 1.4. |
+| Phrase input and one next-word prediction | Prominent first suggestion; optional alternatives. Published app and local server tests pass. |
+| Five English news/Twitter prefixes produce predictions | Live release check on 27 September: 5/5; English model unchanged. This is availability, not correctness. |
+| No more than five RStudio Presenter slides on RPubs | [Published five-slide pitch](https://rpubs.com/Sonja_Janssen/sonja-next-word), checked without signing in. Native `.Rpres` source retained. |
+| Algorithm, quantitative performance and usage | Explained in pitch, Results tab, current illustrated HTML guide and this study. |
+| Experience, originality and hiring judgment | Subjective peer assessment; no grade guarantee. |
+
+## References
+
+1. Qwen Team (2025). [Qwen3 Technical Report](https://arxiv.org/abs/2505.09388). Technical report / preprint.
+2. Li, Y., Du, Y., Liu, Y., Feng, F., Feng, M. X., & Wu, Y. (2025). [On Support Samples of Next Word Prediction](https://aclanthology.org/2025.acl-long.507/). ACL, 10277-10289. doi:10.18653/v1/2025.acl-long.507.
+3. Wei, R., et al. (2026). [Memory Decoder at Scale: A Pretrained, Parametric Long-Term Memory](https://arxiv.org/abs/2607.27919). Preprint, submitted 30 July 2026; no peer-reviewed acceptance established in this review.
+4. Hugging Face (2025). [SmolLM3: smol, multilingual, long-context reasoner](https://huggingface.co/blog/smollm3). Organization-authored model release.
+5. Hinton, G., Vinyals, O., & Dean, J. (2015). [Distilling the Knowledge in a Neural Network](https://arxiv.org/abs/1503.02531). Foundational distillation method.
+6. Chen, S. F., & Goodman, J. (1996). [An Empirical Study of Smoothing Techniques for Language Modeling](https://aclanthology.org/P96-1041/). ACL. Statistical model foundation.

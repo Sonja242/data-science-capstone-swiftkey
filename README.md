@@ -18,6 +18,10 @@ The app now offers twelve language choices, 5/10/20 visible words and experiment
 
 The unchanged English compact model is evaluated separately from the GPU research models and quiz case studies. On 900 reserved examples, first-choice accuracy is 17.0% and top-three accuracy is 28.6%. It returns a suggestion for every test case; that coverage is not accuracy. The app does not display uncalibrated confidence percentages.
 
+## Controlled improvement study
+
+[Sonja PhraseFlow: A Controlled Improvement Study](https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-controlled-study.html) compares two neural reranking objectives under equal budgets. Neither improves the unchanged CPU baseline on the reused 600-case development set. The report includes learning curves, paired intervals, CPU verification and an explicit retain-model decision. [R Markdown, code and measured outcomes](final_project/research/phraseflow-20260926). This supporting research report and the portfolio are not required Coursera submission items.
+
 ## View the finished reports
 
 Open the published [Data Science Capstone report website](https://sonja242.github.io/data-science-capstone-swiftkey/). The site renders the knitted HTML reports as complete web pages. The `.Rmd` files remain available as reproducible source code.

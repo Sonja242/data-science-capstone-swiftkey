@@ -1,0 +1,11 @@
+{
+  "author": "Sonja Sahebzad",
+  "baseline_first3_unchanged_on600": true,
+  "server_interaction_checks_passed": true,
+  "quiz_scope": "Agreement with saved reviewed/submitted proposals; previously exposed items; demonstration only, no new course submission or independent accuracy estimate.",
+  "quizzes_used_in_training_or_selection": false,
+  "reserved_test_opened": false,
+  "production_changed": false,
+  "decision_sha256": "ea210209e8b7e2ddd57a1f0fd7f519c81f809650f9df0f9bb5425dffc75df4be",
+  "preview_model_md5": "bd58c642df1759c4ce1c39b9ace8927c"
+}

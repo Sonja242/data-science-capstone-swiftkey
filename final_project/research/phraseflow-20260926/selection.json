@@ -1,0 +1,13 @@
+{
+  "objective": "TargetOnly",
+  "epoch": 1,
+  "mean_top1": 98.33333333333333,
+  "mean_top3": 162.0,
+  "representative_seed": 20260926,
+  "quality_gate_passed": false,
+  "production_changed": false,
+  "reserved_test_opened": false,
+  "study_status": "Exploratory development selection; CPU export checks follow. No independent validation or calibrated confidence.",
+  "training_covered": 1710,
+  "development_covered": 332
+}

@@ -1,0 +1,21 @@
+{
+  "author": "Sonja Sahebzad",
+  "brand": "Sonja Projects",
+  "study": "PhraseFlow: conditional candidate reranking pilot",
+  "date": "2026-09-26",
+  "basis": "Candidate diagnosis found 204/600 teacher top3 versus 164/600 CPU top3 on the identical 128 candidates. The previous student's full-vocabulary loss favored list mass rather than relative ranking.",
+  "production": "Unchanged CPU model. This study creates an isolated research candidate, not a production accuracy claim.",
+  "data": "Existing 3000 training prefixes and 600 reused development prefixes. No new data split. Never read the reserved 900. No quiz questions in training, checkpoint selection or loss fitting.",
+  "candidates": "Exactly 128 prefix-only CPU candidates. Never add the actual word. Reuse prior verified development candidate lists and teacher scores; generate matching lists for training.",
+  "teacher": "Frozen existing Qwen3-1.7B-Base local256 adapter;128 model tokens;FP16;64 candidate batch;canonical complete-word log likelihood plus following-word-boundary score.",
+  "architecture": "Freeze the existing supervised_initial GRU encoder and embeddings. For each candidate use projected context, candidate embedding, their elementwise product, and six scalar features. A 64-unit tanh head predicts a residual on log CPU probability. Final layer starts at zero, exactly preserving CPU rank initially. No new vocabulary or lookup override.",
+  "scalar_features": ["log CPU probability","log base continuation probability","frozen student logit","log candidate character length","candidate seen in last48 context words","log context word count"],
+  "feature_scaling": "Mean and standard deviation fitted on training candidates only; minimum standard deviation0.0001.",
+  "training": {"seeds":[20260926,20260927,20260928],"epochs":12,"batch_size":64,"optimizer":"AdamW","learning_rate":0.001,"weight_decay":0.001,"gradient_clip":1.0,"temperature":2,"teacher_weight":[0,0.25],"device":"GPU for training and teacher scoring; native R CPU for final inference"},
+  "loss": "Cross entropy over the candidate list on covered training cases only, averaged over covered examples. Teacher KL between teacher and student softmax over exactly the same list, T=2 and T-squared scaling, averaged over all cases. Total (1-alpha)*CE + alpha*4*KL. Uncovered examples receive only teacher supervision when alpha>0.",
+  "selection": "Evaluate and save every epoch; all seeds and final-epoch outcomes reported. Choose one epoch per objective from mean development top3 over the three seeds, ties mean top1 then earlier epoch. Representative seed is the fixed first seed, not the best seed. Objective ties favor target-only. Reused development results are exploratory.",
+  "gate": "Mean top3>=170/600 and mean top1>=106/600; at least two of three seeds improve top3 over164; no seed below106top1; native R median<20ms,p95<50ms,combined objects<=256MiB; Python/R rank parity. Passing does not authorize deployment: independent validation remains necessary.",
+  "uncertainty": "10000 paired source-stratified bootstrap samples, seed20260926. Report top1/top3 gains/losses, coverage and source/context strata. Selection on these same development cases makes intervals descriptive, not confirmatory.",
+  "quiz": "After freezing the study decision, privately test the two supplied ten-question quizzes with the unchanged production model. Free next-word and four-option ranking reported separately. Already exposed quiz items are demonstrations, not independent validation. Never publish question or answer text.",
+  "calibration": "Not performed. Rank scores are not confidence percentages. No 100% general accuracy claim."
+}

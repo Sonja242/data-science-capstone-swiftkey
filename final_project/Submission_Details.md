@@ -10,11 +10,11 @@ Author: Sonja Sahebzad · Utrecht, the Netherlands · Sonja Projects
 
 **Five-slide RPubs deck:** https://rpubs.com/Sonja_Janssen/sonja-next-word
 
-**User guide and measured results:** https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-guide.html
+**Only the Shiny app URL and the five-slide RPubs URL are required for the course submission. The portfolio and research reports are not separate peer-review submissions.**
 
-**GitHub source:** https://github.com/Sonja242/data-science-capstone-swiftkey
+**Optional supporting documentation — user guide:** https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-guide.html
 
-**Portfolio:** https://sonjasahebzad.shinyapps.io/data-science-portfolio/
+**Optional source code:** https://github.com/Sonja242/data-science-capstone-swiftkey
 
 ## Author review
 

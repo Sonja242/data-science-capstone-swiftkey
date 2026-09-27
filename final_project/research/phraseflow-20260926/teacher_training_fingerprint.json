@@ -1,0 +1,25 @@
+{
+  "teacher": {
+    "protocol_sha256": "11899a0cb0dbf6c2fd7363f02e4e0668782af9b64001ab387272990c22f15e0d",
+    "script_sha256": "da2b685fd26d3636da61b6675b903a54f96e158304ef7994f37d7592758ab57d",
+    "requests_sha256": "ddfaf5e4b912ca081e2e06051c3d0714809c30135ea8e0d8a9249c188521ed9c",
+    "adapter_sha256": "3afd6c544bd4a366bc8d4a2f28c25b14b4c97832a495f95ca1c983ccecfa2c8f",
+    "tokenizer_sha256": "c0382117ea329cdf097041132f6d735924b697924d6f6fc3945713e96ce87539",
+    "vocabulary_sha256": "9bd82de6a12d64e308b16d3cbb1ced9b69ffb425665becc484d5da233061f137",
+    "neural_code_sha256": "5a4280640c49e427daaef398597492dc229af8ebc7b9ef7241bcdb012cf5b528",
+    "adapted_code_sha256": "223dde1c690a3baa7e9fdf3c2407f6c0620ab610f9548fc935a3cb35e6a7e456",
+    "base_revision": {
+      "repo": "Qwen/Qwen3-1.7B-Base",
+      "revision": "ea980cb0a6c2ae4b936e82123acc929f1cec04c1",
+      "license": "Apache-2.0"
+    },
+    "context_model_tokens": 128,
+    "batch_size": 64,
+    "weights_dtype": "float16",
+    "score": "canonical whole-word token log likelihood plus following-word boundary log mass",
+    "nested_scoring": "Score128 once, reuse the identical candidate scores at32/64/128; no separate K-specific GPU timings."
+  },
+  "requests_sha256": "c0e7202d9a8b34885bfc1724e674405ccc065208f02796f28490fbce8d5e0ef6",
+  "script_sha256": "15638d30db800a723a4a912aaf2301f1155537e59fdc172862916d0b16a3a367",
+  "protocol_sha256": "2bcdcebcf835932b4fa8bf0c1ff0935ad24bedf28052864817b1957f4150d87e"
+}

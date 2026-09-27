@@ -1,0 +1,16 @@
+{
+  "all600_top3_match": true,
+  "maximum_score_difference": 0.00022008738045364851,
+  "cases": 600,
+  "top1": 99,
+  "top3": 164,
+  "combined_objects_mib": 240.81726837158203,
+  "median_ms": 2.6574134826660156,
+  "p95_ms": 4.5131683349609375,
+  "timed_calls": 1800,
+  "device": "native R CPU",
+  "timing_scope": "CPU128 generation, normalized context encoding and head scoring. Three shuffled warm rounds; no network or UI time.",
+  "cpu_gate_passed": true,
+  "reserved_test_opened": false,
+  "production_changed": false
+}
