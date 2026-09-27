@@ -9,8 +9,9 @@
 <meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
 
 
-<meta name="author" content="Author: Sonja Sahebzad | Utrecht, the Netherlands" />
+<meta name="author" content="Sonja Sahebzad" />
 
+<meta name="date" content="2026-09-27" />
 
 <title>Sonja PhraseFlow: A Controlled Improvement Study</title>
 
@@ -1601,16 +1602,23 @@ border-radius: 0px;
 
 <h1 class="title toc-ignore">Sonja PhraseFlow: A Controlled Improvement
 Study</h1>
-<h3 class="subtitle">Longer-context reranking, product documentation and
-release evidence</h3>
-<h4 class="author">Author: Sonja Sahebzad | Utrecht, the
-Netherlands</h4>
-<h4 class="date">Study: 26 September 2026 | Published: 27 September 2026
-| Sonja Projects</h4>
+<h3 class="subtitle">Longer-context reranking under R/CPU
+constraints</h3>
+<h4 class="author">Sonja Sahebzad</h4>
+<h4 class="date">27 September 2026</h4>
 
 </div>
 
 
+<style>
+#header { margin-bottom: 26px; padding-bottom: 20px; border-bottom: 1px solid #dce5ec; }
+#header h1.title { font-size: 36px; line-height: 1.2; margin-bottom: 10px; }
+#header h3.subtitle { font-size: 23px; line-height: 1.4; font-style: italic; color: #4f6675; margin: 8px 0 20px; }
+#header h4.author { font-size: 18px; font-weight: 600; color: #263747; margin: 6px 0; }
+#header h4.date { font-size: 16px; font-weight: 400; color: #65717c; margin: 6px 0 0; }
+a { color: #1f73a8; }
+.report-footer { border-top: 1px solid #dce5ec; margin-top: 36px; padding-top: 12px; color: #65717c; font-size: 13px; }
+</style>
 <div class="summary-box">
 <p><strong>Decision.</strong> Retain the current prediction model. A
 compact neural reranker can run quickly in native R, but this controlled
@@ -1628,14 +1636,15 @@ word appears among the first three suggestions. A
 <strong>teacher</strong> is a larger neural model used during research.
 A <strong>seed</strong> changes the random starting point of a training
 run; repeating the run checks whether the result is stable.</p>
-<p><strong>Publication context.</strong> This report preserves the
-English-model experiment of 26 September 2026. The later <a href="https://sonjasahebzad.shinyapps.io/sonja-next-word/">PhraseFlow
+<p><strong>Publication context.</strong> This report documents the
+controlled English-model experiment. The later <a href="https://sonjasahebzad.shinyapps.io/sonja-next-word/">PhraseFlow
 1.4 app</a> adds languages and interface features; it does not deploy
 the unsuccessful reranker. The <a href="https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-guide.html">current
 user guide</a> documents that release. The experimental results below
 are unchanged.</p>
 <div id="question-and-design" class="section level2">
 <h2>Question and design</h2>
+<p>The experiment was conducted on 26 September 2026.</p>
 <p>Can a small model use more of the preceding sentence to improve the
 order of existing suggestions while retaining fast R/CPU inference? The
 previous diagnosis found that a frozen neural teacher reached
@@ -2195,6 +2204,9 @@ Neural Network</a>. Foundational distillation method.</li>
 Smoothing Techniques for Language Modeling</a>. ACL. Statistical model
 foundation.</li>
 </ol>
+<div class="report-footer">
+Sonja Projects
+</div>
 </div>
 
 

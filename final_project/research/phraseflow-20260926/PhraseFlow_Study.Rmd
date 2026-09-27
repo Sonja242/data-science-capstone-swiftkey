@@ -1,8 +1,8 @@
 ---
 title: "Sonja PhraseFlow: A Controlled Improvement Study"
-subtitle: "Longer-context reranking, product documentation and release evidence"
-author: "Author: Sonja Sahebzad | Utrecht, the Netherlands"
-date: "Study: 26 September 2026 | Published: 27 September 2026 | Sonja Projects"
+subtitle: "Longer-context reranking under R/CPU constraints"
+author: "Sonja Sahebzad"
+date: "27 September 2026"
 output:
   html_document:
     theme: flatly
@@ -25,15 +25,27 @@ stopifnot(!decision$production_changed,!decision$reserved_test_opened,cpu$all600
 pct<-function(x)sprintf('%.1f%%',100*x)
 ```
 
+<style>
+#header { margin-bottom: 26px; padding-bottom: 20px; border-bottom: 1px solid #dce5ec; }
+#header h1.title { font-size: 36px; line-height: 1.2; margin-bottom: 10px; }
+#header h3.subtitle { font-size: 23px; line-height: 1.4; font-style: italic; color: #4f6675; margin: 8px 0 20px; }
+#header h4.author { font-size: 18px; font-weight: 600; color: #263747; margin: 6px 0; }
+#header h4.date { font-size: 16px; font-weight: 400; color: #65717c; margin: 6px 0 0; }
+a { color: #1f73a8; }
+.report-footer { border-top: 1px solid #dce5ec; margin-top: 36px; padding-top: 12px; color: #65717c; font-size: 13px; }
+</style>
+
 <div class="summary-box">
 **Decision.** Retain the current prediction model. A compact neural reranker can run quickly in native R, but this controlled trial does **not** improve accuracy. The unchanged model reaches **164/600 top-three matches (27.3%)**. The two new training methods average **162/600 (27.0%)** and **161.3/600 (26.9%)** at their selected epochs across three seeds. The product preview adds a clearer identity, an optional list of further suggestions and an illustrated guide. These interface improvements are distinct from model accuracy.
 </div>
 
 In plain language, **top three** means the recorded next word appears among the first three suggestions. A **reranker** changes their order. The **teacher** is a larger neural model used during research. A **seed** changes the random starting point of a training run; repeating the run checks whether the result is stable.
 
-**Publication context.** This report preserves the English-model experiment of 26 September 2026. The later [PhraseFlow 1.4 app](https://sonjasahebzad.shinyapps.io/sonja-next-word/) adds languages and interface features; it does not deploy the unsuccessful reranker. The [current user guide](https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-guide.html) documents that release. The experimental results below are unchanged.
+**Publication context.** This report documents the controlled English-model experiment. The later [PhraseFlow 1.4 app](https://sonjasahebzad.shinyapps.io/sonja-next-word/) adds languages and interface features; it does not deploy the unsuccessful reranker. The [current user guide](https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-guide.html) documents that release. The experimental results below are unchanged.
 
 ## Question and design
+
+The experiment was conducted on 26 September 2026.
 
 Can a small model use more of the preceding sentence to improve the order of existing suggestions while retaining fast R/CPU inference? The previous diagnosis found that a frozen neural teacher reached **204/600 top-three matches (34.0%)** when reordering the exact same 128 candidates, versus **164/600** for the CPU model. This provides a measured opportunity to investigate, not a guarantee that a smaller model can reproduce the teacher.
 
@@ -189,3 +201,5 @@ The next justified modeling experiment is to improve the context representation 
 4. Hugging Face (2025). [SmolLM3: smol, multilingual, long-context reasoner](https://huggingface.co/blog/smollm3). Organization-authored model release.
 5. Hinton, G., Vinyals, O., & Dean, J. (2015). [Distilling the Knowledge in a Neural Network](https://arxiv.org/abs/1503.02531). Foundational distillation method.
 6. Chen, S. F., & Goodman, J. (1996). [An Empirical Study of Smoothing Techniques for Language Modeling](https://aclanthology.org/P96-1041/). ACL. Statistical model foundation.
+
+<div class="report-footer">Sonja Projects</div>

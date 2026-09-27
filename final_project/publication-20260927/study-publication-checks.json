@@ -13,7 +13,7 @@
   "publication_only_edits": [
     "Current product links",
     "Clarified course submission scope",
-    "Location and publication date"
+    "Author-approved scientific header: author name, one report date, experiment date in methods and discreet project footer"
   ],
   "course_submitted": false,
   "peer_message_sent": false,
@@ -33,7 +33,7 @@
     "Shiny application URL",
     "Five-slide RPubs presentation URL"
   ],
-  "source_fingerprint_note": "Historical code_fingerprints.json identifies the original experiment. These publication hashes include only wording/link updates to R Markdown and README; stored scientific measurements are unchanged.",
+  "source_fingerprint_note": "Historical code_fingerprints.json identifies the original experiment. Publication hashes include approved wording, link and report-header styling updates; stored scientific measurements are unchanged.",
   "published_sha256": {
     "build_preview.py": "bfbfc40c494ee5fabb5216cc70037c1454c2c8761e86caefce5418dc2e52cb64",
     "build_user_guide.py": "36a71e5997692ff02ed77ede0be250d44998bd99c6f93ad8860794a69b94991d",
@@ -48,8 +48,8 @@
     "final_audit.json": "4f0bb285ad0e8afdb7ddb2323a3fec35f1234dd3ec7a99af71bfec0ae2dadf04",
     "finalize_evidence.py": "4977793484b8be9bec1b949986466964c8d7bf212a9798eab87ae42b561e7e33",
     "learning_curves.csv": "dc2ee16ee038ec38cac36be6911c1c30c00993d20ee89ad22d2913ff6a19eba5",
-    "PhraseFlow_Study.html": "c91659ca07cf320c34a6faaf0d7dc56707f0b99a18c93fa4e597a896489c1884",
-    "PhraseFlow_Study.Rmd": "5fd2e545728dbc11628d19f526f074206f982addf5c83f71ec4030048f746773",
+    "PhraseFlow_Study.html": "013c85b349f3e7a2a6489eaf58f244bca28acada9b130b4ce410228aaa86704b",
+    "PhraseFlow_Study.Rmd": "d90a6e237b63b476f1d9db382f6e6a03e1019e580f0fc1bde48b61b226bf258c",
     "prepare_training.R": "18e17b62e651c7997b3b5509cd0aaa6d2a2facd11d5ed153354abc56ffa90815",
     "preview_checks.json": "e92696ab24c6b2c353ecadd85204d6021717b384343ad84a630700f3ca863a21",
     "protocol.json": "2bcdcebcf835932b4fa8bf0c1ff0935ad24bedf28052864817b1957f4150d87e",
