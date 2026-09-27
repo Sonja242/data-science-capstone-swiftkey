@@ -19,11 +19,11 @@
   "peer_message_sent": false,
   "report_figures_loaded": 2,
   "report_knitted_from_rmarkdown": true,
-  "github_commit": "496ba4aa0cd00942118200be1ae86156c88e7863",
+  "github_commit": "eb932c618f760b78d302531740ec084c546cf2f4",
   "github_url": "https://github.com/Sonja242/data-science-capstone-swiftkey/tree/main/final_project/research/phraseflow-20260926",
   "pages_url": "https://sonja242.github.io/data-science-capstone-swiftkey/phraseflow-controlled-study.html",
   "rpubs_url": "https://rpubs.com/Sonja_Janssen/phraseflow-controlled-study",
-  "rpubs_content_url": "https://rstudio-pubs-static.s3.amazonaws.com/1462681_33c17edd267b42bcb67b309cdc07054e.html",
+  "rpubs_content_url": "https://rstudio-pubs-static.s3.amazonaws.com/1462681_c6f4efa2702a4cdcb7d56126883758d0.html",
   "pages_http_status": 200,
   "rpubs_http_status": 200,
   "rpubs_content_http_status": 200,
@@ -72,5 +72,16 @@
   },
   "pages_build_conclusion": "success",
   "portfolio_bundle_id": "12611051",
-  "portfolio_deployment_succeeded": true
+  "portfolio_deployment_succeeded": true,
+  "header_revision": {
+    "date": "2026-09-27",
+    "author_approved": true,
+    "published": true,
+    "public_header_verified": true,
+    "existing_portfolio_links_verified": true,
+    "rpubs_username": "Sonja_Janssen",
+    "requested_rpubs_username": "Sonja_Sahebzad",
+    "rpubs_username_changed": false,
+    "username_note": "No username-editing control is available in the current Edit Profile screen; a request to Posit is needed to establish whether renaming with preserved URLs is possible."
+  }
 }
