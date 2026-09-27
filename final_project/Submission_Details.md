@@ -2,7 +2,7 @@
 
 Author: Sonja Sahebzad · Utrecht, the Netherlands · Sonja Projects
 
-**Status: publication verification in progress. Not submitted to Coursera. No peer-review message sent.**
+**Status: published and verified on 27 September 2026. Ready for author review. Not submitted to Coursera. No peer-review message sent.**
 
 **Project title:** Sonja PhraseFlow: Multilingual Next-Word Prediction
 
@@ -23,7 +23,7 @@ Author: Sonja Sahebzad · Utrecht, the Netherlands · Sonja Projects
 3. Open RPubs without signing in. Review all five slides, graphs and the guide link.
 4. Confirm the project title and the two submission URLs above. Submit only after author approval.
 
-The course rubric requires an operating Shiny app and a deck of at most five RStudio Presenter slides. The app predicts from a multiword input; the optional ending buttons supplement the prominent single-word prediction. Slide 2 explains the algorithm, slide 3 demonstrates use, and slides 4–5 provide quantitative results and limitations. Evidence of live checks is retained in `publication-20260927`.
+The course rubric requires an operating Shiny app and a deck of at most five RStudio Presenter slides. The app predicts from a multiword input; the optional ending buttons supplement the prominent single-word prediction. Slide 2 explains the algorithm, slide 3 demonstrates use, and slides 4–5 provide quantitative results and limitations. All five previously documented English news/Twitter prefixes received a single-word prediction in the live app. RPubs and the embedded five-slide deck both returned HTTP 200 without signing in. Evidence is retained in `publication-20260927/publication.json` and `live-browser-checks.json`.
 
 The English score is 17.0% first-choice and 28.6% top-three on the archived 900-case evaluation. Those percentages are not per-suggestion confidence. Extra endings have no independent accuracy evaluation. No new reserved English test cases were opened for this release.
 

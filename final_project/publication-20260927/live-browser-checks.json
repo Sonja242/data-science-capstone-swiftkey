@@ -1,0 +1,49 @@
+{
+  "date": "2026-09-27",
+  "url": "https://sonjasahebzad.shinyapps.io/sonja-next-word/",
+  "version": "1.4",
+  "purpose": "Functional rubric check, not a new accuracy benchmark. These five previously documented course-corpus prefixes were reused. No target words were loaded.",
+  "cases": [
+    {
+      "source": "news",
+      "phrase": "the all volunteer pirates offer little",
+      "prediction": "girl",
+      "server_ms": 49
+    },
+    {
+      "source": "news",
+      "phrase": "when they start playing games in akron or here we're going to",
+      "prediction": "be",
+      "server_ms": 52
+    },
+    {
+      "source": "twitter",
+      "phrase": "when will they learn dont slide",
+      "prediction": "into",
+      "server_ms": 5
+    },
+    {
+      "source": "twitter",
+      "phrase": "i was born ready always curious",
+      "prediction": "and",
+      "server_ms": 4
+    },
+    {
+      "source": "twitter",
+      "phrase": "great day so far lots accomplished lots yet to do more in",
+      "prediction": "the",
+      "server_ms": 8
+    }
+  ],
+  "all_received_single_word_prediction": true,
+  "timing_scope": "Displayed server processing time; excludes network and browser display. Five calls are not a runtime benchmark.",
+  "additional_checks": [
+    "Twelve choices present in the language menu",
+    "Dutch: we houden van -> elkaar, with 19 alternatives when twenty choices selected",
+    "Clicking elkaar appends the word and refreshes predictions",
+    "Portfolio card links to latest app, guide and RPubs pitch",
+    "Public RPubs deck has five slides and three embedded images"
+  ],
+  "course_submitted": false,
+  "peer_message_sent": false
+}

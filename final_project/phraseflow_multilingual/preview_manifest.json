@@ -5,7 +5,7 @@
   "title": "Sonja PhraseFlow",
   "version": "1.4",
   "date": "2026-09-27",
-  "status": "Prepared for public release; deployment evidence is stored separately",
+  "status": "Published; awaiting author review before Coursera submission",
   "languages": [
     "en_US",
     "de_DE",
@@ -30,7 +30,7 @@
   "slide_source": "PhraseFlow_Pitch.Rpres",
   "slides": 5,
   "previous_preview": "../phraseflow_multilingual_v13_20260926",
-  "production_changed": false,
+  "production_changed": true,
   "publication_note": "Deck and guide use public links. See ../publication-20260927/publication.json for verified deployment status.",
   "historical_artifacts": [
     "PhraseFlow_Pitch-rpubs.html (superseded local export)",
